@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>999Boost - Formulário de Inscrição</title>
+<link rel="icon" type="image/png" href="/logo.png">
 <style>
   :root{ --bg:#0c0c0e; --panel:#161414; --line:#221f1f; --text:#fff; --sub:#aaa; --orange:#ff7a1a; --green:#2ecc71; --red:#e8402a; }
   *{box-sizing:border-box;}
@@ -195,10 +196,11 @@ function linha(label, valor){
 function enviarWhats(){
   var d = window._dadosInscricao;
   if (!d) return;
-  var numeroTecnico = "55SEUNUMEROAQUI"; // <-- troque pelo seu numero de WhatsApp (com DDI+DDD)
+  var numeroTecnico = "5585991954902"; // <-- troque pelo seu numero de WhatsApp (com DDI+DDD)
   var texto = "Nova inscricao 999BOOST\\nProtocolo: "+d.protocolo+"\\nNome: "+d.nome+"\\nTelefone: "+d.fone+"\\nPlano: "+d.plano+"\\nExtras: "+(d.extras.length?d.extras.join(", "):"Nenhum")+"\\nData: "+d.dataTxt;
   window.open("https://wa.me/"+numeroTecnico+"?text="+encodeURIComponent(texto), "_blank");
 }
 </script>
+<script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
