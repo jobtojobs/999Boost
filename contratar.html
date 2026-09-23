@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>999BOOST - Finalizar Contratação</title>
+<link rel="icon" type="image/png" href="/favicon.png?v=3">
+<style>
+  :root{
+    --bg:#0a0a0c; --panel:#141213; --panel2:#1a1817; --line:#221f1f; --text:#fff; --sub:#a8a8a8;
+    --orange:#ff7a1a; --green:#2ecc71; --red:#e8402a; --yellow:#f1c40f;
+  }
+  *{box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif;margin:0;padding:24px;}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1080px;margin:0 auto;}
+  .back{display:inline-block;font-size:12.5px;color:var(--sub);margin-bottom:16px;}
+  .back:hover{color:var(--orange);}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;}
+  .modal-head{padding:24px 28px 18px 28px;border-bottom:1px solid var(--line);}
+  .eyebrow{color:var(--orange);font-weight:900;font-size:12px;letter-spacing:1px;text-transform:uppercase;}
+  .modal-head h1{font-size:26px;margin:6px 0 4px 0;}
+  .modal-head p{color:var(--sub);font-size:13.5px;margin:0;}
+  .cols{display:grid;grid-template-columns:1.5fr 1fr;gap:0;}
+  @media (max-width:800px){ .cols{grid-template-columns:1fr;} }
+  .left{padding:24px 28px;border-right:1px solid var(--line);}
+  @media (max-width:800px){ .left{border-right:none;border-bottom:1px solid var(--line);} }
+  .right{padding:24px 28px;background:var(--panel2);}
+  .section-title{font-weight:900;font-size:13px;color:var(--orange);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;}
+
+  .plan-switch{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
+  .plan-switch button{flex:1;min-width:100px;background:var(--bg);border:1.5px solid var(--line);color:var(--sub);padding:10px 8px;border-radius:8px;font-weight:800;font-size:12.5px;cursor:pointer;transition:.15s;}
+  .plan-switch button.active{border-color:var(--orange);color:var(--orange);background:rgba(255,122,26,.08);}
+
+  .addon-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+  @media (max-width:520px){ .addon-grid{grid-template-columns:1fr;} }
+  .addon{background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:16px;cursor:pointer;position:relative;transition:.15s;}
+  .addon:hover{border-color:#3a3535;}
+  .addon.selected{border-color:var(--orange);background:rgba(255,122,26,.06);}
+  .addon .radio{position:absolute;top:14px;right:14px;width:18px;height:18px;border-radius:50%;border:2px solid #444;}
+  .addon.selected .radio{border-color:var(--orange);background:var(--orange);}
+  .addon .tag{display:inline-block;background:var(--yellow);color:#000;font-size:9.5px;font-weight:900;padding:2px 8px;border-radius:999px;margin-bottom:8px;}
+  .addon h4{font-size:14px;margin:0 0 6px 0;padding-right:24px;}
+  .addon p{font-size:12px;color:var(--sub);margin:0 0 10px 0;line-height:1.4;}
+  .addon .price{color:var(--orange);font-weight:900;font-size:16px;}
+
+  .addon.wide{grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+  .addon.wide .info{flex:1;}
+
+  .fields{margin-top:22px;}
+  label.field{display:block;font-size:12.5px;color:var(--sub);margin-bottom:4px;margin-top:14px;}
+  input[type=text],input[type=tel]{width:100%;padding:11px 12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:#fff;font-size:14px;}
+  input:focus{outline:none;border-color:var(--orange);}
+
+  .notice{display:flex;gap:10px;background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.35);border-radius:10px;padding:14px 16px;margin-top:20px;}
+  .notice b{color:var(--green);}
+  .notice p{margin:2px 0 0 0;font-size:12px;color:#ccc;}
+
+  .summary-title{font-weight:900;font-size:13px;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+  .summary-plan{font-size:20px;font-weight:900;margin-bottom:14px;}
+  .summary-list{list-style:none;padding:0;margin:0 0 16px 0;}
+  .summary-list li{font-size:13px;color:#ccc;padding:5px 0;display:flex;gap:8px;align-items:center;}
+  .summary-list li:before{content:"✓";color:var(--green);font-weight:900;}
+  .row{display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line);font-size:13.5px;}
+  .row.total{font-size:19px;font-weight:900;border-top:2px solid var(--line);margin-top:4px;padding-top:14px;}
+  .row.total span:last-child{color:var(--orange);}
+  .row.discount span:last-child{color:var(--green);}
+
+  .coupon-row{display:flex;gap:8px;margin:18px 0;}
+  .coupon-row input{flex:1;}
+  .coupon-row button{background:var(--panel);border:1.5px solid var(--line);color:#fff;border-radius:8px;padding:0 16px;font-weight:800;font-size:12.5px;cursor:pointer;}
+  .coupon-row button:hover{border-color:var(--orange);}
+  .coupon-msg{font-size:12px;margin:-10px 0 14px 0;min-height:14px;}
+  .coupon-msg.ok{color:var(--green);}
+  .coupon-msg.err{color:var(--red);}
+
+  .btn-buy{width:100%;background:var(--yellow);color:#000;border:none;border-radius:10px;padding:16px;font-weight:900;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.15s;}
+  .btn-buy:hover{background:#ffd84d;transform:translateY(-1px);}
+  .btn-buy:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  .redirect-note{text-align:center;font-size:11.5px;color:var(--sub);margin-top:10px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <a href="/" class="back">← Voltar ao site</a>
+
+  <div class="modal">
+    <div class="modal-head">
+      <div class="eyebrow">999BOOST</div>
+      <h1>Finalizar contratação</h1>
+      <p>Adicione itens extras e finalize pelo WhatsApp.</p>
+    </div>
+
+    <div class="cols">
+      <div class="left">
+        <div class="section-title">Plano selecionado</div>
+        <div class="plan-switch" id="planSwitch">
+          <button data-plano="basic" data-nome="Basic Gamer" data-preco="59.90">Basic Gamer</button>
+          <button data-plano="streamer" data-nome="Low Streamer" data-preco="99.90">Low Streamer</button>
+          <button data-plano="turbo" data-nome="Turbo Pro Player" data-preco="149.90">Turbo Pro Player</button>
+        </div>
+
+        <div class="section-title">Complemente sua otimização</div>
+        <div class="addon-grid">
+          <div class="addon" data-nome="Formatação e Reinstalação Limpa" data-preco="99.90">
+            <span class="tag">★ POPULAR</span>
+            <div class="radio"></div>
+            <h4>Formatação profissional</h4>
+            <p>Formatação profissional para o Windows otimizado, com backup orientado antes de iniciar.</p>
+            <div class="price">R$ 99,90</div>
+          </div>
+          <div class="addon" data-nome="Remoção de Delay para Controle" data-preco="35.90">
+            <div class="radio"></div>
+            <h4>Remoção de delay para controle</h4>
+            <p>Reduz a latência do controle com fio ou sem fio (Xbox, PlayStation via cabo/BT, genérico).</p>
+            <div class="price">R$ 35,90</div>
+          </div>
+          <div class="addon" data-nome="Overclock Assistido (CPU/GPU)" data-preco="99.90">
+            <div class="radio"></div>
+            <h4>Overclock Assistido (CPU/GPU)</h4>
+            <p>Ajuste consultivo, com monitoramento de temperatura e teste de estabilidade.</p>
+            <div class="price">R$ 99,90</div>
+          </div>
+          <div class="addon" data-nome="Análise Completa de Hardware" data-preco="29.90">
+            <div class="radio"></div>
+            <h4>Análise Completa de Hardware</h4>
+            <p>Diagnóstico de saúde do seu PC: temperatura, drivers, integridade dos componentes.</p>
+            <div class="price">R$ 29,90</div>
+          </div>
+          <div class="addon wide" data-nome="Ativação de Secure Boot / TPM 2.0" data-preco="49.90">
+            <div class="info">
+              <h4 style="margin-bottom:2px;">Ativação de Secure Boot / TPM 2.0</h4>
+              <p style="margin:0;">Necessário pra rodar alguns jogos com anti-cheat mais recente (ex: Fortnite, Valorant).</p>
+            </div>
+            <div class="price">R$ 49,90</div>
+            <div class="radio"></div>
+          </div>
+        </div>
+
+        <div class="fields">
+          <div class="section-title" style="margin-top:8px;">Seus dados</div>
+          <label class="field">Nome completo</label>
+          <input type="text" id="nome" placeholder="Seu nome completo">
+          <label class="field">Telefone/WhatsApp</label>
+          <input type="tel" id="fone" placeholder="(00) 00000-0000">
+        </div>
+
+        <div class="notice">
+          <div>🛡️</div>
+          <div>
+            <b>Nenhuma cobrança acontece nesta tela.</b>
+            <p>Você monta o pedido aqui e finaliza com um técnico pelo WhatsApp, que confirma o valor e agenda a sessão. O atendimento é remoto e ao vivo.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="summary-title">Plano selecionado</div>
+        <div class="summary-plan" id="sumPlano">Low Streamer</div>
+        <ul class="summary-list" id="sumFeatures"></ul>
+
+        <div class="row"><span>Subtotal</span><span id="sumSubtotal">R$ 99,90</span></div>
+        <div id="sumAddonsList"></div>
+        <div class="row discount" id="sumDiscountRow" style="display:none;"><span id="sumDiscountLabel">Cupom</span><span id="sumDiscountValue">- R$ 0,00</span></div>
+
+        <div class="coupon-row">
+          <input type="text" id="cupom" placeholder="TEM UM CUPOM DE DESCONTO?">
+          <button onclick="aplicarCupom()">Verificar</button>
+        </div>
+        <div class="coupon-msg" id="cupomMsg"></div>
+
+        <div class="row total"><span>Total</span><span id="sumTotal">R$ 99,90</span></div>
+
+        <button class="btn-buy" id="btnComprar" onclick="finalizar()">🛒 Adquirir produto</button>
+        <div class="redirect-note">Você será redirecionado para o WhatsApp</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var PLANOS = {
+  basic:    { nome:"Basic Gamer",       preco:59.90,  features:["38 otimizações reais","Limpeza de sistema","Ajustes de privacidade e interface","PC mais leve no dia a dia"] },
+  streamer: { nome:"Low Streamer",      preco:99.90,  features:["68 otimizações reais","Tudo do Basic Gamer","Ajustes de energia e rede","Redução de itens em segundo plano"] },
+  turbo:    { nome:"Turbo Pro Player",  preco:149.90, features:["101 otimizações reais","Tudo dos planos anteriores","Otimizações avançadas de GPU/CPU","Ajustes de latência e input lag"] }
+};
+
+// Cupons validos - editar aqui pra adicionar/remover (percentual de 0 a 100)
+var CUPONS = {
+  "BEMVINDO10": 10,
+  "999BOOST15": 15
+};
+
+var planoAtual = "streamer";
+var descontoAtivo = 0;
+var cupomAtivo = "";
+
+function pegarParametroPlano(){
+  var params = new URLSearchParams(window.location.search);
+  var p = params.get('plano');
+  if (p && PLANOS[p]) return p;
+  return "streamer";
+}
+
+function fmt(v){ return "R$ " + v.toFixed(2).replace('.', ','); }
+
+function selecionarPlano(slug){
+  planoAtual = slug;
+  document.querySelectorAll('#planSwitch button').forEach(function(b){
+    b.classList.toggle('active', b.dataset.plano === slug);
+  });
+  atualizarResumo();
+}
+
+function toggleAddon(el){
+  el.classList.toggle('selected');
+  atualizarResumo();
+}
+
+function addonsSelecionados(){
+  var out = [];
+  document.querySelectorAll('.addon.selected').forEach(function(el){
+    out.push({ nome: el.dataset.nome, preco: parseFloat(el.dataset.preco) });
+  });
+  return out;
+}
+
+function aplicarCupom(){
+  var codigo = document.getElementById('cupom').value.trim().toUpperCase();
+  var msg = document.getElementById('cupomMsg');
+  if (!codigo){ msg.textContent = ''; return; }
+  if (CUPONS.hasOwnProperty(codigo)){
+    descontoAtivo = CUPONS[codigo];
+    cupomAtivo = codigo;
+    msg.textContent = '✓ Cupom aplicado: ' + descontoAtivo + '% de desconto';
+    msg.className = 'coupon-msg ok';
+  } else {
+    descontoAtivo = 0;
+    cupomAtivo = "";
+    msg.textContent = 'Cupom inválido ou expirado';
+    msg.className = 'coupon-msg err';
+  }
+  atualizarResumo();
+}
+
+function atualizarResumo(){
+  var plano = PLANOS[planoAtual];
+  document.getElementById('sumPlano').textContent = plano.nome;
+  document.querySelectorAll('#planSwitch button').forEach(function(b){
+    b.classList.toggle('active', b.dataset.plano === planoAtual);
+  });
+
+  var featuresHtml = '';
+  plano.features.forEach(function(f){ featuresHtml += '<li>' + f + '</li>'; });
+  document.getElementById('sumFeatures').innerHTML = featuresHtml;
+
+  var addons = addonsSelecionados();
+  var subtotal = plano.preco;
+  var addonsHtml = '';
+  addons.forEach(function(a){
+    subtotal += a.preco;
+    addonsHtml += '<div class="row"><span>' + a.nome + '</span><span>+ ' + fmt(a.preco) + '</span></div>';
+  });
+  document.getElementById('sumSubtotal').textContent = fmt(plano.preco);
+  document.getElementById('sumAddonsList').innerHTML = addonsHtml;
+
+  var desconto = subtotal * (descontoAtivo / 100);
+  var total = subtotal - desconto;
+
+  var discountRow = document.getElementById('sumDiscountRow');
+  if (descontoAtivo > 0){
+    discountRow.style.display = 'flex';
+    document.getElementById('sumDiscountLabel').textContent = 'Cupom (' + cupomAtivo + ')';
+    document.getElementById('sumDiscountValue').textContent = '- ' + fmt(desconto);
+  } else {
+    discountRow.style.display = 'none';
+  }
+
+  document.getElementById('sumTotal').textContent = fmt(total);
+}
+
+function finalizar(){
+  var nome = document.getElementById('nome').value.trim();
+  var fone = document.getElementById('fone').value.trim();
+  if (!nome || !fone){
+    alert('Preenche seu nome e telefone antes de continuar.');
+    return;
+  }
+
+  var plano = PLANOS[planoAtual];
+  var addons = addonsSelecionados();
+  var subtotal = plano.preco;
+  addons.forEach(function(a){ subtotal += a.preco; });
+  var desconto = subtotal * (descontoAtivo / 100);
+  var total = subtotal - desconto;
+
+  var btn = document.getElementById('btnComprar');
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  // Envia pro Formspree (fica salvo + gera e-mail), igual o formulario principal
+  var dados = new FormData();
+  dados.append('Origem', 'Carrinho (contratar.html)');
+  dados.append('Nome', nome);
+  dados.append('Telefone', fone);
+  dados.append('Plano', plano.nome + ' (' + fmt(plano.preco) + ')');
+  dados.append('Extras', addons.length ? addons.map(function(a){ return a.nome + ' (' + fmt(a.preco) + ')'; }).join(', ') : 'Nenhum');
+  if (cupomAtivo) dados.append('Cupom', cupomAtivo + ' (' + descontoAtivo + '%)');
+  dados.append('Total', fmt(total));
+
+  fetch('https://formspree.io/f/xzezrvjp', {
+    method: 'POST',
+    headers: { 'Accept': 'application/json' },
+    body: dados
+  }).catch(function(){ /* segue pro WhatsApp mesmo se falhar */ });
+
+  var texto = "Olá! Quero contratar:\n\n";
+  texto += "Plano: " + plano.nome + " - " + fmt(plano.preco) + "\n";
+  if (addons.length){
+    texto += "Extras:\n";
+    addons.forEach(function(a){ texto += "- " + a.nome + " (" + fmt(a.preco) + ")\n"; });
+  }
+  if (cupomAtivo) texto += "Cupom: " + cupomAtivo + " (-" + descontoAtivo + "%)\n";
+  texto += "Total: " + fmt(total) + "\n\n";
+  texto += "Nome: " + nome + "\nTelefone: " + fone;
+
+  setTimeout(function(){
+    window.location.href = "https://wa.me/5585991954902?text=" + encodeURIComponent(texto);
+  }, 400);
+}
+
+document.querySelectorAll('#planSwitch button').forEach(function(b){
+  b.addEventListener('click', function(){ selecionarPlano(b.dataset.plano); });
+});
+document.querySelectorAll('.addon').forEach(function(el){
+  el.addEventListener('click', function(){ toggleAddon(el); });
+});
+
+planoAtual = pegarParametroPlano();
+atualizarResumo();
+</script>
+
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>
