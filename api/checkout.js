@@ -225,6 +225,12 @@ export default async function handler(req, res) {
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return res.status(400).json({ erro: 'E-mail invalido' });
       if (!nome) return res.status(400).json({ erro: 'Informe seu nome' });
 
+      // Anti-abuso: e-mail com reembolso anterior nao compra automaticamente (analise manual pelo suporte)
+      const anteriores = await sb(`licencas?email=eq.${encodeURIComponent(email)}&status=eq.reembolsado&select=id`);
+      if (Array.isArray(anteriores) && anteriores.length > 0) {
+        return res.status(400).json({ erro: 'Este e-mail tem um reembolso anterior. Para comprar novamente, fale com o suporte no WhatsApp (85) 99195-4902.' });
+      }
+
       const valor = valorComDesconto(plano.preco, cupom);
       const criado = await sb('pedidos', {
         method: 'POST',
