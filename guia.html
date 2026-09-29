@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>999BOOST - Baixar o Guia de BIOS e Jogos</title>
+<link rel="icon" type="image/png" href="/Favicon.png?v=4">
+<style>
+  :root{--bg:#0a0a0c;--panel:#141213;--line:#262222;--sub:#a8a8a8;--orange:#ff7a1a;--red:#e8402a;}
+  *{box-sizing:border-box;}
+  body{background:var(--bg);color:#fff;font-family:Segoe UI,Arial,sans-serif;margin:0;padding:24px 16px;}
+  .card{max-width:440px;margin:8vh auto 0;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:28px;}
+  .eyebrow{color:var(--orange);font-weight:900;font-size:12px;letter-spacing:1px;}
+  h1{font-size:22px;margin:6px 0 6px;}
+  p{color:var(--sub);font-size:13.5px;line-height:1.5;margin:0 0 16px;}
+  label{display:block;font-size:12.5px;color:var(--sub);margin:12px 0 4px;}
+  input{width:100%;padding:12px;background:var(--bg);border:1px solid var(--line);border-radius:10px;color:#fff;font-size:15px;}
+  input:focus{outline:none;border-color:var(--orange);}
+  button{width:100%;margin-top:18px;background:var(--orange);color:#000;border:none;border-radius:10px;padding:14px;font-weight:900;font-size:15px;cursor:pointer;}
+  button:disabled{opacity:.6;cursor:default;}
+  .msg{min-height:18px;font-size:13px;margin-top:12px;color:#ff8b7a;}
+  .back{display:block;text-align:center;margin-top:18px;color:var(--sub);font-size:12.5px;text-decoration:none;}
+  .back:hover{color:var(--orange);}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="eyebrow">999BOOST</div>
+  <h1>Baixar o Guia de BIOS e Jogos</h1>
+  <p>Comprou o guia? Use o e-mail da compra e o <b>código de acesso</b>. Assinante do Vitalício? Use o seu e-mail e o <b>código de licença</b>.</p>
+  <label for="email">E-mail</label>
+  <input id="email" type="email" placeholder="seu@email.com" autocomplete="email">
+  <label for="codigo">Código</label>
+  <input id="codigo" type="text" placeholder="XXXX-XXXX-XXXX" style="text-transform:uppercase;letter-spacing:1px;" onkeydown="if(event.key==='Enter')baixar()">
+  <button id="btn" onclick="baixar()">Baixar o PDF</button>
+  <div class="msg" id="msg"></div>
+  <a class="back" href="/contratar.html?plano=ebook">Ainda não tem o guia? Comprar por R$ 27,00</a>
+  <a class="back" href="/" style="margin-top:6px;">← Voltar ao site</a>
+</div>
+<script>
+function baixar(){
+  var email = document.getElementById('email').value.trim().toLowerCase();
+  var codigo = document.getElementById('codigo').value.trim().toUpperCase();
+  var msg = document.getElementById('msg'), btn = document.getElementById('btn');
+  if (!email || !codigo){ msg.textContent = 'Preencha o e-mail e o código.'; return; }
+  btn.disabled = true; btn.textContent = 'Verificando...'; msg.textContent = '';
+  fetch('/api/checkout', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'guia', email: email, codigo: codigo }) })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      btn.disabled = false; btn.textContent = 'Baixar o PDF';
+      if (d.url) window.location.href = d.url; else msg.textContent = d.erro || 'Não foi possível liberar o download.';
+    })
+    .catch(function(){ btn.disabled = false; btn.textContent = 'Baixar o PDF'; msg.textContent = 'Erro de conexão. Tente de novo.'; });
+}
+</script>
+</body>
+</html>

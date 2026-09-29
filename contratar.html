@@ -117,6 +117,7 @@
           <button data-plano="streamer">Low Streamer<br><small>R$ 29,90 / 15 dias</small></button>
           <button data-plano="turbo">Turbo Pro Player<br><small>R$ 49,90 / 15 dias</small></button>
           <button data-plano="vitalicio">Vitalício<br><small>R$ 99,90 único</small></button>
+          <button data-plano="ebook">Guia BIOS e Jogos<br><small>R$ 27,00 · PDF</small></button>
         </div>
 
         <div class="tech-note">
@@ -130,11 +131,11 @@
           <input type="text" id="nome" placeholder="Seu nome completo">
           <label class="field">Telefone/WhatsApp</label>
           <input type="tel" id="fone" placeholder="(00) 00000-0000">
-          <label class="field">E-mail (vai ser o login do painel)</label>
+          <label class="field" id="lblEmail">E-mail (vai ser o login do painel)</label>
           <input type="email" id="email" placeholder="seu@email.com">
           <label style="display:flex;gap:8px;align-items:flex-start;margin-top:16px;font-size:12.5px;color:var(--sub);cursor:pointer;">
             <input type="checkbox" id="aceite" style="margin-top:3px;">
-            <span>Li e aceito os <a href="/termos.html" target="_blank" style="color:var(--orange);">Termos de Uso e Reembolso</a> e a <a href="/privacidade.html" target="_blank" style="color:var(--orange);">Política de Privacidade</a>. Sei que posso desistir em até 7 dias <b>antes do primeiro uso</b>; ao aplicar a primeira otimização, o serviço é considerado prestado (continuo coberto pela Garantia de Aplicação Total).</span>
+            <span>Li e aceito os <a href="/termos.html" target="_blank" style="color:var(--orange);">Termos de Uso e Reembolso</a> e a <a href="/privacidade.html" target="_blank" style="color:var(--orange);">Política de Privacidade</a>. <span id="txtAceite">Sei que posso desistir em até 7 dias <b>antes do primeiro uso</b>; ao aplicar a primeira otimização, o serviço é considerado prestado (continuo coberto pela Garantia de Aplicação Total).</span></span>
           </label>
         </div>
       </div>
@@ -185,7 +186,8 @@
       <div style="color:var(--sub);font-size:12px;" id="okRotulo">Seu código de licença</div>
       <div class="ok-code" id="okCodigo"></div>
       <a class="pix-btn" id="okDownload" href="#">Baixar o painel 999BOOST</a>
-      <ol class="ok-steps">
+      <button class="pix-btn" id="okGuia" style="display:none;margin-top:8px;background:#2a2522;color:#fff;" onclick="baixarGuia()">Baixar o Guia de BIOS e Jogos (PDF)</button>
+      <ol class="ok-steps" id="okPassos">
         <li>Extraia o arquivo baixado numa pasta.</li>
         <li>Dê dois cliques em <b>Abrir 999Boost Assinante.bat</b> e aceite rodar como administrador.</li>
         <li>Entre com o seu e-mail e o código acima.</li>
@@ -200,7 +202,8 @@ var PLANOS = {
   basic:     { nome:"Basic Gamer",      periodo:"15 dias",   preco:19.90, nota:"Suporte não incluso.", features:["40 otimizações reais","Limpeza, privacidade e interface","Painel no seu PC, sem técnico","Formatou? Reative dentro dos 15 dias"] },
   streamer:  { nome:"Low Streamer",     periodo:"15 dias",   preco:29.90, nota:"Suporte não incluso.", features:["70 otimizações reais","Tudo do Basic Gamer","Ajustes de energia e rede","Formatou? Reative dentro dos 15 dias"] },
   turbo:     { nome:"Turbo Pro Player", periodo:"15 dias",   preco:49.90, nota:"Suporte não incluso.", features:["105 otimizações reais","Otimizações avançadas de GPU/CPU","Ajustes de latência e input lag","Formatou? Reative dentro dos 15 dias"] },
-  vitalicio: { nome:"Vitalício",        periodo:"vitalício", preco:99.90, nota:"Pagamento único, sem renovação.", features:["105 otimizações reais","Acesso para sempre","Formate quando quiser, a qualquer tempo","Atualizações, novos ajustes e suporte"] }
+  vitalicio: { nome:"Vitalício",        periodo:"vitalício", preco:99.90, nota:"Pagamento único, sem renovação.", features:["105 otimizações reais","Acesso para sempre","Formate quando quiser, a qualquer tempo","Atualizações, novos ajustes e suporte"] },
+  ebook:     { nome:"Guia 999BOOST de BIOS e Jogos", periodo:"e-book", preco:27.00, nota:"E-book em PDF (18 páginas). Grátis para quem assina o Vitalício.", features:["BIOS: XMP, Resizable BAR, Secure Boot","Undervolt passo a passo","Painel NVIDIA / AMD e monitor","Configurações de 11 jogos","Guia de upgrade e checklist final"] }
 };
 
 // Cupons e precos oficiais ficam no servidor (api/checkout.js) - aqui e so a exibicao
@@ -263,8 +266,11 @@ function aplicarCupom(){
 
 function atualizarResumo(){
   var plano = PLANOS[planoAtual];
-  document.getElementById('sumPlano').textContent = plano.nome + (plano.periodo === 'vitalício' ? '' : ' — ' + plano.periodo);
+  document.getElementById('sumPlano').textContent = plano.nome + ((plano.periodo === 'vitalício' || plano.periodo === 'e-book') ? '' : ' — ' + plano.periodo);
   document.getElementById('sumNota').textContent = plano.nota;
+  var ehGuia = (planoAtual === 'ebook');
+  document.getElementById('lblEmail').textContent = ehGuia ? 'E-mail (para receber o guia)' : 'E-mail (vai ser o login do painel)';
+  document.getElementById('txtAceite').innerHTML = ehGuia ? 'E-book em PDF para uso pessoal. Sei que posso desistir em até 7 dias.' : 'Sei que posso desistir em até 7 dias <b>antes do primeiro uso</b>; ao aplicar a primeira otimização, o serviço é considerado prestado (continuo coberto pela Garantia de Aplicação Total).';
   document.querySelectorAll('#planSwitch button').forEach(function(b){
     b.classList.toggle('active', b.dataset.plano === planoAtual);
   });
@@ -348,6 +354,14 @@ function abrirPix(d, plano, email){
   pollTimer = setInterval(checarPagamento, 4000);
 }
 
+function baixarGuia(){
+  var b = document.getElementById('okGuia'); var t = b.textContent; b.textContent = 'Gerando link...';
+  fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'guia', pedido_id: pedidoId }) })
+    .then(function(r){ return r.json(); })
+    .then(function(d){ b.textContent = t; if (d.url) window.location.href = d.url; else alert(d.erro || 'Não foi possível gerar o link agora.'); })
+    .catch(function(){ b.textContent = t; alert('Não foi possível gerar o link agora.'); });
+}
+
 function copiarPix(){
   var t = document.getElementById('pixCopia');
   t.select();
@@ -378,6 +392,17 @@ function checarPagamento(){
           document.getElementById('okCodigo').textContent = d.codigo;
         }
         document.getElementById('okDownload').href = d.download;
+        if (d.plano === 'ebook'){
+          document.getElementById('okTitulo').textContent = 'Pagamento confirmado!';
+          document.getElementById('okRotulo').textContent = 'Seu código de acesso ao guia (guarde para baixar de novo em 999boost.com.br/guia.html)';
+          document.getElementById('okDownload').style.display = 'none';
+          document.getElementById('okPassos').style.display = 'none';
+          var bg = document.getElementById('okGuia'); bg.style.display = 'block'; bg.style.background = 'var(--orange)'; bg.style.color = '#000';
+          bg.textContent = 'Baixar o Guia (PDF)';
+        } else if (d.guia){
+          document.getElementById('okGuia').style.display = 'block';
+          document.getElementById('okGuia').textContent = 'Brinde: baixar o Guia de BIOS e Jogos (PDF)';
+        }
         document.getElementById('pixEtapaPagar').style.display = 'none';
         document.getElementById('pixEtapaOk').style.display = 'block';
         try { if (window.fbq) fbq('track', 'Purchase', { value: valorPedido, currency: 'BRL' }); } catch(e){}

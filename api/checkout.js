@@ -18,8 +18,12 @@ const PLANOS = {
   basic:     { nome: 'Basic Gamer',      preco: 19.90, dias: 15 },
   streamer:  { nome: 'Low Streamer',     preco: 29.90, dias: 15 },
   turbo:     { nome: 'Turbo Pro Player', preco: 49.90, dias: 15 },
-  vitalicio: { nome: 'Vitalicio',        preco: 99.90, dias: null }
+  vitalicio: { nome: 'Vitalicio',        preco: 99.90, dias: null },
+  ebook:     { nome: 'Guia 999BOOST de BIOS e Jogos', preco: 27.00, dias: null, tipo: 'ebook' }
 };
+// E-book: arquivo PRIVADO no Supabase Storage (bucket "privado"). O link de download e temporario (10 min).
+const GUIA_ARQUIVO = 'Guia-999BOOST-BIOS-e-Jogos.pdf';
+const GUIA_PAGINA = 'https://www.999boost.com.br/guia.html';
 const CUPONS = { 'BEMVINDO10': 10, '999BOOST15': 15 };   // percentual de desconto
 
 const SITE = 'https://www.999boost.com.br';
@@ -107,6 +111,37 @@ async function entregarLicenca(email, planoSlug) {
   return { codigo, renovacao: false };
 }
 
+async function linkGuia() {
+  const r = await fetch(`${SB_URL}/storage/v1/object/sign/privado/${GUIA_ARQUIVO}`, {
+    method: 'POST', headers: sbHeaders(), body: JSON.stringify({ expiresIn: 600 })
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.signedURL) throw new Error('Storage: ' + JSON.stringify(j));
+  return `${SB_URL}/storage/v1${j.signedURL}&download=${GUIA_ARQUIVO}`;
+}
+
+async function enviarEmailGuia(pedido, codigo) {
+  if (!process.env.RESEND_API_KEY) return;
+  const html = `
+  <div style="font-family:Segoe UI,Arial,sans-serif;background:#0a0a0c;color:#fff;padding:28px;">
+    <h2 style="color:#ff7a1a;margin:0 0 6px 0;">999BOOST - Seu Guia de BIOS e Jogos</h2>
+    <p style="color:#ccc;">Oi ${esc(pedido.nome)}! Pagamento confirmado. Para baixar o guia (e baixar de novo quando quiser):</p>
+    <div style="background:#141213;border:1px solid #2a2626;border-radius:10px;padding:16px;margin:18px 0;">
+      <div style="color:#a8a8a8;font-size:13px;">E-mail</div>
+      <div style="font-size:16px;font-weight:bold;margin-bottom:10px;">${esc(pedido.email)}</div>
+      <div style="color:#a8a8a8;font-size:13px;">Codigo de acesso</div>
+      <div style="font-size:24px;font-weight:bold;color:#ff7a1a;letter-spacing:2px;">${codigo}</div>
+    </div>
+    <p><a href="${GUIA_PAGINA}" style="background:#ff7a1a;color:#000;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold;">Baixar o Guia</a></p>
+    <p style="color:#888;font-size:12px;">Uso pessoal. Proibida a revenda e a distribuicao.</p>
+  </div>`;
+  await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from: process.env.EMAIL_FROM || '999BOOST <licenca@999boost.com.br>', to: [pedido.email], subject: 'Seu Guia 999BOOST de BIOS e Jogos', html })
+  }).catch(() => {});
+}
+
 async function enviarEmail(pedido, codigo) {
   if (!process.env.RESEND_API_KEY) return;
   const plano = PLANOS[pedido.plano];
@@ -128,6 +163,7 @@ async function enviarEmail(pedido, codigo) {
       <li>Entre com o e-mail e o codigo acima.</li>
       <li>Crie um ponto de restauracao, rode o Diagnostico e aplique as otimizacoes.</li>
     </ol>
+    ${pedido.plano === 'vitalicio' ? `<p style="color:#ccc;">Brinde do Vitalicio: o <b>Guia 999BOOST de BIOS e Jogos</b> (PDF). Baixe em <a href="${GUIA_PAGINA}" style="color:#ff7a1a;">${GUIA_PAGINA}</a> com o seu e-mail e o codigo de licenca acima.</p>` : ''}
     <p style="color:#888;font-size:12px;">Formatou ou trocou de PC? Use o botao "Formatei ou troquei de PC" na tela de login do painel.</p>
   </div>`;
   await fetch('https://api.resend.com/emails', {
@@ -172,6 +208,15 @@ async function processarPedido(pedido) {
   }
 
   try {
+    if (PLANOS[pedido.plano] && PLANOS[pedido.plano].tipo === 'ebook') {
+      const codigoGuia = gerarCodigo();
+      await sb(`pedidos?id=eq.${pedido.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'pago', codigo_entregue: codigoGuia, pago_em: new Date().toISOString() })
+      });
+      await enviarEmailGuia(pedido, codigoGuia);
+      return { ...pedido, status: 'pago', codigo_entregue: codigoGuia };
+    }
     const { codigo, renovacao } = await entregarLicenca(pedido.email, pedido.plano);
     // SEGURANCA: em renovacao o codigo NAO volta para a tela (quem pagou pode nao ser o dono do e-mail);
     // o codigo vai so para o e-mail do dono.
@@ -280,10 +325,33 @@ export default async function handler(req, res) {
       const resp = { status: p.status, plano: p.plano, email: p.email };
       if (p.status === 'pago') {
         resp.download = DOWNLOAD_URL;
+        resp.guia = (p.plano === 'ebook' || p.plano === 'vitalicio');
         if (p.codigo_entregue === 'RENOVACAO') resp.renovacao = true;
         else resp.codigo = p.codigo_entregue;
       }
       return res.status(200).json(resp);
+    }
+
+    // ---------- Download do Guia (comprado ou brinde do Vitalicio) ----------
+    if (acao === 'guia') {
+      let liberado = false;
+      const id = String(body.pedido_id || '');
+      if (id) {
+        if (!/^[0-9a-f-]{36}$/i.test(id)) return res.status(400).json({ erro: 'Pedido invalido' });
+        const achados = await sb(`pedidos?id=eq.${id}&status=eq.pago&select=plano`);
+        liberado = Array.isArray(achados) && achados[0] && ['ebook', 'vitalicio'].includes(achados[0].plano);
+      } else {
+        const email = String(body.email || '').trim().toLowerCase();
+        const codigo = String(body.codigo || '').trim().toUpperCase();
+        if (!email || !codigo) return res.status(400).json({ erro: 'Informe o e-mail e o codigo' });
+        const e = encodeURIComponent(email), c = encodeURIComponent(codigo);
+        const compras = await sb(`pedidos?email=eq.${e}&codigo_entregue=eq.${c}&plano=eq.ebook&status=eq.pago&select=id`);
+        const vitalicio = await sb(`licencas?email=eq.${e}&codigo=eq.${c}&plano=eq.vitalicio&status=eq.ativo&select=id`);
+        liberado = (Array.isArray(compras) && compras.length > 0) || (Array.isArray(vitalicio) && vitalicio.length > 0);
+        if (!liberado) await new Promise(r => setTimeout(r, 1200));
+      }
+      if (!liberado) return res.status(403).json({ erro: 'E-mail ou codigo sem acesso ao guia' });
+      return res.status(200).json({ url: await linkGuia() });
     }
 
     return res.status(400).json({ erro: 'Acao invalida' });
