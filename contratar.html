@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>999BOOST - Finalizar Contratação</title>
-<link rel="icon" type="image/png" href="/favicon.png?v=3">
+<link rel="icon" type="image/png" href="/Favicon.png?v=4">
 <style>
   :root{
     --bg:#0a0a0c; --panel:#141213; --panel2:#1a1817; --line:#221f1f; --text:#fff; --sub:#a8a8a8;
@@ -49,7 +49,7 @@
 
   .fields{margin-top:22px;}
   label.field{display:block;font-size:12.5px;color:var(--sub);margin-bottom:4px;margin-top:14px;}
-  input[type=text],input[type=tel]{width:100%;padding:11px 12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:#fff;font-size:14px;}
+  input[type=text],input[type=tel],input[type=email]{width:100%;padding:11px 12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:#fff;font-size:14px;}
   input:focus{outline:none;border-color:var(--orange);}
 
   .notice{display:flex;gap:10px;background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.35);border-radius:10px;padding:14px 16px;margin-top:20px;}
@@ -77,6 +77,10 @@
   .btn-buy{width:100%;background:var(--yellow);color:#000;border:none;border-radius:10px;padding:16px;font-weight:900;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.15s;}
   .btn-buy:hover{background:#ffd84d;transform:translateY(-1px);}
   .btn-buy:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  .plan-switch button small{display:block;font-weight:600;font-size:11px;margin-top:3px;opacity:.85;}
+  .tech-note{background:var(--bg);border:1px dashed #3a3535;border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--sub);line-height:1.5;}
+  .tech-note a{color:var(--orange);font-weight:800;}
+  .summary-note{font-size:12px;color:var(--sub);margin:-8px 0 14px 0;}
   .redirect-note{text-align:center;font-size:11.5px;color:var(--sub);margin-top:10px;}
 </style>
 </head>
@@ -89,61 +93,22 @@
     <div class="modal-head">
       <div class="eyebrow">999BOOST</div>
       <h1>Finalizar contratação</h1>
-      <p>Adicione itens extras e finalize pelo WhatsApp.</p>
+      <p>Escolha seu plano e finalize pelo WhatsApp.</p>
     </div>
 
     <div class="cols">
       <div class="left">
         <div class="section-title">Plano selecionado</div>
         <div class="plan-switch" id="planSwitch">
-          <button data-plano="basic" data-nome="Basic Gamer" data-preco="59.90">Basic Gamer</button>
-          <button data-plano="streamer" data-nome="Low Streamer" data-preco="99.90">Low Streamer</button>
-          <button data-plano="turbo" data-nome="Turbo Pro Player" data-preco="149.90">Turbo Pro Player</button>
+          <button data-plano="basic">Basic Gamer<br><small>R$ 19,90 / 15 dias</small></button>
+          <button data-plano="streamer">Low Streamer<br><small>R$ 29,90 / 15 dias</small></button>
+          <button data-plano="turbo">Turbo Pro Player<br><small>R$ 49,90 / 15 dias</small></button>
+          <button data-plano="vitalicio">Vitalício<br><small>R$ 99,90 único</small></button>
         </div>
 
-        <div class="section-title">Complemente sua otimização</div>
-        <div class="addon-grid">
-          <div class="addon" data-nome="Formatação e Reinstalação Limpa" data-preco="99.90">
-            <span class="tag">★ POPULAR</span>
-            <div class="radio"></div>
-            <h4>Formatação profissional</h4>
-            <p>Formatação profissional para o Windows otimizado, com backup orientado antes de iniciar.</p>
-            <div class="price">R$ 99,90</div>
-          </div>
-          <div class="addon" data-nome="Remoção de Delay para Controle" data-preco="35.90">
-            <div class="radio"></div>
-            <h4>Remoção de delay para controle</h4>
-            <p>Reduz a latência do controle com fio ou sem fio (Xbox, PlayStation via cabo/BT, genérico).</p>
-            <div class="price">R$ 35,90</div>
-          </div>
-          <div class="addon" data-nome="Overclock Assistido (CPU/GPU)" data-preco="99.90">
-            <div class="radio"></div>
-            <h4>Overclock Assistido (CPU/GPU)</h4>
-            <p>Ajuste consultivo, com monitoramento de temperatura e teste de estabilidade.</p>
-            <div class="price">R$ 99,90</div>
-          </div>
-          <div class="addon" data-nome="Análise Completa de Hardware" data-preco="29.90">
-            <div class="radio"></div>
-            <h4>Análise Completa de Hardware</h4>
-            <p>Diagnóstico de saúde do seu PC: temperatura, drivers, integridade dos componentes.</p>
-            <div class="price">R$ 29,90</div>
-          </div>
-          <div class="addon wide" data-nome="Undervolt Guiado" data-preco="49.90">
-            <div class="info">
-              <h4 style="margin-bottom:2px;">Undervolt Guiado</h4>
-              <p style="margin:0;">Reduz a voltagem do processador para ele esquentar menos e segurar o clock, com teste de estabilidade. Disponibilidade depende do modelo do processador e da placa-mãe.</p>
-            </div>
-            <div class="price">R$ 49,90</div>
-            <div class="radio"></div>
-          </div>
-          <div class="addon wide" data-nome="Ativação de Secure Boot / TPM 2.0" data-preco="49.90">
-            <div class="info">
-              <h4 style="margin-bottom:2px;">Ativação de Secure Boot / TPM 2.0</h4>
-              <p style="margin:0;">Necessário pra rodar alguns jogos com anti-cheat mais recente (ex: Fortnite, Valorant).</p>
-            </div>
-            <div class="price">R$ 49,90</div>
-            <div class="radio"></div>
-          </div>
+        <div class="tech-note">
+          Prefere que um técnico faça por você, ao vivo via AnyDesk (otimização, formatação, overclock, undervolt...)?
+          <a href="/formulario.html">Solicitar atendimento</a> — valores sob orçamento.
         </div>
 
         <div class="fields">
@@ -152,13 +117,15 @@
           <input type="text" id="nome" placeholder="Seu nome completo">
           <label class="field">Telefone/WhatsApp</label>
           <input type="tel" id="fone" placeholder="(00) 00000-0000">
+          <label class="field">E-mail (vai ser o login do painel)</label>
+          <input type="email" id="email" placeholder="seu@email.com">
         </div>
 
         <div class="notice">
           <div>🛡️</div>
           <div>
             <b>Nenhuma cobrança acontece nesta tela.</b>
-            <p>Você monta o pedido aqui e finaliza com um técnico pelo WhatsApp, que confirma o valor e agenda a sessão. O atendimento é remoto e ao vivo.</p>
+            <p>Você finaliza pelo WhatsApp com pagamento via PIX e recebe o painel 999BOOST com o seu código de licença.</p>
           </div>
         </div>
       </div>
@@ -167,6 +134,7 @@
         <div class="summary-title">Plano selecionado</div>
         <div class="summary-plan" id="sumPlano">Low Streamer</div>
         <ul class="summary-list" id="sumFeatures"></ul>
+        <div class="summary-note" id="sumNota"></div>
 
         <div class="row"><span>Subtotal</span><span id="sumSubtotal">R$ 99,90</span></div>
         <div id="sumAddonsList"></div>
@@ -189,9 +157,10 @@
 
 <script>
 var PLANOS = {
-  basic:    { nome:"Basic Gamer",       preco:59.90,  features:["40 otimizações reais","Limpeza de sistema","Ajustes de privacidade e interface","PC mais leve no dia a dia"] },
-  streamer: { nome:"Low Streamer",      preco:99.90,  features:["70 otimizações reais","Tudo do Basic Gamer","Ajustes de energia e rede","Redução de itens em segundo plano"] },
-  turbo:    { nome:"Turbo Pro Player",  preco:149.90, features:["105 otimizações reais","Tudo dos planos anteriores","Otimizações avançadas de GPU/CPU","Ajustes de latência e input lag"] }
+  basic:     { nome:"Basic Gamer",      periodo:"15 dias",   preco:19.90, nota:"Suporte não incluso.", features:["40 otimizações reais","Limpeza, privacidade e interface","Painel no seu PC, sem técnico","Formatou? Reative dentro dos 15 dias"] },
+  streamer:  { nome:"Low Streamer",     periodo:"15 dias",   preco:29.90, nota:"Suporte não incluso.", features:["70 otimizações reais","Tudo do Basic Gamer","Ajustes de energia e rede","Formatou? Reative dentro dos 15 dias"] },
+  turbo:     { nome:"Turbo Pro Player", periodo:"15 dias",   preco:49.90, nota:"Suporte não incluso.", features:["105 otimizações reais","Otimizações avançadas de GPU/CPU","Ajustes de latência e input lag","Formatou? Reative dentro dos 15 dias"] },
+  vitalicio: { nome:"Vitalício",        periodo:"vitalício", preco:99.90, nota:"Pagamento único, sem renovação.", features:["105 otimizações reais","Acesso para sempre","Formate quando quiser, a qualquer tempo","Atualizações, novos ajustes e suporte"] }
 };
 
 // Cupons validos - editar aqui pra adicionar/remover (percentual de 0 a 100)
@@ -254,7 +223,8 @@ function aplicarCupom(){
 
 function atualizarResumo(){
   var plano = PLANOS[planoAtual];
-  document.getElementById('sumPlano').textContent = plano.nome;
+  document.getElementById('sumPlano').textContent = plano.nome + (plano.periodo === 'vitalício' ? '' : ' — ' + plano.periodo);
+  document.getElementById('sumNota').textContent = plano.nota;
   document.querySelectorAll('#planSwitch button').forEach(function(b){
     b.classList.toggle('active', b.dataset.plano === planoAtual);
   });
@@ -291,8 +261,9 @@ function atualizarResumo(){
 function finalizar(){
   var nome = document.getElementById('nome').value.trim();
   var fone = document.getElementById('fone').value.trim();
-  if (!nome || !fone){
-    alert('Preenche seu nome e telefone antes de continuar.');
+  var email = document.getElementById('email').value.trim().toLowerCase();
+  if (!nome || !fone || !email || email.indexOf('@') < 1){
+    alert('Preencha nome, telefone e e-mail antes de continuar.');
     return;
   }
 
@@ -312,7 +283,8 @@ function finalizar(){
   dados.append('Origem', 'Carrinho (contratar.html)');
   dados.append('Nome', nome);
   dados.append('Telefone', fone);
-  dados.append('Plano', plano.nome + ' (' + fmt(plano.preco) + ')');
+  dados.append('Email', email);
+  dados.append('Plano', plano.nome + ' - ' + plano.periodo + ' (' + fmt(plano.preco) + ')');
   dados.append('Extras', addons.length ? addons.map(function(a){ return a.nome + ' (' + fmt(a.preco) + ')'; }).join(', ') : 'Nenhum');
   if (cupomAtivo) dados.append('Cupom', cupomAtivo + ' (' + descontoAtivo + '%)');
   dados.append('Total', fmt(total));
@@ -323,15 +295,15 @@ function finalizar(){
     body: dados
   }).catch(function(){ /* segue pro WhatsApp mesmo se falhar */ });
 
-  var texto = "Olá! Quero contratar:\n\n";
-  texto += "Plano: " + plano.nome + " - " + fmt(plano.preco) + "\n";
+  var texto = "Olá! Quero assinar o painel 999BOOST:\n\n";
+  texto += "Plano: " + plano.nome + " (" + plano.periodo + ") - " + fmt(plano.preco) + "\n";
   if (addons.length){
     texto += "Extras:\n";
     addons.forEach(function(a){ texto += "- " + a.nome + " (" + fmt(a.preco) + ")\n"; });
   }
   if (cupomAtivo) texto += "Cupom: " + cupomAtivo + " (-" + descontoAtivo + "%)\n";
   texto += "Total: " + fmt(total) + "\n\n";
-  texto += "Nome: " + nome + "\nTelefone: " + fone;
+  texto += "Nome: " + nome + "\nTelefone: " + fone + "\nE-mail (login): " + email;
 
   setTimeout(function(){
     window.location.href = "https://wa.me/5585991954902?text=" + encodeURIComponent(texto);

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>999BOOST - Otimização de PC Gamer ao Vivo</title>
 <meta name="description" content="Otimização remota de PC para gamers, feita ao vivo via AnyDesk. Diagnóstico grátis, mais FPS, menos input lag. Garantia de devolução 100%.">
-<link rel="icon" type="image/png" href="/favicon.png?v=3">
+<link rel="icon" type="image/png" href="/Favicon.png?v=4">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://www.999boost.com.br">
 <meta property="og:title" content="999BOOST - Otimização de PC Gamer ao Vivo">
@@ -139,8 +139,20 @@ nav .wrap{display:flex; align-items:center; justify-content:space-between; paddi
 .step p{color:var(--sub); font-size:13.5px;}
 
 /* PLANOS */
-.plans{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
-@media (max-width:820px){ .plans{grid-template-columns:1fr;} }
+.plans{display:grid; grid-template-columns:repeat(4,1fr); gap:18px;}
+@media (max-width:1100px){ .plans{grid-template-columns:repeat(2,1fr);} }
+@media (max-width:620px){ .plans{grid-template-columns:1fr;} }
+.plan-card.p4{border-color:var(--orange);}
+.plan-card.p4 .price{color:var(--orange);}
+.plan-card .per{display:block; font-size:13px; font-weight:700; color:var(--sub); margin-top:2px;}
+.plan-card .plan-tag{white-space:nowrap;}
+.plan-card .nosup{font-size:11.5px; color:var(--sub); margin:-8px 0 14px 0;}
+.tech-box{margin-top:34px; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:24px 26px;}
+.tech-box h4{color:var(--orange); letter-spacing:1px; font-size:13px; margin-bottom:6px;}
+.tech-box > p{color:var(--sub); font-size:13.5px; margin-bottom:14px;}
+.tech-list{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px;}
+.tech-list span{background:var(--bg,#0a0a0c); border:1px solid var(--line); border-radius:999px; padding:6px 12px; font-size:12.5px; color:#ddd;}
+.tech-ctas{display:flex; gap:10px; flex-wrap:wrap;}
 .plan-card{background:var(--panel); border:2px solid #2a2626; border-radius:14px; padding:28px; text-align:center; position:relative; transition:transform .25s ease, box-shadow .25s ease;}
 .plan-card:hover{transform:translateY(-6px); box-shadow:0 18px 40px rgba(0,0,0,.45);}
 .plan-card.p1{border-color:var(--green);}
@@ -235,12 +247,12 @@ footer{padding:50px 0 30px 0; color:var(--sub); font-size:13px;}
   <div class="wrap">
     <div class="badge">⚡ Diagnóstico do seu PC 100% grátis, sem compromisso</div>
     <h1>Seu PC está te derrubando antes do inimigo. <span>A gente acaba com isso.</span></h1>
-    <p>Input lag, micro-travadas e FPS que despenca no meio do tiroteio — a gente encontra a causa real no seu hardware e ajusta ao vivo, com você vendo cada clique via AnyDesk.</p>
+    <p>Input lag, micro-travadas e FPS que despenca no meio do tiroteio — o painel 999BOOST encontra a causa real no seu hardware e aplica as correções direto no seu PC, com um clique. Prefere um técnico? A gente faz ao vivo.</p>
     <div class="hero-ctas">
       <a class="btn btn-primary" href="#planos">Ver planos</a>
       <a class="btn btn-outline" href="#ganho">Descubra seu ganho</a>
     </div>
-    <div class="trust-strip">✅ 100% reversível &nbsp;•&nbsp; ✅ Garantia de devolução 100% &nbsp;•&nbsp; ✅ Você acompanha ao vivo</div>
+    <div class="trust-strip">✅ 100% reversível &nbsp;•&nbsp; ✅ Garantia de devolução 100% &nbsp;•&nbsp; ✅ Compatível com anti-cheat</div>
 
     <div class="terminal-wrap" id="diagnostico">
       <div class="terminal">
@@ -309,7 +321,7 @@ footer{padding:50px 0 30px 0; color:var(--sub); font-size:13px;}
         <p id="ganhoTexto"></p>
         <a class="btn btn-outline" style="margin-top:14px;" id="ganhoLink" href="#planos">Ver esse plano</a>
       </div>
-      <p style="text-align:center; color:var(--sub); font-size:11.5px; margin-top:14px;">Recomendação estimada com base no seu hardware — o diagnóstico completo é feito ao vivo no atendimento.</p>
+      <p style="text-align:center; color:var(--sub); font-size:11.5px; margin-top:14px;">Recomendação estimada com base no seu hardware — o diagnóstico completo roda no próprio painel, no seu PC.</p>
     </div>
   </div>
 </section>
@@ -319,15 +331,15 @@ footer{padding:50px 0 30px 0; color:var(--sub); font-size:13px;}
     <div class="section-title">
       <div class="eyebrow">Por que a 999BOOST</div>
       <h2>Feito pra quem leva o jogo a sério</h2>
-      <p>Cada ajuste é feito na sua frente, com ferramentas próprias de diagnóstico — nada de "clique e reze".</p>
+      <p>Cada ajuste aparece na sua tela, com ferramentas próprias de diagnóstico — nada de "clique e reze".</p>
     </div>
     <div class="grid">
       <div class="card"><div class="icon">🩺</div><h3>Diagnóstico real antes de tudo</h3><p>Lemos CPU, GPU, RAM, disco e erros de hardware do seu PC antes de qualquer ajuste — não é só uma tela bonita.</p></div>
       <div class="card"><div class="icon">🛟</div><h3>Ponto de restauração antes de otimizar</h3><p>Criamos um ponto de restauração do Windows antes de mexer em qualquer coisa. Se algo não agradar, revertemos.</p></div>
       <div class="card"><div class="icon">🛡️</div><h3>Compatível com anti-cheat</h3><p>Nenhum ajuste lê ou injeta memória de jogo — compatível com VAC (CS2), BattlEye, FACEIT AC e Easy Anti-Cheat.</p></div>
-      <div class="card"><div class="icon">👀</div><h3>Você vê tudo ao vivo</h3><p>Atendimento via AnyDesk, com você acompanhando a tela. Nenhum comando escondido.</p></div>
-      <div class="card"><div class="icon">📄</div><h3>Comprovante do que foi feito</h3><p>Ao final, você recebe um relatório com tudo que foi executado no seu PC — sem "confia".</p></div>
-      <div class="card"><div class="icon">🧹</div><h3>Nada fica instalado</h3><p>Otimizamos o Windows que você já tem. Nenhum software estranho fica rodando depois.</p></div>
+      <div class="card"><div class="icon">👀</div><h3>Você no controle</h3><p>Cada otimização aparece com nome e botão próprio. Você aplica, vê o resultado e reverte quando quiser. Nenhum comando escondido.</p></div>
+      <div class="card"><div class="icon">📊</div><h3>Diagnóstico antes e depois</h3><p>Rode o diagnóstico antes de otimizar e de novo depois — você vê exatamente o que mudou no seu PC.</p></div>
+      <div class="card"><div class="icon">🧹</div><h3>Nada fica rodando</h3><p>O painel só funciona enquanto está aberto. Fechou, acabou — nenhum programa estranho em segundo plano.</p></div>
     </div>
   </div>
 </section>
@@ -339,11 +351,11 @@ footer{padding:50px 0 30px 0; color:var(--sub); font-size:13px;}
       <h2>Como funciona</h2>
     </div>
     <div class="steps">
-      <div class="step"><div class="num">1</div><div><h4>Você preenche a inscrição</h4><p>Escolhe o plano e autoriza o atendimento pelo nosso formulário — sem burocracia, sem precisar assinar nada.</p></div></div>
-      <div class="step"><div class="num">2</div><div><h4>Chamada e acesso remoto</h4><p>Entramos em contato (Discord/WhatsApp) e você libera o acesso via AnyDesk.</p></div></div>
-      <div class="step"><div class="num">3</div><div><h4>Diagnóstico ao vivo</h4><p>Rodamos a análise do seu PC na sua frente, mostrando o que está limitando seu desempenho.</p></div></div>
-      <div class="step"><div class="num">4</div><div><h4>Otimização do plano escolhido</h4><p>Aplicamos os ajustes do seu plano, um por um, com você vendo cada item.</p></div></div>
-      <div class="step"><div class="num">5</div><div><h4>Comprovante final</h4><p>Você recebe o relatório do que foi feito. Sessão encerrada, PC otimizado.</p></div></div>
+      <div class="step"><div class="num">1</div><div><h4>Escolha seu plano</h4><p>Planos de 15 dias ou acesso vitalício. Pagamento via PIX, direto pelo WhatsApp.</p></div></div>
+      <div class="step"><div class="num">2</div><div><h4>Receba seu acesso</h4><p>Você recebe o painel 999BOOST e o seu código de licença, vinculado ao seu PC.</p></div></div>
+      <div class="step"><div class="num">3</div><div><h4>Diagnóstico no seu PC</h4><p>Abra o painel, entre com seu e-mail e código e veja o que está limitando seu desempenho.</p></div></div>
+      <div class="step"><div class="num">4</div><div><h4>Otimize com um clique</h4><p>Aplique as otimizações do seu plano — uma por uma ou todas de uma vez, tudo reversível.</p></div></div>
+      <div class="step"><div class="num">5</div><div><h4>Formatou? Reative</h4><p>Nos planos de 15 dias, reative no PC formatado dentro do período. No Vitalício, quando quiser.</p></div></div>
     </div>
   </div>
 </section>
@@ -352,57 +364,82 @@ footer{padding:50px 0 30px 0; color:var(--sub); font-size:13px;}
   <div class="wrap">
     <div class="section-title">
       <div class="eyebrow">Planos</div>
-      <h2>Escolha o nível de otimização</h2>
-      <p>Pagamento via PIX. Valores sujeitos a ajuste conforme o serviço contratado.</p>
+      <h2>Escolha seu plano</h2>
+      <p>Você mesmo otimiza, direto no seu PC. Pagamento via PIX.</p>
     </div>
     <div class="plans">
       <div class="plan-card p1">
         <h3>Basic Gamer</h3>
-        <div class="price">R$ 59,90</div>
+        <div class="price">R$ 19,90 <span class="per">/ 15 dias</span></div>
         <div style="color:var(--green); font-weight:800; font-size:13px; margin-top:-6px;">40 otimizações reais</div>
         <ul>
           <li>Limpeza de sistema</li>
           <li>Ajustes de privacidade e interface</li>
           <li>PC mais leve no dia a dia</li>
-          <li>Ideal para uso geral + jogos leves</li>
+          <li>Formatou? Reative dentro dos 15 dias</li>
         </ul>
+        <div class="nosup">Suporte não incluso</div>
         <a class="btn btn-outline" style="width:100%;" href="/contratar.html?plano=basic">Escolher</a>
       </div>
       <div class="plan-card p2">
         <div class="plan-tag">MAIS PROCURADO</div>
         <h3>Low Streamer</h3>
-        <div class="price">R$ 99,90</div>
+        <div class="price">R$ 29,90 <span class="per">/ 15 dias</span></div>
         <div style="color:var(--yellow); font-weight:800; font-size:13px; margin-top:-6px;">70 otimizações reais</div>
         <ul>
           <li>Tudo do Basic Gamer</li>
           <li>Ajustes de energia e rede</li>
           <li>Redução de itens em segundo plano</li>
-          <li>Ideal para quem joga e transmite</li>
+          <li>Formatou? Reative dentro dos 15 dias</li>
         </ul>
+        <div class="nosup">Suporte não incluso</div>
         <a class="btn btn-primary" style="width:100%;" href="/contratar.html?plano=streamer">Escolher</a>
       </div>
       <div class="plan-card p3">
         <h3>Turbo Pro Player</h3>
-        <div class="price">R$ 149,90</div>
+        <div class="price">R$ 49,90 <span class="per">/ 15 dias</span></div>
         <div style="color:var(--red); font-weight:800; font-size:13px; margin-top:-6px;">105 otimizações reais</div>
         <ul>
           <li>Tudo dos planos anteriores</li>
           <li>Otimizações avançadas de GPU/CPU</li>
           <li>Ajustes de latência e input lag</li>
-          <li>Máximo de otimizações disponíveis</li>
+          <li>Formatou? Reative dentro dos 15 dias</li>
         </ul>
+        <div class="nosup">Suporte não incluso</div>
         <a class="btn btn-outline" style="width:100%;" href="/contratar.html?plano=turbo">Escolher</a>
+      </div>
+      <div class="plan-card p4">
+        <div class="plan-tag">MELHOR CUSTO</div>
+        <h3>Vitalício</h3>
+        <div class="price">R$ 99,90 <span class="per">pagamento único</span></div>
+        <div style="color:var(--orange); font-weight:800; font-size:13px; margin-top:-6px;">105 otimizações reais</div>
+        <ul>
+          <li>Acesso para sempre, sem renovar</li>
+          <li>Formate quando quiser, a qualquer tempo</li>
+          <li>Atualizações e novos ajustes</li>
+          <li>Suporte 999BOOST</li>
+        </ul>
+        <div class="nosup">Sem renovação</div>
+        <a class="btn btn-primary" style="width:100%;" href="/contratar.html?plano=vitalicio">Escolher</a>
       </div>
     </div>
 
-    <div class="extras-box">
-      <h4>SERVIÇOS EXTRAS (cobrados à parte)</h4>
-      <div class="extra-row"><span>Formatação e Reinstalação Limpa do Windows</span><span>R$ 99,90</span></div>
-      <div class="extra-row"><span>Overclock Assistido (CPU/GPU)</span><span>R$ 99,90</span></div>
-      <div class="extra-row"><span>Análise Completa de Hardware (diagnóstico de saúde)</span><span>R$ 29,90</span></div>
-      <div class="extra-row"><span>Ativação de Secure Boot / TPM 2.0</span><span>R$ 49,90</span></div>
-      <div class="extra-row"><span>Remoção de Delay para Controle (USB/Bluetooth)</span><span>R$ 35,90</span></div>
-      <div class="extra-row"><span>Undervolt Guiado (menos temperatura no processador)</span><span>R$ 49,90</span></div>
+    <div class="tech-box">
+      <h4>PREFERE QUE UM TÉCNICO FAÇA POR VOCÊ?</h4>
+      <p>Atendimento ao vivo via AnyDesk, com você acompanhando cada ajuste na tela. Valores sob orçamento.</p>
+      <div class="tech-list">
+        <span>Otimização completa ao vivo</span>
+        <span>Formatação e reinstalação limpa</span>
+        <span>Overclock assistido (CPU/GPU)</span>
+        <span>Undervolt guiado</span>
+        <span>Análise completa de hardware</span>
+        <span>Secure Boot / TPM 2.0</span>
+        <span>Remoção de delay para controle</span>
+      </div>
+      <div class="tech-ctas">
+        <a class="btn btn-primary" href="/formulario.html">Solicitar atendimento</a>
+        <a class="btn btn-outline" href="https://wa.me/5585991954902?text=Ol%C3%A1!%20Quero%20um%20or%C3%A7amento%20de%20atendimento%20ao%20vivo%20com%20t%C3%A9cnico%20999BOOST." target="_blank" rel="noopener">Orçamento no WhatsApp</a>
+      </div>
     </div>
 
     <div class="guarantee-grid">
@@ -410,14 +447,14 @@ footer{padding:50px 0 30px 0; color:var(--sub); font-size:13px;}
         <div class="guarantee-icon">💰</div>
         <div>
           <h4>Garantia de Aplicação Total</h4>
-          <p>Se não aplicarmos as otimizações do plano contratado, devolvemos 100% do valor pago. Simples assim — ou o trabalho é feito, ou você não paga.</p>
+          <p>Se o painel não conseguir aplicar as otimizações do seu plano no seu PC, devolvemos 100% do valor pago. Simples assim — ou funciona, ou você não paga.</p>
         </div>
       </div>
       <div class="guarantee-box">
         <div class="guarantee-icon">🔄</div>
         <div>
           <h4>Garantia de Reversão Total</h4>
-          <p>Não gostou de algum ajuste? A gente reverte qualquer otimização aplicada, sem custo — na hora, ao vivo. Seu PC nunca fica "preso" numa configuração que você não queira.</p>
+          <p>Não gostou de algum ajuste? Toda otimização tem botão de reverter, e o painel cria um ponto de restauração antes de começar. Seu PC nunca fica "preso" numa configuração que você não queira.</p>
         </div>
       </div>
     </div>
@@ -428,16 +465,16 @@ footer{padding:50px 0 30px 0; color:var(--sub); font-size:13px;}
   <div class="wrap">
     <div class="section-title">
       <div class="eyebrow">Confiança</div>
-      <h2>É seguro dar acesso ao meu PC?</h2>
-      <p>A gente sabe que isso exige confiança. Por isso, nada acontece sem você ver.</p>
+      <h2>É seguro?</h2>
+      <p>Você fica no controle do começo ao fim.</p>
     </div>
     <div class="sec-list">
-      <div class="sec-item"><span class="chk">✓</span><div><h4>Você acompanha ao vivo</h4><p>Cada comando aparece na sua tela em tempo real, via AnyDesk.</p></div></div>
-      <div class="sec-item"><span class="chk">✓</span><div><h4>Ponto de restauração antes</h4><p>Criamos um ponto de restauração do Windows antes de aplicar qualquer ajuste.</p></div></div>
-      <div class="sec-item"><span class="chk">✓</span><div><h4>Sem instalação permanente</h4><p>Nada fica rodando em segundo plano depois que a sessão termina.</p></div></div>
-      <div class="sec-item"><span class="chk">✓</span><div><h4>Comprovante de cada ação</h4><p>Relatório completo do que foi executado, com data e hora.</p></div></div>
-      <div class="sec-item"><span class="chk">✓</span><div><h4>Você encerra quando quiser</h4><p>O controle do AnyDesk é sempre seu — desconecte a qualquer momento.</p></div></div>
+      <div class="sec-item"><span class="chk">✓</span><div><h4>Ponto de restauração antes</h4><p>O painel cria um ponto de restauração do Windows com um clique, antes de qualquer ajuste.</p></div></div>
+      <div class="sec-item"><span class="chk">✓</span><div><h4>Tudo reversível</h4><p>Cada otimização tem botão de reverter. Nada fica "travado".</p></div></div>
+      <div class="sec-item"><span class="chk">✓</span><div><h4>Nada fica rodando</h4><p>Fechou o painel, acabou. Nenhum serviço em segundo plano.</p></div></div>
       <div class="sec-item"><span class="chk">✓</span><div><h4>Compatível com anti-cheat</h4><p>Nada aqui lê ou injeta memória de jogo — seguro para VAC, BattlEye, FACEIT AC e EAC.</p></div></div>
+      <div class="sec-item"><span class="chk">✓</span><div><h4>Licença só no seu PC</h4><p>Seu acesso fica vinculado ao seu computador — ninguém usa a sua licença.</p></div></div>
+      <div class="sec-item"><span class="chk">✓</span><div><h4>Técnico ao vivo, se preferir</h4><p>No atendimento com técnico, o acesso é pelo AnyDesk e você encerra quando quiser.</p></div></div>
     </div>
   </div>
 </section>
@@ -454,8 +491,8 @@ footer{padding:50px 0 30px 0; color:var(--sub); font-size:13px;}
         <div style="color:var(--sub); font-size:13px; margin-top:4px;">PCs otimizados pela nossa equipe</div>
       </div>
       <div>
-        <div style="font-size:44px; font-weight:900; color:var(--orange);">100%</div>
-        <div style="color:var(--sub); font-size:13px; margin-top:4px;">Ao vivo, você acompanhando</div>
+        <div style="font-size:44px; font-weight:900; color:var(--orange);">105</div>
+        <div style="color:var(--sub); font-size:13px; margin-top:4px;">Otimizações reais no plano completo</div>
       </div>
     </div>
   </div>
@@ -468,24 +505,32 @@ footer{padding:50px 0 30px 0; color:var(--sub); font-size:13px;}
       <h2>Perguntas frequentes</h2>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Como funciona o atendimento? <span class="plus">+</span></div>
-      <div class="faq-a">Você preenche o formulário de inscrição, escolhe o plano, e a gente combina o atendimento remoto via AnyDesk. Você acompanha tudo ao vivo.</div>
+      <div class="faq-q" onclick="toggleFaq(this)">Como funciona? <span class="plus">+</span></div>
+      <div class="faq-a">Você escolhe o plano, paga via PIX e recebe o painel 999BOOST com o seu código de licença. Abre no seu PC, entra com e-mail e código, roda o diagnóstico e aplica as otimizações do seu plano.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">É uma mensalidade? <span class="plus">+</span></div>
-      <div class="faq-a">Não. Cada plano e serviço extra é cobrado uma única vez, via PIX.</div>
+      <div class="faq-q" onclick="toggleFaq(this)">Quanto tempo dura o plano? <span class="plus">+</span></div>
+      <div class="faq-a">Basic Gamer, Low Streamer e Turbo Pro Player valem 15 dias — depois é só renovar. O Vitalício é pagamento único e não expira.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Preciso instalar algo no meu PC? <span class="plus">+</span></div>
-      <div class="faq-a">Só o AnyDesk, para o atendimento remoto. Nosso painel de otimização não fica instalado depois que a sessão termina.</div>
+      <div class="faq-q" onclick="toggleFaq(this)">Preciso instalar algo? <span class="plus">+</span></div>
+      <div class="faq-a">Não. O painel roda direto no Windows 10/11, como administrador, e não deixa nada rodando depois que você fecha.</div>
     </div>
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">E se eu formatar o PC depois? <span class="plus">+</span></div>
-      <div class="faq-a">As otimizações são no Windows instalado. Se formatar, os ajustes se perdem e um novo atendimento seria necessário.</div>
+      <div class="faq-q" onclick="toggleFaq(this)">E se eu formatar o PC? <span class="plus">+</span></div>
+      <div class="faq-a">É só clicar em "Formatei ou troquei de PC" no próprio painel. Nos planos de 15 dias, vale 1 transferência por período. No Vitalício, pode formatar e transferir quando quiser, a qualquer tempo.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Tem suporte? <span class="plus">+</span></div>
+      <div class="faq-a">Suporte, ajustes e atualizações são exclusivos do plano Vitalício. Nos planos de 15 dias o painel é autoexplicativo e tudo é reversível com um clique.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Posso pedir para um técnico fazer? <span class="plus">+</span></div>
+      <div class="faq-a">Pode. O atendimento ao vivo via AnyDesk continua disponível, com valores sob orçamento pelo WhatsApp.</div>
     </div>
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)">O serviço garante um FPS específico? <span class="plus">+</span></div>
-      <div class="faq-a">Não prometemos um número fixo — o ganho depende do seu hardware, drivers e configurações do jogo. O que garantimos é o diagnóstico real e a aplicação correta das otimizações do plano escolhido.</div>
+      <div class="faq-a">Não prometemos um número fixo — o ganho depende do seu hardware, drivers e configurações do jogo. O que garantimos é o diagnóstico real e a aplicação correta das otimizações do seu plano.</div>
     </div>
   </div>
 </section>
@@ -493,8 +538,8 @@ footer{padding:50px 0 30px 0; color:var(--sub); font-size:13px;}
 <section class="cta-final">
   <div class="wrap">
     <h2>Pronto pra ver o que seu PC pode entregar?</h2>
-    <p>Preencha a inscrição e a gente entra em contato pra combinar o atendimento.</p>
-    <a class="btn btn-primary" href="/contratar.html">Fazer minha inscrição</a>
+    <p>Escolha seu plano e comece a otimizar o seu PC.</p>
+    <a class="btn btn-primary" href="#planos">Ver planos</a>
   </div>
 </section>
 
