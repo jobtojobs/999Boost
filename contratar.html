@@ -81,6 +81,19 @@
   .tech-note{background:var(--bg);border:1px dashed #3a3535;border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--sub);line-height:1.5;}
   .tech-note a{color:var(--orange);font-weight:800;}
   .summary-note{font-size:12px;color:var(--sub);margin:-8px 0 14px 0;}
+  .pix-modal{position:fixed;inset:0;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;padding:16px;z-index:50;}
+  .pix-box{background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:440px;width:100%;padding:24px;text-align:center;max-height:95vh;overflow:auto;position:relative;}
+  .pix-box h2{margin:4px 0 4px 0;font-size:21px;}
+  .pix-box .sub{color:var(--sub);font-size:13px;margin-bottom:14px;}
+  .pix-box img{width:220px;height:220px;background:#fff;border-radius:10px;padding:8px;}
+  .pix-box textarea{width:100%;height:64px;margin:12px 0 8px 0;background:var(--bg);color:#ddd;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:11px;resize:none;}
+  .pix-btn{width:100%;background:var(--orange);color:#000;border:none;border-radius:10px;padding:13px;font-weight:900;font-size:14px;cursor:pointer;display:block;text-decoration:none;}
+  .pix-status{margin-top:14px;font-size:13px;color:var(--yellow);display:flex;align-items:center;justify-content:center;gap:8px;}
+  .pix-status:before{content:"";width:10px;height:10px;border-radius:50%;background:var(--yellow);animation:pisca 1s infinite;}
+  @keyframes pisca{50%{opacity:.2;}}
+  .pix-close{position:absolute;top:10px;right:14px;background:none;border:none;color:var(--sub);font-size:22px;cursor:pointer;}
+  .ok-code{font-size:26px;font-weight:900;color:var(--orange);letter-spacing:2px;margin:4px 0 14px 0;}
+  .ok-steps{text-align:left;font-size:13px;color:#ccc;line-height:1.7;margin:14px 0;padding-left:18px;}
   .redirect-note{text-align:center;font-size:11.5px;color:var(--sub);margin-top:10px;}
 </style>
 </head>
@@ -93,7 +106,7 @@
     <div class="modal-head">
       <div class="eyebrow">999BOOST</div>
       <h1>Finalizar contratação</h1>
-      <p>Escolha seu plano e finalize pelo WhatsApp.</p>
+      <p>Escolha seu plano, pague via PIX e receba o acesso na hora.</p>
     </div>
 
     <div class="cols">
@@ -124,8 +137,8 @@
         <div class="notice">
           <div>🛡️</div>
           <div>
-            <b>Nenhuma cobrança acontece nesta tela.</b>
-            <p>Você finaliza pelo WhatsApp com pagamento via PIX e recebe o painel 999BOOST com o seu código de licença.</p>
+            <b>Pagamento via PIX, entrega na hora.</b>
+            <p>Assim que o PIX é confirmado, esta tela mostra o seu código de licença e o download do painel — e mandamos tudo pro seu e-mail.</p>
           </div>
         </div>
       </div>
@@ -148,9 +161,40 @@
 
         <div class="row total"><span>Total</span><span id="sumTotal">R$ 99,90</span></div>
 
-        <button class="btn-buy" id="btnComprar" onclick="finalizar()">🛒 Adquirir produto</button>
-        <div class="redirect-note">Você será redirecionado para o WhatsApp</div>
+        <button class="btn-buy" id="btnComprar" onclick="finalizar()">Pagar com PIX</button>
+        <div class="redirect-note">Liberação automática após o pagamento</div>
       </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="pix-modal" id="pixModal">
+  <div class="pix-box">
+    <button class="pix-close" onclick="fecharPix()">×</button>
+    <div id="pixEtapaPagar">
+      <div class="eyebrow">Pagamento via PIX</div>
+      <h2 id="pixPlano">Plano</h2>
+      <div class="sub">Abra o app do seu banco e escaneie o QR Code, ou use o PIX copia e cola.</div>
+      <img id="pixImg" alt="QR Code PIX">
+      <textarea id="pixCopia" readonly></textarea>
+      <button class="pix-btn" id="pixCopiar" onclick="copiarPix()">Copiar código</button>
+      <div class="pix-status" id="pixStatus">Aguardando pagamento...</div>
+      <div class="sub" style="margin-top:10px;font-size:11.5px;">O código vale 30 minutos. A liberação é automática — não feche esta tela.</div>
+    </div>
+    <div id="pixEtapaOk" style="display:none;">
+      <div style="font-size:42px;">✅</div>
+      <h2>Pagamento confirmado!</h2>
+      <div class="sub">Sua licença está ativa. Também enviamos tudo para <b id="okEmail"></b>.</div>
+      <div style="color:var(--sub);font-size:12px;">Seu código de licença</div>
+      <div class="ok-code" id="okCodigo"></div>
+      <a class="pix-btn" id="okDownload" href="#">Baixar o painel 999BOOST</a>
+      <ol class="ok-steps">
+        <li>Extraia o arquivo baixado numa pasta.</li>
+        <li>Dê dois cliques em <b>Abrir 999Boost Assinante.bat</b> e aceite rodar como administrador.</li>
+        <li>Entre com o seu e-mail e o código acima.</li>
+      </ol>
+      <div class="sub" style="font-size:11.5px;">Guarde o código. Dúvidas? <a href="https://wa.me/5585991954902" style="color:var(--orange);">WhatsApp</a></div>
     </div>
   </div>
 </div>
@@ -163,11 +207,9 @@ var PLANOS = {
   vitalicio: { nome:"Vitalício",        periodo:"vitalício", preco:99.90, nota:"Pagamento único, sem renovação.", features:["105 otimizações reais","Acesso para sempre","Formate quando quiser, a qualquer tempo","Atualizações, novos ajustes e suporte"] }
 };
 
-// Cupons validos - editar aqui pra adicionar/remover (percentual de 0 a 100)
-var CUPONS = {
-  "BEMVINDO10": 10,
-  "999BOOST15": 15
-};
+// Cupons e precos oficiais ficam no servidor (api/checkout.js) - aqui e so a exibicao
+var API = '/api/checkout';
+var pedidoId = null, pollTimer = null, pollInicio = 0;
 
 var planoAtual = "streamer";
 var descontoAtivo = 0;
@@ -206,19 +248,21 @@ function addonsSelecionados(){
 function aplicarCupom(){
   var codigo = document.getElementById('cupom').value.trim().toUpperCase();
   var msg = document.getElementById('cupomMsg');
-  if (!codigo){ msg.textContent = ''; return; }
-  if (CUPONS.hasOwnProperty(codigo)){
-    descontoAtivo = CUPONS[codigo];
-    cupomAtivo = codigo;
-    msg.textContent = '✓ Cupom aplicado: ' + descontoAtivo + '% de desconto';
-    msg.className = 'coupon-msg ok';
-  } else {
-    descontoAtivo = 0;
-    cupomAtivo = "";
-    msg.textContent = 'Cupom inválido ou expirado';
-    msg.className = 'coupon-msg err';
-  }
-  atualizarResumo();
+  if (!codigo){ msg.textContent = ''; descontoAtivo = 0; cupomAtivo = ""; atualizarResumo(); return; }
+  msg.textContent = 'Verificando...'; msg.className = 'coupon-msg';
+  fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'cupom', cupom:codigo }) })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.ok){
+        descontoAtivo = d.desconto; cupomAtivo = codigo;
+        msg.textContent = '✓ Cupom aplicado: ' + descontoAtivo + '% de desconto'; msg.className = 'coupon-msg ok';
+      } else {
+        descontoAtivo = 0; cupomAtivo = "";
+        msg.textContent = 'Cupom inválido ou expirado'; msg.className = 'coupon-msg err';
+      }
+      atualizarResumo();
+    })
+    .catch(function(){ msg.textContent = 'Não foi possível verificar agora'; msg.className = 'coupon-msg err'; });
 }
 
 function atualizarResumo(){
@@ -262,52 +306,86 @@ function finalizar(){
   var nome = document.getElementById('nome').value.trim();
   var fone = document.getElementById('fone').value.trim();
   var email = document.getElementById('email').value.trim().toLowerCase();
-  if (!nome || !fone || !email || email.indexOf('@') < 1){
-    alert('Preencha nome, telefone e e-mail antes de continuar.');
+  if (!nome || !fone || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){
+    alert('Preencha nome, telefone e um e-mail válido antes de continuar.');
     return;
   }
-
   var plano = PLANOS[planoAtual];
-  var addons = addonsSelecionados();
-  var subtotal = plano.preco;
-  addons.forEach(function(a){ subtotal += a.preco; });
-  var desconto = subtotal * (descontoAtivo / 100);
-  var total = subtotal - desconto;
-
   var btn = document.getElementById('btnComprar');
   btn.disabled = true;
-  btn.textContent = 'Enviando...';
+  btn.textContent = 'Gerando PIX...';
 
-  // Envia pro Formspree (fica salvo + gera e-mail), igual o formulario principal
-  var dados = new FormData();
-  dados.append('Origem', 'Carrinho (contratar.html)');
-  dados.append('Nome', nome);
-  dados.append('Telefone', fone);
-  dados.append('Email', email);
-  dados.append('Plano', plano.nome + ' - ' + plano.periodo + ' (' + fmt(plano.preco) + ')');
-  dados.append('Extras', addons.length ? addons.map(function(a){ return a.nome + ' (' + fmt(a.preco) + ')'; }).join(', ') : 'Nenhum');
-  if (cupomAtivo) dados.append('Cupom', cupomAtivo + ' (' + descontoAtivo + '%)');
-  dados.append('Total', fmt(total));
-
-  fetch('https://formspree.io/f/xzezrvjp', {
+  fetch(API, {
     method: 'POST',
-    headers: { 'Accept': 'application/json' },
-    body: dados
-  }).catch(function(){ /* segue pro WhatsApp mesmo se falhar */ });
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ acao:'criar', plano: planoAtual, nome: nome, email: email, telefone: fone, cupom: cupomAtivo })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    btn.disabled = false; btn.textContent = 'Pagar com PIX';
+    if (!d.pedido_id){ alert(d.erro || 'Não foi possível gerar o PIX agora. Tente de novo.'); return; }
+    pedidoId = d.pedido_id;
+    try { if (window.fbq) fbq('track', 'InitiateCheckout', { value: d.valor, currency: 'BRL' }); } catch(e){}
+    abrirPix(d, plano, email);
+  })
+  .catch(function(){
+    btn.disabled = false; btn.textContent = 'Pagar com PIX';
+    alert('Não foi possível gerar o PIX agora. Tente de novo em instantes.');
+  });
+}
 
-  var texto = "Olá! Quero assinar o painel 999BOOST:\n\n";
-  texto += "Plano: " + plano.nome + " (" + plano.periodo + ") - " + fmt(plano.preco) + "\n";
-  if (addons.length){
-    texto += "Extras:\n";
-    addons.forEach(function(a){ texto += "- " + a.nome + " (" + fmt(a.preco) + ")\n"; });
+function abrirPix(d, plano, email){
+  document.getElementById('pixPlano').textContent = plano.nome + ' — ' + fmt(d.valor);
+  document.getElementById('pixImg').src = 'data:image/png;base64,' + d.qr_code_base64;
+  document.getElementById('pixCopia').value = d.qr_code || '';
+  document.getElementById('pixEtapaPagar').style.display = 'block';
+  document.getElementById('pixEtapaOk').style.display = 'none';
+  document.getElementById('pixStatus').textContent = 'Aguardando pagamento...';
+  document.getElementById('pixModal').style.display = 'flex';
+  pollInicio = Date.now();
+  clearInterval(pollTimer);
+  pollTimer = setInterval(checarPagamento, 4000);
+}
+
+function copiarPix(){
+  var t = document.getElementById('pixCopia');
+  t.select();
+  try { navigator.clipboard.writeText(t.value); } catch(e){ document.execCommand('copy'); }
+  document.getElementById('pixCopiar').textContent = 'Copiado!';
+  setTimeout(function(){ document.getElementById('pixCopiar').textContent = 'Copiar código'; }, 2000);
+}
+
+function checarPagamento(){
+  if (!pedidoId) return;
+  if (Date.now() - pollInicio > 31 * 60 * 1000){
+    clearInterval(pollTimer);
+    document.getElementById('pixStatus').textContent = 'O PIX expirou. Feche e gere um novo.';
+    return;
   }
-  if (cupomAtivo) texto += "Cupom: " + cupomAtivo + " (-" + descontoAtivo + "%)\n";
-  texto += "Total: " + fmt(total) + "\n\n";
-  texto += "Nome: " + nome + "\nTelefone: " + fone + "\nE-mail (login): " + email;
+  fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'status', pedido_id: pedidoId }) })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.status === 'pago'){
+        clearInterval(pollTimer);
+        document.getElementById('okEmail').textContent = d.email;
+        document.getElementById('okCodigo').textContent = d.codigo;
+        document.getElementById('okDownload').href = d.download;
+        document.getElementById('pixEtapaPagar').style.display = 'none';
+        document.getElementById('pixEtapaOk').style.display = 'block';
+        try { if (window.fbq) fbq('track', 'Purchase', { value: PLANOS[planoAtual].preco, currency: 'BRL' }); } catch(e){}
+      } else if (d.status === 'expirado'){
+        clearInterval(pollTimer);
+        document.getElementById('pixStatus').textContent = 'O PIX expirou. Feche e gere um novo.';
+      }
+    })
+    .catch(function(){});
+}
 
-  setTimeout(function(){
-    window.location.href = "https://wa.me/5585991954902?text=" + encodeURIComponent(texto);
-  }, 400);
+function fecharPix(){
+  var pago = document.getElementById('pixEtapaOk').style.display === 'block';
+  if (!pago && !confirm('Fechar? Se você já pagou, espere alguns segundos que a liberação aparece aqui.')) return;
+  clearInterval(pollTimer);
+  document.getElementById('pixModal').style.display = 'none';
 }
 
 document.querySelectorAll('#planSwitch button').forEach(function(b){
