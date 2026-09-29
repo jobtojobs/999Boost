@@ -75,9 +75,48 @@ export default async function handler(req, res) {
 
       case 'licencas': {
         const busca = String(b.busca || '').trim().toLowerCase();
-        let q = 'licencas?select=id,email,codigo,plano,status,data_expiracao,device_id,ultima_troca,ultimo_acesso,acessos,criado_em&order=criado_em.desc&limit=200';
+        let q = 'licencas?select=id,email,codigo,plano,status,data_expiracao,device_id,ultima_troca,ultimo_acesso,acessos,criado_em&order=criado_em.desc&limit=300';
         if (busca) q += `&or=(email.ilike.*${enc(busca)}*,codigo.ilike.*${enc(busca.toUpperCase())}*)`;
-        return res.json(await sb(q));
+        let lista = await sb(q);
+        const exp = l => l.data_expiracao ? new Date(l.data_expiracao) : null;
+        const f = b.filtro;
+        if (f === 'ativos') lista = lista.filter(l => l.status === 'ativo' && (l.plano === 'vitalicio' || !exp(l) || exp(l) > agora));
+        if (f === 'expirados') lista = lista.filter(l => l.status === 'ativo' && l.plano !== 'vitalicio' && exp(l) && exp(l) <= agora);
+        if (f === 'vencendo') lista = lista.filter(l => l.status === 'ativo' && l.plano !== 'vitalicio' && exp(l) && exp(l) > agora && (exp(l) - agora) < 3 * 86400000);
+        if (f === 'vitalicio') lista = lista.filter(l => l.plano === 'vitalicio');
+        if (f === 'bloqueados') lista = lista.filter(l => l.status === 'reembolsado' || l.status === 'cancelado');
+        return res.json(lista);
+      }
+
+      case 'sistema': {
+        // Status do sistema + arquivo de download publicado
+        const site = 'https://' + (req.headers['x-forwarded-host'] || req.headers.host || 'www.999boost.com.br');
+        let download = { ok: false };
+        try {
+          const r = await fetch(site + '/download/999Boost.zip', { method: 'HEAD' });
+          download = { ok: r.ok, tamanho: Number(r.headers.get('content-length') || 0), etag: (r.headers.get('etag') || '').replace(/"/g, '').slice(0, 12) };
+        } catch {}
+        const conteudo = await sb('conteudo?select=tier,versao,atualizado_em&order=tier');
+        return res.json({
+          download,
+          deploy: {
+            commit: (process.env.VERCEL_GIT_COMMIT_SHA || '').slice(0, 7),
+            mensagem: process.env.VERCEL_GIT_COMMIT_MESSAGE || '',
+            autor: process.env.VERCEL_GIT_COMMIT_AUTHOR_LOGIN || ''
+          },
+          conteudo,
+          config: {
+            mercado_pago: !!process.env.MP_ACCESS_TOKEN,
+            resend: !!process.env.RESEND_API_KEY,
+            supabase: !!(SB_URL && SB_KEY)
+          }
+        });
+      }
+
+      case 'limpar_pendentes': {
+        const limite = new Date(agora.getTime() - 7 * 86400000).toISOString();
+        const r = await sb(`pedidos?status=in.(pendente,expirado)&criado_em=lt.${limite}`, { method: 'DELETE' });
+        return res.json({ ok: true, removidos: Array.isArray(r) ? r.length : 0 });
       }
 
       case 'pedidos': {
@@ -103,7 +142,7 @@ export default async function handler(req, res) {
       }
 
       // Acoes sobre uma licenca existente (por id)
-      case 'renovar': case 'plano': case 'liberar_pc': case 'reembolsar': case 'reativar': case 'cancelar': case 'excluir': {
+      case 'renovar': case 'plano': case 'liberar_pc': case 'zerar_troca': case 'reembolsar': case 'reativar': case 'cancelar': case 'excluir': case 'validade': {
         const id = String(b.id || '');
         if (!/^[0-9a-f-]{36}$/i.test(id)) return res.status(400).json({ erro: 'Licenca invalida' });
         const achado = await sb(`licencas?id=eq.${id}&select=*`);
@@ -113,7 +152,7 @@ export default async function handler(req, res) {
 
         if (b.acao === 'renovar') {
           if (lic.plano === 'vitalicio') return res.status(400).json({ erro: 'Vitalicio nao precisa renovar' });
-          const dias = Math.max(1, Math.min(365, parseInt(b.dias || DIAS, 10)));
+          const dias = Math.max(1, Math.min(365, parseInt(b.dias || DIAS, 10) || DIAS));
           const base = lic.data_expiracao && new Date(lic.data_expiracao) > agora ? new Date(lic.data_expiracao) : agora;
           campos = { data_expiracao: new Date(base.getTime() + dias * 86400000).toISOString(), status: 'ativo' };
         }
@@ -123,7 +162,15 @@ export default async function handler(req, res) {
           if (b.plano === 'vitalicio') campos.data_expiracao = null;
           else if (!lic.data_expiracao) campos.data_expiracao = new Date(agora.getTime() + DIAS * 86400000).toISOString();
         }
+        if (b.acao === 'validade') {
+          // Define a data de validade exata (planos de 15 dias)
+          if (lic.plano === 'vitalicio') return res.status(400).json({ erro: 'Vitalicio nao tem validade' });
+          const d = new Date(String(b.data || '') + 'T23:59:59-03:00');
+          if (isNaN(d.getTime())) return res.status(400).json({ erro: 'Data invalida' });
+          campos = { data_expiracao: d.toISOString() };
+        }
         if (b.acao === 'liberar_pc') campos = { device_id: null };
+        if (b.acao === 'zerar_troca') campos = { ultima_troca: null };
         if (b.acao === 'reembolsar') campos = { status: 'reembolsado' };      // mantem device_id -> PC bloqueado p/ nova ativacao automatica
         if (b.acao === 'cancelar') campos = { status: 'cancelado' };
         if (b.acao === 'reativar') campos = { status: 'ativo' };

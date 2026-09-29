@@ -83,11 +83,28 @@
   <section id="t-resumo">
     <div class="cards" id="cards"></div>
     <div class="box"><div class="sub">Assinantes ativos por plano</div><div class="cards" id="porPlano" style="margin:10px 0 0 0;"></div></div>
+    <div class="box" style="margin-top:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:200px;"><b>Download do painel (999Boost.zip)</b><div class="sub" id="dlInfo">Sempre a versão mais nova enviada ao GitHub.</div></div>
+      <a class="btn pri" id="dlBtn" href="/download/999Boost.zip" style="text-decoration:none;">Baixar</a>
+      <button class="btn" onclick="copiarTexto(location.origin + '/download/999Boost.zip')">Copiar link</button>
+    </div>
+    <div class="box" style="margin-top:12px;">
+      <div class="sub" style="margin-bottom:6px;">Status do sistema</div>
+      <div id="sistema" class="sub">Verificando...</div>
+    </div>
   </section>
 
   <section id="t-licencas" class="hide">
     <div class="row">
       <input id="busca" placeholder="Buscar por e-mail ou código" style="flex:1;min-width:200px;" onkeydown="if(event.key==='Enter')carregarLicencas()">
+      <select id="filtro" onchange="carregarLicencas()">
+        <option value="">Todas</option>
+        <option value="ativos">Ativas</option>
+        <option value="vencendo">Vencem em 3 dias</option>
+        <option value="expirados">Expiradas</option>
+        <option value="vitalicio">Vitalício</option>
+        <option value="bloqueados">Reembolsadas / canceladas</option>
+      </select>
       <button class="btn pri" onclick="carregarLicencas()">Buscar</button>
     </div>
     <div class="box scroll"><table class="tbl" id="tLic"></table></div>
@@ -111,6 +128,7 @@
   </section>
 
   <section id="t-pedidos" class="hide">
+    <div class="row"><button class="btn" onclick="limparPendentes()">Limpar PIX não pagos (mais de 7 dias)</button></div>
     <div class="box scroll"><table class="tbl" id="tPed"></table></div>
   </section>
 </div>
@@ -169,6 +187,7 @@ function mostrarResumo(r){
     card('Reembolsados', r.reembolsados, '');
   var h=''; for (var k in r.por_plano) h += card('<span class="pl-'+k+'">'+NOMES[k]+'</span>', r.por_plano[k]);
   document.getElementById('porPlano').innerHTML = h;
+  carregarSistema();
 }
 
 function statusLic(l){
@@ -178,7 +197,7 @@ function statusLic(l){
 }
 function carregarLicencas(){
   var t=document.getElementById('tLic'); t.innerHTML='<tr><td class="sub">Carregando...</td></tr>';
-  api('licencas',{busca:document.getElementById('busca').value}).then(function(lista){
+  api('licencas',{busca:document.getElementById('busca').value, filtro:document.getElementById('filtro').value}).then(function(lista){
     LIC = lista;
     if (!lista.length){ t.innerHTML='<tr><td class="sub">Nenhuma licença encontrada.</td></tr>'; return; }
     var h='<tr><th>E-mail / código</th><th>Plano</th><th>Status</th><th>Validade</th><th class="opt">PC</th><th class="opt">Último acesso</th><th>Ações</th></tr>';
@@ -195,7 +214,7 @@ function carregarLicencas(){
           '<button class="btn" onclick="trocarPlano('+i+')">Plano</button>'+
           (l.device_id?'<button class="btn" onclick="acao(\'liberar_pc\','+i+')">Liberar PC</button>':'')+
           '<button class="btn" onclick="verUso('+i+')">Uso</button>'+
-          (l.status==='ativo'?'<button class="btn red" onclick="acao(\'reembolsar\','+i+')">Reembolso</button>':'<button class="btn green" onclick="acao(\'reativar\','+i+')">Reativar</button>')+
+          '<button class="btn pri" onclick="maisOpcoes('+i+')">Mais</button>'+
         '</div></td></tr>';
     });
     t.innerHTML=h;
@@ -206,12 +225,66 @@ var AVISOS = {
   renovar:'Adicionar 15 dias à licença de %s?',
   liberar_pc:'Liberar o PC de %s? Ele poderá ativar em outro computador.',
   reembolsar:'Marcar %s como REEMBOLSADO? A licença para de funcionar e esse e-mail/PC não compram nem ativam de novo automaticamente.\n\nLembre de devolver o PIX no Mercado Pago.',
-  reativar:'Reativar a licença de %s?'
+  reativar:'Reativar a licença de %s?',
+  zerar_troca:'Liberar de novo o botão "Formatei ou troquei de PC" para %s?',
+  cancelar:'CANCELAR a licença de %s (sem reembolso, ex.: fraude ou compartilhamento)?'
 };
-function acao(tipo,i){
+function acao(tipo,i,extra){
   var l=LIC[i];
-  if (!confirm(AVISOS[tipo].replace('%s',l.email))) return;
-  api(tipo,{id:l.id}).then(function(){ toast('Feito!'); carregarLicencas(); }).catch(function(e){ toast(e.message); });
+  if (AVISOS[tipo] && !confirm(AVISOS[tipo].replace('%s',l.email))) return;
+  api(tipo,Object.assign({id:l.id},extra||{})).then(function(){ fechar(); toast('Feito!'); carregarLicencas(); }).catch(function(e){ toast(e.message); });
+}
+function maisOpcoes(i){
+  var l=LIC[i];
+  var h='<h3 style="margin-top:0;">'+esc(l.email)+'</h3>'+
+    '<div class="sub" style="margin-bottom:12px;">Código <b class="mono">'+esc(l.codigo)+'</b> · '+(NOMES[l.plano]||l.plano)+' · '+statusLic(l)+'</div>';
+  h+='<div class="sub" style="margin:10px 0 6px;">Enviar ao cliente</div><div class="row">'+
+     '<button class="btn" onclick="copiarTexto(\''+esc(l.codigo)+'\')">Copiar código</button>'+
+     '<button class="btn" onclick="copiarMensagem('+i+')">Copiar mensagem com código e download</button></div>';
+  if (l.plano!=='vitalicio'){
+    h+='<div class="sub" style="margin:10px 0 6px;">Validade (atual: '+dia(l.data_expiracao)+')</div><div class="row">'+
+       '<input id="mDias" type="number" value="15" min="1" max="365" style="width:90px;"> <button class="btn green" onclick="acao(\'renovar\','+i+',{dias:document.getElementById(\'mDias\').value})">Adicionar dias</button>'+
+       '<input id="mData" type="date"> <button class="btn" onclick="acao(\'validade\','+i+',{data:document.getElementById(\'mData\').value})">Definir data</button></div>';
+  }
+  h+='<div class="sub" style="margin:10px 0 6px;">Computador</div><div class="row">'+
+     '<button class="btn" onclick="acao(\'liberar_pc\','+i+')">Liberar PC</button>'+
+     '<button class="btn" onclick="acao(\'zerar_troca\','+i+')">Liberar nova transferência</button></div>';
+  h+='<div class="sub" style="margin:10px 0 6px;">Situação da licença</div><div class="row">'+
+     (l.status==='ativo'
+       ? '<button class="btn red" onclick="acao(\'reembolsar\','+i+')">Marcar reembolso</button><button class="btn red" onclick="acao(\'cancelar\','+i+')">Cancelar (fraude)</button>'
+       : '<button class="btn green" onclick="acao(\'reativar\','+i+')">Reativar</button>')+
+     '<button class="btn red" onclick="excluirLicenca('+i+')">Excluir licença</button></div>';
+  h+='<div style="margin-top:14px;"><button class="btn" onclick="fechar()">Fechar</button></div>';
+  abrir(h);
+}
+function excluirLicenca(i){
+  var l=LIC[i];
+  var r=prompt('Excluir de vez a licença de '+l.email+'? Isso não pode ser desfeito.\nDigite EXCLUIR para confirmar:');
+  if (r!=='EXCLUIR') return;
+  acao('excluir',i);
+}
+function copiarTexto(t){
+  try { navigator.clipboard.writeText(t).then(function(){ toast('Copiado!'); }); } catch(e){ prompt('Copie:', t); }
+}
+function copiarMensagem(i){
+  var l=LIC[i];
+  copiarTexto('Olá! Aqui está seu acesso ao painel 999BOOST:\n\nE-mail: '+l.email+'\nCódigo de licença: '+l.codigo+'\nDownload: '+location.origin+'/download/999Boost.zip\n\nExtraia o arquivo, abra o "Abrir 999Boost Assinante.bat" e entre com o e-mail e o código.');
+}
+function limparPendentes(){
+  if (!confirm('Apagar pedidos de PIX não pagos com mais de 7 dias?')) return;
+  api('limpar_pendentes').then(function(r){ toast(r.removidos+' pedido(s) removido(s)'); carregarPedidos(); }).catch(function(e){ toast(e.message); });
+}
+function carregarSistema(){
+  api('sistema').then(function(s){
+    var ok=function(v){ return v?'<span style="color:var(--green)">● ok</span>':'<span style="color:#ff8b7a">● não configurado</span>'; };
+    var dl=s.download||{};
+    document.getElementById('dlInfo').textContent = dl.ok ? ('Publicado · '+(dl.tamanho/1024).toFixed(0)+' KB'+(dl.etag?' · versão '+dl.etag:'')) : 'Arquivo não encontrado no site';
+    if (dl.etag) document.getElementById('dlBtn').href='/download/999Boost.zip?v='+dl.etag;
+    var h='<div>Mercado Pago: '+ok(s.config.mercado_pago)+'</div><div>E-mail (Resend): '+ok(s.config.resend)+'</div>';
+    (s.conteudo||[]).forEach(function(c){ h+='<div>Otimizações nível '+c.tier+': versão '+esc(c.versao)+'</div>'; });
+    if (s.deploy && s.deploy.commit) h+='<div>Site publicado: '+esc(s.deploy.commit)+(s.deploy.mensagem?' — '+esc(s.deploy.mensagem):'')+'</div>';
+    document.getElementById('sistema').innerHTML=h;
+  }).catch(function(e){ document.getElementById('sistema').textContent=e.message; });
 }
 function trocarPlano(i){
   var l=LIC[i];
