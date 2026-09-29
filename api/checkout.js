@@ -59,6 +59,10 @@ function valorComDesconto(preco, cupom) {
   return Math.round(preco * (100 - pct)) / 100;
 }
 
+function esc(t) {
+  return String(t || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 function gerarCodigo() {
   const alfabeto = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';   // sem 0/O/1/I (evita confusao)
   const bytes = crypto.randomBytes(12);
@@ -110,10 +114,10 @@ async function enviarEmail(pedido, codigo) {
   const html = `
   <div style="font-family:Segoe UI,Arial,sans-serif;background:#0a0a0c;color:#fff;padding:28px;">
     <h2 style="color:#ff7a1a;margin:0 0 6px 0;">999BOOST - Pagamento confirmado</h2>
-    <p style="color:#ccc;">Oi ${pedido.nome || ''}! Seu plano <b>${plano.nome}</b> esta ativo (${validade}).</p>
+    <p style="color:#ccc;">Oi ${esc(pedido.nome)}! Seu plano <b>${plano.nome}</b> esta ativo (${validade}).</p>
     <div style="background:#141213;border:1px solid #2a2626;border-radius:10px;padding:16px;margin:18px 0;">
       <div style="color:#a8a8a8;font-size:13px;">E-mail (login)</div>
-      <div style="font-size:16px;font-weight:bold;margin-bottom:10px;">${pedido.email}</div>
+      <div style="font-size:16px;font-weight:bold;margin-bottom:10px;">${esc(pedido.email)}</div>
       <div style="color:#a8a8a8;font-size:13px;">Codigo de licenca</div>
       <div style="font-size:24px;font-weight:bold;color:#ff7a1a;letter-spacing:2px;">${codigo}</div>
     </div>
@@ -143,6 +147,11 @@ async function processarPedido(pedido) {
   if (!pedido || pedido.status === 'pago' || !pedido.mp_order_id) return pedido;
 
   const ordem = await mp(`/v1/orders/${pedido.mp_order_id}`);
+  // Confere se o valor pago e o mesmo do pedido (defesa extra)
+  if (ordem.status === 'processed' && Math.abs(parseFloat(ordem.total_amount) - parseFloat(pedido.valor)) > 0.009) {
+    console.error('Valor divergente no pedido', pedido.id, ordem.total_amount, pedido.valor);
+    return pedido;
+  }
   if (ordem.status !== 'processed') {
     if (['expired', 'canceled', 'cancelled', 'failed'].includes(ordem.status) && pedido.status === 'pendente') {
       await sb(`pedidos?id=eq.${pedido.id}&status=eq.pendente`, { method: 'PATCH', body: JSON.stringify({ status: 'expirado' }) });
@@ -163,13 +172,16 @@ async function processarPedido(pedido) {
   }
 
   try {
-    const { codigo } = await entregarLicenca(pedido.email, pedido.plano);
+    const { codigo, renovacao } = await entregarLicenca(pedido.email, pedido.plano);
+    // SEGURANCA: em renovacao o codigo NAO volta para a tela (quem pagou pode nao ser o dono do e-mail);
+    // o codigo vai so para o e-mail do dono.
+    const entregue = renovacao ? 'RENOVACAO' : codigo;
     await sb(`pedidos?id=eq.${pedido.id}`, {
       method: 'PATCH',
-      body: JSON.stringify({ status: 'pago', codigo_entregue: codigo, pago_em: new Date().toISOString() })
+      body: JSON.stringify({ status: 'pago', codigo_entregue: entregue, pago_em: new Date().toISOString() })
     });
     await enviarEmail(pedido, codigo);
-    return { ...pedido, status: 'pago', codigo_entregue: codigo };
+    return { ...pedido, status: 'pago', codigo_entregue: entregue };
   } catch (e) {
     await sb(`pedidos?id=eq.${pedido.id}`, { method: 'PATCH', body: JSON.stringify({ status: 'pendente' }) }).catch(() => {});
     throw e;
@@ -260,7 +272,11 @@ export default async function handler(req, res) {
       if (!Array.isArray(achados) || !achados[0]) return res.status(404).json({ erro: 'Pedido nao encontrado' });
       const p = await processarPedido(achados[0]);
       const resp = { status: p.status, plano: p.plano, email: p.email };
-      if (p.status === 'pago') { resp.codigo = p.codigo_entregue; resp.download = DOWNLOAD_URL; }
+      if (p.status === 'pago') {
+        resp.download = DOWNLOAD_URL;
+        if (p.codigo_entregue === 'RENOVACAO') resp.renovacao = true;
+        else resp.codigo = p.codigo_entregue;
+      }
       return res.status(200).json(resp);
     }
 

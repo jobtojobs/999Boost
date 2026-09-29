@@ -45,7 +45,7 @@ export default async function handler(req, res) {
     const licencas = await buscar.json();
 
     if (!Array.isArray(licencas) || licencas.length === 0) {
-      return res.status(200).json({ valido: false, motivo: 'E-mail nao encontrado' });
+      return res.status(200).json({ valido: false, motivo: 'E-mail ou codigo de licenca incorreto' });
     }
 
     const lic = licencas[0];
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
     const vitalicio = lic.plano === 'vitalicio';
 
     if (lic.codigo !== codigo) {
-      return res.status(200).json({ valido: false, motivo: 'Codigo de licenca incorreto' });
+      return res.status(200).json({ valido: false, motivo: 'E-mail ou codigo de licenca incorreto' });
     }
 
     if (lic.status !== 'ativo') {

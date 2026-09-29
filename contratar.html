@@ -132,6 +132,10 @@
           <input type="tel" id="fone" placeholder="(00) 00000-0000">
           <label class="field">E-mail (vai ser o login do painel)</label>
           <input type="email" id="email" placeholder="seu@email.com">
+          <label style="display:flex;gap:8px;align-items:flex-start;margin-top:16px;font-size:12.5px;color:var(--sub);cursor:pointer;">
+            <input type="checkbox" id="aceite" style="margin-top:3px;">
+            <span>Li e aceito os <a href="/termos.html" target="_blank" style="color:var(--orange);">Termos de Uso e Reembolso</a> e a <a href="/privacidade.html" target="_blank" style="color:var(--orange);">Política de Privacidade</a>. Sei que posso desistir em até 7 dias.</span>
+          </label>
         </div>
 
         <div class="notice">
@@ -184,9 +188,9 @@
     </div>
     <div id="pixEtapaOk" style="display:none;">
       <div style="font-size:42px;">✅</div>
-      <h2>Pagamento confirmado!</h2>
+      <h2 id="okTitulo">Pagamento confirmado!</h2>
       <div class="sub">Sua licença está ativa. Também enviamos tudo para <b id="okEmail"></b>.</div>
-      <div style="color:var(--sub);font-size:12px;">Seu código de licença</div>
+      <div style="color:var(--sub);font-size:12px;" id="okRotulo">Seu código de licença</div>
       <div class="ok-code" id="okCodigo"></div>
       <a class="pix-btn" id="okDownload" href="#">Baixar o painel 999BOOST</a>
       <ol class="ok-steps">
@@ -209,7 +213,7 @@ var PLANOS = {
 
 // Cupons e precos oficiais ficam no servidor (api/checkout.js) - aqui e so a exibicao
 var API = '/api/checkout';
-var pedidoId = null, pollTimer = null, pollInicio = 0;
+var pedidoId = null, pollTimer = null, pollInicio = 0, valorPedido = 0;
 
 var planoAtual = "streamer";
 var descontoAtivo = 0;
@@ -310,6 +314,10 @@ function finalizar(){
     alert('Preencha nome, telefone e um e-mail válido antes de continuar.');
     return;
   }
+  if (!document.getElementById('aceite').checked){
+    alert('Para continuar, aceite os Termos de Uso e a Política de Privacidade.');
+    return;
+  }
   var plano = PLANOS[planoAtual];
   var btn = document.getElementById('btnComprar');
   btn.disabled = true;
@@ -325,6 +333,7 @@ function finalizar(){
     btn.disabled = false; btn.textContent = 'Pagar com PIX';
     if (!d.pedido_id){ alert(d.erro || 'Não foi possível gerar o PIX agora. Tente de novo.'); return; }
     pedidoId = d.pedido_id;
+    valorPedido = d.valor;
     try { if (window.fbq) fbq('track', 'InitiateCheckout', { value: d.valor, currency: 'BRL' }); } catch(e){}
     abrirPix(d, plano, email);
   })
@@ -368,11 +377,18 @@ function checarPagamento(){
       if (d.status === 'pago'){
         clearInterval(pollTimer);
         document.getElementById('okEmail').textContent = d.email;
-        document.getElementById('okCodigo').textContent = d.codigo;
+        if (d.renovacao){
+          document.getElementById('okTitulo').textContent = 'Licença renovada!';
+          document.getElementById('okRotulo').textContent = 'Use o mesmo e-mail e código de sempre';
+          document.getElementById('okCodigo').textContent = 'Código enviado ao seu e-mail';
+          document.getElementById('okCodigo').style.fontSize = '16px';
+        } else {
+          document.getElementById('okCodigo').textContent = d.codigo;
+        }
         document.getElementById('okDownload').href = d.download;
         document.getElementById('pixEtapaPagar').style.display = 'none';
         document.getElementById('pixEtapaOk').style.display = 'block';
-        try { if (window.fbq) fbq('track', 'Purchase', { value: PLANOS[planoAtual].preco, currency: 'BRL' }); } catch(e){}
+        try { if (window.fbq) fbq('track', 'Purchase', { value: valorPedido, currency: 'BRL' }); } catch(e){}
       } else if (d.status === 'expirado'){
         clearInterval(pollTimer);
         document.getElementById('pixStatus').textContent = 'O PIX expirou. Feche e gere um novo.';
