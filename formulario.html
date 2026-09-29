@@ -78,6 +78,7 @@
   <div class="extra"><label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="exHw"> Análise Completa de Hardware</label><span class="price">R$ 29,90</span></div>
   <div class="extra"><label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="exSb"> Ativação de Secure Boot / TPM 2.0</label><span class="price">R$ 49,90</span></div>
   <div class="extra"><label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="exDelay"> Remoção de Delay para Controle</label><span class="price">R$ 35,90</span></div>
+  <div class="extra"><label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="exUv"> Undervolt Guiado (menos temperatura no processador)</label><span class="price">R$ 49,90</span></div>
 
   <h2>4. Autorizações</h2>
   <div class="checkrow"><input type="checkbox" id="cAcesso"><span>Autorizo o acesso remoto ao meu computador via AnyDesk (ou ferramenta equivalente) para a realização do serviço. *</span></div>
@@ -141,6 +142,7 @@ function enviar(){
   var exHw = document.getElementById('exHw').checked;
   var exSb = document.getElementById('exSb').checked;
   var exDelay = document.getElementById('exDelay').checked;
+  var exUv = document.getElementById('exUv').checked;
   var cFormat = document.getElementById('cFormat') ? document.getElementById('cFormat').checked : true;
   var cOc = document.getElementById('cOc') ? document.getElementById('cOc').checked : true;
 
@@ -157,6 +159,7 @@ function enviar(){
   if (exHw) extras.push('Análise de Hardware (R$ 29,90)');
   if (exSb) extras.push('Secure Boot/TPM 2.0 (R$ 49,90)');
   if (exDelay) extras.push('Remoção de Delay para Controle (R$ 35,90)');
+  if (exUv) extras.push('Undervolt Guiado (R$ 49,90)');
 
   var agora = new Date();
   var dataTxt = agora.toLocaleDateString('pt-BR') + ' ' + agora.toLocaleTimeString('pt-BR');
