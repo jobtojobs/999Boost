@@ -78,6 +78,8 @@
     <button class="tab" data-t="licencas">Licenças</button>
     <button class="tab" data-t="criar">Criar licença</button>
     <button class="tab" data-t="pedidos">Pedidos</button>
+    <button class="tab" data-t="cupons">Cupons</button>
+    <button class="tab" data-t="afiliados">Indicações</button>
   </div>
 
   <section id="t-resumo">
@@ -127,6 +129,24 @@
     </div>
   </section>
 
+  <section id="t-cupons" class="hide">
+    <div class="box" style="margin-bottom:12px;">
+      <div class="row" style="justify-content:space-between;margin:0;">
+        <div><b>Cupons de desconto e de parceiros</b><div class="sub">O desconto é aplicado no valor do PIX. A comissão do parceiro é calculada sobre o valor pago.</div></div>
+        <button class="btn pri" onclick="formCupom()">+ Novo cupom</button>
+      </div>
+    </div>
+    <div class="box scroll"><table class="tbl" id="tCup"></table></div>
+  </section>
+
+  <section id="t-afiliados" class="hide">
+    <div class="box" style="margin-bottom:12px;">
+      <b>Programa de indicação</b>
+      <div class="sub">A cada 3 clientes novos indicados (confirmados após 7 dias, sem reembolso) o indicador ganha 1 plano igual ao MENOR dos 3. O cliente resgata sozinho em /indique.html. Indicador <b>Vitalício</b> ganha 20% do valor pago em PIX por indicado (liberado após 7 dias): pague pela chave PIX dele e clique em "Paguei".</div>
+    </div>
+    <div class="box scroll"><table class="tbl" id="tAf"></table></div>
+  </section>
+
   <section id="t-pedidos" class="hide">
     <div class="row"><button class="btn" onclick="limparPendentes()">Limpar PIX não pagos (mais de 7 dias)</button></div>
     <div class="box scroll"><table class="tbl" id="tPed"></table></div>
@@ -168,7 +188,9 @@ function sair(){ try { sessionStorage.removeItem('adm999'); } catch(e){} locatio
 document.querySelectorAll('.tab').forEach(function(b){
   b.onclick = function(){
     document.querySelectorAll('.tab').forEach(function(x){ x.classList.toggle('on', x===b); });
-    ['resumo','licencas','criar','pedidos'].forEach(function(t){ document.getElementById('t-'+t).classList.toggle('hide', t!==b.dataset.t); });
+    ['resumo','licencas','criar','pedidos','cupons','afiliados'].forEach(function(t){ document.getElementById('t-'+t).classList.toggle('hide', t!==b.dataset.t); });
+    if (b.dataset.t==='cupons') carregarCupons();
+    if (b.dataset.t==='afiliados') carregarAfiliados();
     if (b.dataset.t==='licencas') carregarLicencas();
     if (b.dataset.t==='pedidos') carregarPedidos();
     if (b.dataset.t==='resumo') api('resumo').then(mostrarResumo);
@@ -269,6 +291,149 @@ function copiarTexto(t){
 function copiarMensagem(i){
   var l=LIC[i];
   copiarTexto('Olá! Aqui está seu acesso ao painel 999BOOST:\n\nE-mail: '+l.email+'\nCódigo de licença: '+l.codigo+'\nDownload: '+location.origin+'/download/999Boost.zip\n\nExtraia o arquivo, abra o "Abrir 999Boost Assinante.bat" e entre com o e-mail e o código.');
+}
+var CUP = [];
+function carregarCupons(){
+  var t=document.getElementById('tCup'); t.innerHTML='<tr><td class="sub">Carregando...</td></tr>';
+  api('cupons').then(function(lista){
+    CUP = lista;
+    if (!lista.length){ t.innerHTML='<tr><td class="sub">Nenhum cupom cadastrado. Clique em "+ Novo cupom".</td></tr>'; return; }
+    var h='<tr><th>Cupom</th><th>Desconto</th><th>Parceiro / comissão</th><th>Vendas</th><th>Comissão a pagar</th><th>Ações</th></tr>';
+    lista.forEach(function(c,i){
+      var vencido = c.validade && new Date(c.validade) < new Date();
+      var st = !c.ativo ? '<span class="pill p-cancelado">pausado</span>' : (vencido ? '<span class="pill p-expirado">vencido</span>' : '<span class="pill p-ativo">ativo</span>');
+      var lim = c.limite_usos ? (' · limite '+c.limite_usos+' usos') : '';
+      h+='<tr><td><b class="mono">'+esc(c.codigo)+'</b> '+st+'<div class="sub">'+(c.validade?'até '+dia(c.validade):'sem validade')+lim+'</div></td>'+
+        '<td><b>'+c.desconto+'%</b></td>'+
+        '<td>'+(c.parceiro?esc(c.parceiro):'<span class="sub">—</span>')+(c.comissao?'<div class="sub">'+c.comissao+'% de comissão'+(c.pix?' · PIX: '+esc(c.pix):'')+'</div>':'')+'</td>'+
+        '<td>'+c.vendas+'<div class="sub">'+brl(c.faturamento)+'</div></td>'+
+        '<td><b style="color:'+(c.comissao_pendente>0?'var(--orange)':'inherit')+'">'+brl(c.comissao_pendente)+'</b>'+(c.comissao_paga_total?'<div class="sub">já pago: '+brl(c.comissao_paga_total)+'</div>':'')+'</td>'+
+        '<td><div class="acts">'+
+          '<button class="btn" onclick="usosCupom('+i+')">Quem usou</button>'+
+          '<button class="btn" onclick="formCupom('+i+')">Editar</button>'+
+          '<button class="btn" onclick="copiarTexto(location.origin+\'/contratar.html?cupom='+esc(c.codigo)+'\')">Link</button>'+
+          (c.comissao_pendente>0?'<button class="btn green" onclick="pagarComissao('+i+')">Paguei</button>':'')+
+          '<button class="btn" onclick="ativarCupom('+i+','+(!c.ativo)+')">'+(c.ativo?'Pausar':'Ativar')+'</button>'+
+          '<button class="btn red" onclick="excluirCupom('+i+')">Excluir</button>'+
+        '</div></td></tr>';
+    });
+    t.innerHTML=h;
+  }).catch(function(e){ t.innerHTML='<tr><td>'+esc(e.message)+'</td></tr>'; });
+}
+function formCupom(i){
+  var c = (i!==undefined) ? CUP[i] : null;
+  var v = function(x){ return x==null ? '' : esc(x); };
+  var h='<h3 style="margin-top:0;">'+(c?'Editar cupom':'Novo cupom')+'</h3>'+
+    '<div class="row"><div style="flex:1;min-width:160px;"><div class="sub">Código do cupom</div><input id="fCod" style="width:100%;text-transform:uppercase;" placeholder="EX: FULANO10" value="'+(c?v(c.codigo):'')+'" '+(c?'disabled':'')+'></div>'+
+    '<div style="width:120px;"><div class="sub">Desconto (%)</div><input id="fDesc" type="number" min="0" max="90" style="width:100%;" value="'+(c?c.desconto:10)+'"></div></div>'+
+    '<div class="row"><div style="flex:1;min-width:160px;"><div class="sub">Parceiro (nome do streamer/criador) — opcional</div><input id="fParc" style="width:100%;" value="'+(c?v(c.parceiro):'')+'"></div>'+
+    '<div style="width:120px;"><div class="sub">Comissão (%)</div><input id="fCom" type="number" min="0" max="90" style="width:100%;" value="'+(c?(c.comissao||0):0)+'"></div></div>'+
+    '<div class="row"><div style="flex:1;min-width:160px;"><div class="sub">Chave PIX do parceiro — opcional</div><input id="fPix" style="width:100%;" value="'+(c?v(c.pix):'')+'"></div></div>'+
+    '<div class="row"><div><div class="sub">Válido até — opcional</div><input id="fVal" type="date" value="'+(c&&c.validade?new Date(c.validade).toISOString().slice(0,10):'')+'"></div>'+
+    '<div><div class="sub">Limite de usos — opcional</div><input id="fLim" type="number" min="1" style="width:130px;" value="'+(c&&c.limite_usos?c.limite_usos:'')+'"></div></div>'+
+    '<div class="row"><div style="flex:1;"><div class="sub">Observação — opcional</div><input id="fObs" style="width:100%;" value="'+(c?v(c.observacao):'')+'"></div></div>'+
+    '<div class="row" style="margin-top:14px;"><button class="btn pri" onclick="salvarCupom('+(c?'false':'true')+')">Salvar cupom</button><button class="btn" onclick="fechar()">Cancelar</button></div>'+
+    '<div class="sub">Desconto é o que o cliente ganha. Comissão é a porcentagem do valor pago que vai para o parceiro. Deixe comissão 0 para cupons promocionais comuns.</div>';
+  abrir(h);
+}
+function salvarCupom(novo){
+  var dados = {
+    novo: novo, codigo: document.getElementById('fCod').value, desconto: document.getElementById('fDesc').value,
+    parceiro: document.getElementById('fParc').value, comissao: document.getElementById('fCom').value,
+    pix: document.getElementById('fPix').value, validade: document.getElementById('fVal').value,
+    limite_usos: document.getElementById('fLim').value, observacao: document.getElementById('fObs').value
+  };
+  api('cupom_salvar', dados).then(function(){ fechar(); toast('Cupom salvo'); carregarCupons(); }).catch(function(e){ toast(e.message); });
+}
+function ativarCupom(i, ativo){
+  api('cupom_ativo', { codigo: CUP[i].codigo, ativo: ativo }).then(function(){ toast(ativo?'Cupom ativado':'Cupom pausado'); carregarCupons(); }).catch(function(e){ toast(e.message); });
+}
+function excluirCupom(i){
+  var c = CUP[i];
+  if (!confirm('Excluir o cupom '+c.codigo+'? As vendas antigas continuam registradas nos pedidos.')) return;
+  api('cupom_excluir', { codigo: c.codigo }).then(function(){ toast('Cupom excluído'); carregarCupons(); }).catch(function(e){ toast(e.message); });
+}
+function pagarComissao(i){
+  var c = CUP[i];
+  if (!confirm('Confirmar que você pagou '+brl(c.comissao_pendente)+' de comissão para '+(c.parceiro||c.codigo)+'?'+(c.pix?'\nChave PIX: '+c.pix:''))) return;
+  api('cupom_pagar', { codigo: c.codigo }).then(function(){ toast('Comissão marcada como paga'); carregarCupons(); }).catch(function(e){ toast(e.message); });
+}
+function usosCupom(i){
+  var c = CUP[i];
+  abrir('<h3 style="margin-top:0;">Quem usou '+esc(c.codigo)+'</h3><div class="sub">Carregando...</div>');
+  api('cupom_usos', { codigo: c.codigo }).then(function(ps){
+    var h='<h3 style="margin-top:0;">Quem usou '+esc(c.codigo)+' ('+ps.length+')</h3>';
+    if (!ps.length) h+='<div class="sub">Ninguém comprou com este cupom ainda.</div>';
+    else {
+      h+='<div class="scroll" style="max-height:60vh;"><table class="tbl"><tr><th>Data</th><th>Cliente</th><th>Plano</th><th>Pago</th><th>Comissão</th></tr>';
+      ps.forEach(function(p){
+        var com = Number(p.valor||0)*Number(p.comissao_pct||0)/100;
+        h+='<tr><td>'+data(p.pago_em)+'</td><td>'+esc(p.nome)+'<div class="sub">'+esc(p.email)+(p.telefone?' · '+esc(p.telefone):'')+'</div></td><td>'+(NOMES[p.plano]||esc(p.plano))+'</td>'+
+          '<td>'+brl(p.valor)+(p.status==='reembolsado'?' <span class="pill p-cancelado">reembolsado</span>':'')+'</td>'+
+          '<td>'+(p.comissao_pct?brl(com)+'<div class="sub">'+(p.status==='reembolsado'?'não conta':(p.comissao_paga?'paga':'a pagar'))+'</div>':'<span class="sub">—</span>')+'</td></tr>';
+      });
+      h+='</table></div>';
+    }
+    h+='<div class="row" style="margin-top:14px;"><button class="btn" onclick="fechar()">Fechar</button></div>';
+    abrir(h);
+  }).catch(function(e){ toast(e.message); fechar(); });
+}
+var AF = [];
+function carregarAfiliados(){
+  var t=document.getElementById('tAf'); t.innerHTML='<tr><td class="sub">Carregando...</td></tr>';
+  api('afiliados').then(function(lista){
+    AF = lista;
+    if (!lista.length){ t.innerHTML='<tr><td class="sub">Nenhum indicador ainda. O link é gerado quando o assinante entra em /indique.html.</td></tr>'; return; }
+    var h='<tr><th>Indicador</th><th>Indicados</th><th>Contam p/ prêmio</th><th>Em análise</th><th>Prêmios</th><th>Comissão (Vitalício)</th><th>Ações</th></tr>';
+    lista.forEach(function(a,i){
+      h+='<tr><td>'+esc(a.email)+'<div class="sub mono">'+esc(a.codigo)+'</div></td>'+
+        '<td><b>'+a.indicados+'</b>'+(a.canceladas?'<div class="sub">'+a.canceladas+' reembolsada(s)</div>':'')+'</td>'+
+        '<td>'+a.confirmadas_livres+' / 3</td><td>'+a.em_analise+'</td>'+
+        '<td>'+a.premios+(a.presentes_pendentes?' <span class="pill p-expirado">'+a.presentes_pendentes+' presente a entregar</span>':'')+'</td>'+
+        '<td>'+((a.comissao_a_pagar||a.comissao_paga)?'<b style="color:'+(a.comissao_a_pagar>0?'var(--orange)':'inherit')+'">'+brl(a.comissao_a_pagar)+'</b> a pagar'+(a.comissao_paga?'<div class="sub">já pago: '+brl(a.comissao_paga)+'</div>':'')+(a.pix?'<div class="sub">PIX: '+esc(a.pix)+'</div>':'<div class="sub">sem chave PIX</div>'):'<span class="sub">—</span>')+'</td>'+
+        '<td><div class="acts"><button class="btn" onclick="detalheAfiliado('+i+')">Ver indicados</button>'+
+        (a.comissao_a_pagar>0?'<button class="btn green" onclick="pagarIndicacao('+i+')">Paguei</button>':'')+
+        '<button class="btn" onclick="copiarTexto(location.origin+\'/contratar.html?ref='+esc(a.codigo)+'\')">Link</button></div></td></tr>';
+    });
+    t.innerHTML=h;
+  }).catch(function(e){ t.innerHTML='<tr><td>'+esc(e.message)+'</td></tr>'; });
+}
+function detalheAfiliado(i){
+  var a = AF[i];
+  abrir('<h3 style="margin-top:0;">Indicados por '+esc(a.email)+'</h3><div class="sub">Carregando...</div>');
+  api('afiliado_detalhe', { codigo: a.codigo }).then(function(r){
+    var h='<h3 style="margin-top:0;">Indicados por '+esc(a.email)+'</h3>';
+    if (!r.indicados.length) h+='<div class="sub">Ninguém comprou por este link ainda.</div>';
+    else {
+      h+='<div class="scroll" style="max-height:40vh;"><table class="tbl"><tr><th>Data</th><th>Cliente</th><th>Plano</th><th>Situação</th><th>Comissão</th></tr>';
+      r.indicados.forEach(function(p){
+        var com = Number(p.valor||0)*Number(p.ref_comissao_pct||0)/100;
+        h+='<tr><td>'+data(p.pago_em)+'</td><td>'+esc(p.nome)+'<div class="sub">'+esc(p.email)+'</div></td><td>'+(NOMES[p.plano]||esc(p.plano))+'<div class="sub">'+brl(p.valor)+'</div></td><td>'+(p.status==='reembolsado'?'<span class="pill p-cancelado">reembolsado</span>':'<span class="pill p-ativo">pago</span>')+'</td>'+
+          '<td>'+(com>0?brl(com)+'<div class="sub">'+(p.status==='reembolsado'?'não conta':(p.ref_comissao_paga?'paga':'a pagar'))+'</div>':'<span class="sub">plano</span>')+'</td></tr>';
+      });
+      h+='</table></div>';
+    }
+    if (r.premios.length){
+      h+='<div class="sub" style="margin:14px 0 6px;">Prêmios</div><table class="tbl">';
+      r.premios.forEach(function(p){
+        var st = p.status==='entregue'?'aplicado na licença':(p.status==='presente_pendente'?'presente a entregar':'presente entregue');
+        h+='<tr><td>'+data(p.criado_em)+'</td><td>'+(NOMES[p.plano]||esc(p.plano))+'</td><td>'+st+'</td><td>'+
+          (p.status==='presente_pendente'?'<button class="btn green" onclick="premioEntregue(\''+esc(p.id)+'\','+i+')">Marcar entregue</button>':'')+'</td></tr>';
+      });
+      h+='</table>';
+    }
+    h+='<div class="row" style="margin-top:14px;"><button class="btn" onclick="fechar()">Fechar</button></div>';
+    abrir(h);
+  }).catch(function(e){ toast(e.message); fechar(); });
+}
+function pagarIndicacao(i){
+  var a = AF[i];
+  if (!confirm('Confirmar que você pagou '+brl(a.comissao_a_pagar)+' de comissão para '+a.email+'?'+(a.pix?'\nChave PIX: '+a.pix:'\n(Ele ainda não cadastrou chave PIX)'))) return;
+  api('indicacao_pagar', { codigo: a.codigo }).then(function(){ toast('Comissão marcada como paga'); carregarAfiliados(); }).catch(function(e){ toast(e.message); });
+}
+function premioEntregue(id, i){
+  if (!confirm('Já criou a licença de presente (em "Criar licença") e enviou ao indicador?')) return;
+  api('premio_entregue', { id: id }).then(function(){ toast('Presente marcado como entregue'); carregarAfiliados(); detalheAfiliado(i); }).catch(function(e){ toast(e.message); });
 }
 function limparPendentes(){
   if (!confirm('Apagar pedidos de PIX não pagos com mais de 7 dias?')) return;

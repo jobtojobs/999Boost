@@ -192,6 +192,7 @@
         <li>Dê dois cliques em <b>Abrir 999Boost Assinante.bat</b> e aceite rodar como administrador.</li>
         <li>Entre com o seu e-mail e o código acima.</li>
       </ol>
+      <a id="okIndique" href="/indique.html" target="_blank" style="display:block;margin:12px 0;padding:12px;border:1px dashed var(--orange);border-radius:10px;color:#fff;text-decoration:none;font-size:13px;line-height:1.4;">🎁 <b>Ganhe um plano grátis:</b> indique 3 amigos com o seu link. <span style="color:var(--orange);font-weight:700;">Pegar meu link →</span></a>
       <div class="sub" style="font-size:11.5px;">Guarde o código. Dúvidas? <a href="https://wa.me/5585991954902" style="color:var(--orange);">WhatsApp</a></div>
     </div>
   </div>
@@ -324,7 +325,7 @@ function finalizar(){
   fetch(API, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ acao:'criar', plano: planoAtual, nome: nome, email: email, telefone: fone, cupom: cupomAtivo })
+    body: JSON.stringify({ acao:'criar', plano: planoAtual, nome: nome, email: email, telefone: fone, cupom: cupomAtivo, ref: REF })
   })
   .then(function(r){ return r.json(); })
   .then(function(d){
@@ -392,11 +393,14 @@ function checarPagamento(){
           document.getElementById('okCodigo').textContent = d.codigo;
         }
         document.getElementById('okDownload').href = d.download;
+        document.getElementById('okIndique').href = '/indique.html?email=' + encodeURIComponent(d.email || '');
+        if (d.plano === 'vitalicio') document.getElementById('okIndique').innerHTML = '🎁 <b>Ganhe 20% em PIX</b> por cada amigo que comprar pelo seu link. <span style="color:var(--orange);font-weight:700;">Pegar meu link →</span>';
         if (d.plano === 'ebook'){
           document.getElementById('okTitulo').textContent = 'Pagamento confirmado!';
           document.getElementById('okRotulo').textContent = 'Seu código de acesso ao guia (guarde para baixar de novo em 999boost.com.br/guia.html)';
           document.getElementById('okDownload').style.display = 'none';
           document.getElementById('okPassos').style.display = 'none';
+          document.getElementById('okIndique').style.display = 'none';
           var bg = document.getElementById('okGuia'); bg.style.display = 'block'; bg.style.background = 'var(--orange)'; bg.style.color = '#000';
           bg.textContent = 'Baixar o Guia (PDF)';
         } else if (d.guia){
@@ -430,6 +434,21 @@ document.querySelectorAll('.addon').forEach(function(el){
 
 planoAtual = pegarParametroPlano();
 atualizarResumo();
+
+// Link de parceiro (?cupom=CODIGO) aplica o cupom sozinho
+// Link de indicacao (?ref=CODIGO) fica guardado 30 dias neste navegador
+var REF = '';
+(function(){
+  var q = new URLSearchParams(window.location.search);
+  var c = (q.get('cupom') || '').trim().toUpperCase();
+  if (c){ document.getElementById('cupom').value = c; aplicarCupom(); }
+  var r = (q.get('ref') || '').trim().toUpperCase();
+  try {
+    if (/^[A-Z0-9]{6}$/.test(r)) localStorage.setItem('ref999', JSON.stringify({ c: r, t: Date.now() }));
+    var salvo = JSON.parse(localStorage.getItem('ref999') || 'null');
+    if (salvo && Date.now() - salvo.t < 30 * 86400000) REF = salvo.c;
+  } catch(e){ if (/^[A-Z0-9]{6}$/.test(r)) REF = r; }
+})();
 </script>
 
 <script defer src="/_vercel/insights/script.js"></script>

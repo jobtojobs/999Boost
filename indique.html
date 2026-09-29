@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>999BOOST - Indique e Ganhe</title>
+<meta name="description" content="Indique 3 amigos para o 999BOOST e ganhe um plano grátis.">
+<link rel="icon" type="image/png" href="/Favicon.png?v=4">
+<style>
+  :root{--bg:#0a0a0c;--panel:#141213;--line:#262222;--sub:#a8a8a8;--orange:#ff7a1a;--green:#3ecf6e;}
+  *{box-sizing:border-box;}
+  body{background:var(--bg);color:#fff;font-family:Segoe UI,Arial,sans-serif;margin:0;padding:24px 16px 60px;}
+  .wrap{max-width:720px;margin:0 auto;}
+  .eyebrow{color:var(--orange);font-weight:900;font-size:12px;letter-spacing:1px;}
+  h1{font-size:30px;margin:6px 0 8px;line-height:1.15;}
+  h1 span{color:var(--orange);}
+  h2{font-size:18px;margin:0 0 12px;}
+  p{color:var(--sub);font-size:14px;line-height:1.55;margin:0 0 14px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;margin-top:16px;}
+  .passos{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px;}
+  .passo{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px;}
+  .passo b{display:block;color:var(--orange);font-size:22px;margin-bottom:4px;}
+  .passo div{font-size:13px;color:#ddd;line-height:1.4;}
+  .ex{font-size:13px;color:#ddd;background:var(--bg);border-left:3px solid var(--orange);padding:10px 12px;border-radius:6px;margin:12px 0 0;line-height:1.6;}
+  ol.regras{color:var(--sub);font-size:13.5px;line-height:1.6;padding-left:20px;margin:0;}
+  ol.regras li{margin-bottom:6px;}
+  label{display:block;font-size:12.5px;color:var(--sub);margin:12px 0 4px;}
+  input{width:100%;padding:12px;background:var(--bg);border:1px solid var(--line);border-radius:10px;color:#fff;font-size:15px;}
+  input:focus{outline:none;border-color:var(--orange);}
+  button{background:var(--orange);color:#000;border:none;border-radius:10px;padding:13px 18px;font-weight:900;font-size:15px;cursor:pointer;}
+  button:disabled{opacity:.6;cursor:default;}
+  .full{width:100%;margin-top:16px;}
+  .msg{min-height:18px;font-size:13px;margin-top:10px;color:#ff8b7a;}
+  .hide{display:none;}
+  .linkbox{display:flex;gap:8px;flex-wrap:wrap;}
+  .linkbox input{flex:1;min-width:200px;font-family:Consolas,monospace;font-size:14px;}
+  .btn2{background:transparent;color:#fff;border:1px solid var(--line);}
+  .btn2:hover{border-color:var(--orange);}
+  .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;}
+  .num{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;}
+  .num b{display:block;font-size:26px;}
+  .num span{font-size:12px;color:var(--sub);}
+  .barra{height:10px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin:8px 0 4px;}
+  .barra i{display:block;height:100%;background:var(--orange);}
+  .premio{background:rgba(62,207,110,.08);border:1px solid rgba(62,207,110,.4);border-radius:12px;padding:14px;margin-top:14px;}
+  .premio b{color:var(--green);}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;}
+  th{color:var(--sub);font-weight:600;font-size:12px;}
+  .st{font-size:11.5px;padding:3px 8px;border-radius:20px;white-space:nowrap;}
+  .st-confirmada{background:rgba(62,207,110,.15);color:var(--green);}
+  .st-em_analise{background:rgba(255,122,26,.15);color:var(--orange);}
+  .st-premiada{background:rgba(120,140,255,.15);color:#9aa8ff;}
+  .st-a_receber{background:rgba(62,207,110,.15);color:var(--green);}
+  .st-paga{background:rgba(120,140,255,.15);color:#9aa8ff;}
+  .st-cancelada{background:rgba(255,80,80,.12);color:#ff8b7a;}
+  .back{display:inline-block;margin-top:22px;color:var(--sub);font-size:13px;text-decoration:none;}
+  .back:hover{color:var(--orange);}
+  #boxLista{overflow-x:auto;}
+  #boxDinheiro .num b{font-size:21px;white-space:nowrap;}
+  @media (max-width:560px){ .passos{grid-template-columns:1fr;} h1{font-size:25px;} .num b{font-size:22px;} .num span{font-size:11px;} #boxDinheiro .num b{font-size:15px;} .card{padding:16px;} td,th{padding:8px 4px;font-size:12px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">999BOOST · PROGRAMA DE INDICAÇÃO</div>
+  <h1>Indique 3 amigos e <span>ganhe um plano</span></h1>
+  <p>Compartilhe o seu link. A cada 3 amigos que virarem clientes, você ganha um plano grátis. <b style="color:#fff;">É Vitalício? Você ganha 20% em PIX por cada amigo.</b></p>
+
+  <div class="card">
+    <h2>Como funciona</h2>
+    <div class="passos">
+      <div class="passo"><b>1</b><div>Entre abaixo com o seu e-mail e código de licença e copie o seu link.</div></div>
+      <div class="passo"><b>2</b><div>Envie para amigos. Quem comprar um plano pelo seu link entra no seu contador.</div></div>
+      <div class="passo"><b>3</b><div>A cada 3 compras confirmadas, você resgata 1 plano aqui mesmo.</div></div>
+    </div>
+    <div class="ex">
+      <b>Qual plano eu ganho?</b> Um plano igual ao <b>menor</b> dos 3 que seus amigos compraram.<br>
+      3× Turbo → ganha <b>Turbo</b> · 2× Turbo + 1× Basic → ganha <b>Basic</b> · 3× Vitalício → ganha <b>Vitalício</b>
+    </div>
+    <div class="ex">
+      <b>Já é Vitalício?</b> Em vez de plano, você recebe <b>20% do valor pago</b> por cada amigo, direto no seu PIX.<br>
+      Amigo comprou Turbo (R$ 49,90) → você recebe <b>R$ 9,98</b> · Amigo comprou Vitalício (R$ 99,90) → você recebe <b>R$ 19,98</b>
+    </div>
+  </div>
+
+  <div class="card" id="boxLogin">
+    <h2>Pegar meu link</h2>
+    <label for="email">E-mail da licença</label>
+    <input id="email" type="email" placeholder="seu@email.com" autocomplete="email">
+    <label for="codigo">Código de licença</label>
+    <input id="codigo" type="text" placeholder="XXXX-XXXX-XXXX" style="text-transform:uppercase;letter-spacing:1px;" onkeydown="if(event.key==='Enter')entrar()">
+    <button class="full" id="btn" onclick="entrar()">Ver meu link e meu contador</button>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <div class="card hide" id="boxPainel">
+    <h2>Seu link de convite</h2>
+    <div class="linkbox">
+      <input id="link" readonly onclick="this.select()">
+      <button onclick="copiar()">Copiar</button>
+      <button class="btn2" onclick="whats()">WhatsApp</button>
+    </div>
+    <div id="boxDinheiro" class="hide">
+      <div class="nums">
+        <div class="num"><b id="dReceber">R$ 0</b><span>a receber</span></div>
+        <div class="num"><b id="dAnalise">R$ 0</b><span>em análise (7 dias)</span></div>
+        <div class="num"><b id="dRecebido">R$ 0</b><span>já recebido</span></div>
+      </div>
+      <label for="pix">Sua chave PIX para receber</label>
+      <div class="linkbox"><input id="pix" placeholder="CPF, e-mail, telefone ou chave aleatória" style="font-family:inherit;"><button onclick="salvarPix()">Salvar</button></div>
+      <p style="margin:8px 0 0;font-size:12.5px;">Pagamos as comissões liberadas por PIX, em até 5 dias úteis depois de liberadas.</p>
+    </div>
+    <div id="boxPlano">
+    <div class="nums">
+      <div class="num"><b id="nConf">0</b><span>contando para o prêmio</span></div>
+      <div class="num"><b id="nAnalise">0</b><span>em análise (7 dias)</span></div>
+      <div class="num"><b id="nPremios">0</b><span>prêmios recebidos</span></div>
+    </div>
+    <div style="margin-top:16px;font-size:13px;color:var(--sub);">Próximo prêmio: <b id="txtProg" style="color:#fff;">0 de 3</b></div>
+    <div class="barra"><i id="barra" style="width:0%"></i></div>
+    <div id="boxPremio"></div>
+    </div>
+    <div id="boxLista" style="margin-top:18px;"></div>
+    <div class="msg" id="msg2"></div>
+  </div>
+
+  <div class="card">
+    <h2>Regras</h2>
+    <ol class="regras">
+      <li>Participa quem tem licença 999BOOST (ativa ou vencida). Licenças canceladas ou reembolsadas não participam.</li>
+      <li>Conta como indicação a <b>primeira compra de um plano</b> (Basic, Low Streamer, Turbo ou Vitalício) feita pelo seu link por um <b>cliente novo</b>, ou seja, um e-mail que ainda não tinha licença. Cada amigo conta uma vez. O e-book não conta.</li>
+      <li>Você não pode indicar a si mesmo nem usar outro e-mail seu. Contas falsas, compras combinadas para reembolso ou qualquer fraude cancelam as indicações e os prêmios.</li>
+      <li>A indicação é confirmada <b>7 dias após o pagamento</b> (prazo de arrependimento). Se o amigo pedir reembolso, ela não conta.</li>
+      <li>A cada <b>3 indicações confirmadas</b> você ganha 1 plano igual ao <b>menor plano</b> entre essas 3. As indicações são agrupadas de 3 em 3, na ordem em que foram pagas.</li>
+      <li>Prêmio de plano de 15 dias: somamos 15 dias à sua licença. Se o plano ganho for superior ao seu, sua licença sobe para ele; se for inferior, os 15 dias entram no seu plano atual.</li>
+      <li>Prêmio Vitalício: sua licença vira Vitalício.</li>
+      <li><b>Indicador Vitalício:</b> em vez de plano, recebe <b>20% do valor efetivamente pago</b> por cada amigo indicado (depois de descontos de cupom), liberado 7 dias após o pagamento se não houver reembolso. O pagamento é feito por PIX na chave cadastrada nesta página, em até 5 dias úteis após a liberação. Indicações feitas antes de você virar Vitalício continuam valendo para prêmio em plano, que vira uma licença de presente para você dar a quem quiser.</li>
+      <li>O prêmio em plano é resgatado nesta página, no botão "Resgatar". Prêmios em plano não viram dinheiro e não são transferíveis (exceto a licença de presente).</li>
+      <li>O link vale para compras feitas no mesmo navegador em até 30 dias depois do clique. Se o amigo usar um cupom junto, a indicação continua valendo.</li>
+      <li>O 999BOOST pode alterar ou encerrar o programa a qualquer momento, com aviso nesta página. Indicações já confirmadas antes da mudança são respeitadas.</li>
+    </ol>
+  </div>
+
+  <a class="back" href="/">← Voltar ao site</a>
+</div>
+
+<script>
+var NOMES = { basic:'Basic Gamer', streamer:'Low Streamer', turbo:'Turbo Pro Player', vitalicio:'Vitalício' };
+var SIT = { confirmada:'confirmada', em_analise:'em análise', premiada:'já premiada', cancelada:'reembolsada', a_receber:'a receber', paga:'paga' };
+function brl(v){ return 'R$ ' + Number(v||0).toFixed(2).replace('.', ','); }
+var CRED = null, DADOS = null;
+
+function chamar(acao){
+  return fetch('/api/checkout', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ acao: acao, email: CRED.email, codigo: CRED.codigo }) })
+    .then(function(r){ return r.json().then(function(j){ if (!r.ok) throw new Error(j.erro || 'Erro'); return j; }); });
+}
+function esc(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function dia(d){ return d ? new Date(d).toLocaleDateString('pt-BR') : '—'; }
+
+function entrar(){
+  var email = document.getElementById('email').value.trim().toLowerCase();
+  var codigo = document.getElementById('codigo').value.trim().toUpperCase();
+  var msg = document.getElementById('msg'), btn = document.getElementById('btn');
+  if (!email || !codigo){ msg.textContent = 'Preencha o e-mail e o código de licença.'; return; }
+  CRED = { email: email, codigo: codigo };
+  btn.disabled = true; btn.textContent = 'Verificando...'; msg.textContent = '';
+  chamar('indique').then(function(d){
+    document.getElementById('boxLogin').classList.add('hide');
+    document.getElementById('boxPainel').classList.remove('hide');
+    mostrar(d);
+  }).catch(function(e){ msg.textContent = e.message; })
+    .then(function(){ btn.disabled = false; btn.textContent = 'Ver meu link e meu contador'; });
+}
+
+function mostrar(d){
+  DADOS = d;
+  document.getElementById('link').value = d.link;
+  document.getElementById('nConf').textContent = d.confirmadas;
+  document.getElementById('nAnalise').textContent = d.em_analise;
+  document.getElementById('nPremios').textContent = d.premios.length;
+  var vit = !!d.vitalicio;
+  document.getElementById('boxDinheiro').classList.toggle('hide', !vit);
+  document.getElementById('boxPlano').classList.toggle('hide', vit && !d.disponiveis && !d.confirmadas);
+  if (vit){
+    document.getElementById('dReceber').textContent = brl(d.dinheiro.a_receber);
+    document.getElementById('dAnalise').textContent = brl(d.dinheiro.em_analise);
+    document.getElementById('dRecebido').textContent = brl(d.dinheiro.recebido);
+    if (document.activeElement !== document.getElementById('pix')) document.getElementById('pix').value = d.pix || '';
+  }
+  document.getElementById('txtProg').textContent = d.progresso + ' de ' + d.por_premio + ' confirmadas';
+  document.getElementById('barra').style.width = (d.disponiveis > 0 ? 100 : Math.round(d.progresso / d.por_premio * 100)) + '%';
+
+  var bp = document.getElementById('boxPremio');
+  if (d.disponiveis > 0){
+    bp.innerHTML = '<div class="premio"><b>Você tem ' + d.disponiveis + ' prêmio(s) disponível(is)!</b>' +
+      '<p style="margin:6px 0 10px;">Próximo resgate: <b style="color:#fff;">' + (NOMES[d.proximo] || d.proximo) + '</b></p>' +
+      '<button id="btnResg" onclick="resgatar()">Resgatar agora</button></div>';
+  } else bp.innerHTML = '';
+
+  var h = '';
+  if (d.premios.length){
+    h += '<h2 style="margin-top:6px;">Seus prêmios</h2><table><tr><th>Data</th><th>Prêmio</th><th>Situação</th></tr>';
+    d.premios.forEach(function(p){
+      var st = p.status === 'entregue' ? 'aplicado na sua licença' : (p.status === 'presente_pendente' ? 'licença de presente a caminho' : 'licença de presente enviada');
+      h += '<tr><td>' + dia(p.criado_em) + '</td><td>' + (NOMES[p.plano] || esc(p.plano)) + '</td><td>' + st + '</td></tr>';
+    });
+    h += '</table><div style="height:16px;"></div>';
+  }
+  h += '<h2>Quem veio pelo seu link</h2>';
+  if (!d.indicados.length) h += '<p>Ninguém ainda. Mande o link para os amigos que jogam!</p>';
+  else {
+    h += '<table><tr><th>Amigo</th><th>Plano</th><th>Compra</th><th>Situação</th></tr>';
+    d.indicados.forEach(function(i){
+      var extra = i.situacao === 'em_analise' && i.conta_em ? '<div style="color:var(--sub);font-size:11px;margin-top:3px;">conta em ' + dia(i.conta_em) + '</div>' : '';
+      h += '<tr><td>' + esc(i.quem) + '</td><td>' + (NOMES[i.plano] || esc(i.plano)) + '</td><td>' + dia(i.pago_em) + '</td><td><span class="st st-' + i.situacao + '">' + SIT[i.situacao] + '</span>' + (i.comissao ? '<div style="font-size:11.5px;margin-top:3px;">' + brl(i.comissao) + '</div>' : '') + extra + '</td></tr>';
+    });
+    h += '</table>';
+  }
+  document.getElementById('boxLista').innerHTML = h;
+}
+
+function resgatar(){
+  var b = document.getElementById('btnResg'), m = document.getElementById('msg2');
+  b.disabled = true; b.textContent = 'Resgatando...'; m.textContent = '';
+  chamar('indique_resgatar').then(function(d){
+    var r = d.resgate, t;
+    if (r.presente) t = 'Prêmio registrado! Como você já é Vitalício, vamos te enviar uma licença de presente (' + (NOMES[r.plano]||r.plano) + ') em até 2 dias úteis.';
+    else if (r.plano === 'vitalicio') t = 'Pronto! Sua licença agora é Vitalícia. Abra o painel de novo para carregar o novo plano.';
+    else t = 'Pronto! +15 dias na sua licença (plano ' + (NOMES[r.plano_final]||r.plano_final) + ', válida até ' + dia(r.expira) + '). Abra o painel de novo para atualizar.';
+    mostrar(d);
+    m.style.color = '#3ecf6e'; m.textContent = t;
+  }).catch(function(e){ m.style.color = ''; m.textContent = e.message; b.disabled = false; b.textContent = 'Resgatar agora'; });
+}
+
+function salvarPix(){
+  var m = document.getElementById('msg2');
+  CRED.pix = document.getElementById('pix').value.trim();
+  fetch('/api/checkout', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ acao:'indique_pix', email: CRED.email, codigo: CRED.codigo, pix: CRED.pix }) })
+    .then(function(r){ return r.json().then(function(j){ if (!r.ok) throw new Error(j.erro || 'Erro'); return j; }); })
+    .then(function(d){ mostrar(d); m.style.color = '#3ecf6e'; m.textContent = 'Chave PIX salva!'; })
+    .catch(function(e){ m.style.color = ''; m.textContent = e.message; });
+}
+(function(){
+  // o painel abre com #email=...&codigo=... (o trecho depois do # nunca vai para servidor nenhum)
+  var q = new URLSearchParams(location.hash.slice(1) || location.search);
+  if (location.hash) history.replaceState(null, '', location.pathname);
+  if (q.get('email')) document.getElementById('email').value = q.get('email');
+  if (q.get('codigo')) document.getElementById('codigo').value = q.get('codigo');
+  if (q.get('email') && q.get('codigo')) entrar();
+  else if (q.get('email')) document.getElementById('codigo').focus();
+})();
+function copiar(){
+  var i = document.getElementById('link'); i.select();
+  (navigator.clipboard ? navigator.clipboard.writeText(i.value) : Promise.reject()).catch(function(){ document.execCommand('copy'); });
+  document.getElementById('msg2').style.color = '#3ecf6e';
+  document.getElementById('msg2').textContent = 'Link copiado!';
+}
+function whats(){
+  var t = 'Tô usando o 999BOOST pra otimizar o PC e tirar travadas nos jogos. Contrata pelo meu link: ' + DADOS.link;
+  window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank');
+}
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>

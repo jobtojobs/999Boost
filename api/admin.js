@@ -171,7 +171,12 @@ export default async function handler(req, res) {
         }
         if (b.acao === 'liberar_pc') campos = { device_id: null };
         if (b.acao === 'zerar_troca') campos = { ultima_troca: null };
-        if (b.acao === 'reembolsar') campos = { status: 'reembolsado' };      // mantem device_id -> PC bloqueado p/ nova ativacao automatica
+        if (b.acao === 'reembolsar') {
+          campos = { status: 'reembolsado' };
+          // Tira a ultima compra paga desse e-mail do faturamento e da comissao do parceiro
+          const ult = await sb(`pedidos?email=eq.${enc(lic.email)}&status=eq.pago&select=id&order=pago_em.desc&limit=1`);
+          if (ult[0]) await sb(`pedidos?id=eq.${ult[0].id}`, { method: 'PATCH', body: JSON.stringify({ status: 'reembolsado' }) });
+        }      // mantem device_id -> PC bloqueado p/ nova ativacao automatica
         if (b.acao === 'cancelar') campos = { status: 'cancelado' };
         if (b.acao === 'reativar') campos = { status: 'ativo' };
 
@@ -181,6 +186,135 @@ export default async function handler(req, res) {
         }
         const r = await sb(`licencas?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify(campos) });
         return res.json({ ok: true, licenca: r[0] });
+      }
+
+      // ---------- Cupons de parceiros ----------
+      case 'cupons': {
+        const cupons = await sb('cupons?select=*&order=criado_em.desc');
+        const pedidos = await sb('pedidos?status=eq.pago&cupom=not.is.null&select=cupom,valor,comissao_pct,comissao_paga');
+        const r2 = v => Math.round(v * 100) / 100;
+        return res.json(cupons.map(c => {
+          const ps = pedidos.filter(p => p.cupom === c.codigo);
+          const com = p => Number(p.valor || 0) * Number(p.comissao_pct || 0) / 100;
+          return {
+            ...c,
+            vendas: ps.length,
+            faturamento: r2(ps.reduce((t, p) => t + Number(p.valor || 0), 0)),
+            comissao_pendente: r2(ps.filter(p => !p.comissao_paga).reduce((t, p) => t + com(p), 0)),
+            comissao_paga_total: r2(ps.filter(p => p.comissao_paga).reduce((t, p) => t + com(p), 0))
+          };
+        }));
+      }
+
+      case 'cupom_salvar': {
+        const codigo = String(b.codigo || '').trim().toUpperCase();
+        if (!/^[A-Z0-9_-]{2,30}$/.test(codigo)) return res.status(400).json({ erro: 'Codigo invalido: use letras, numeros, - ou _ (2 a 30 caracteres)' });
+        const desconto = parseInt(b.desconto, 10);
+        const comissao = parseInt(b.comissao || 0, 10);
+        if (!(desconto >= 0 && desconto <= 90)) return res.status(400).json({ erro: 'Desconto deve ser de 0 a 90%' });
+        if (!(comissao >= 0 && comissao <= 90)) return res.status(400).json({ erro: 'Comissao deve ser de 0 a 90%' });
+        const limite = b.limite_usos ? parseInt(b.limite_usos, 10) : null;
+        const validade = b.validade ? new Date(String(b.validade) + 'T23:59:59-03:00').toISOString() : null;
+        const dados = {
+          codigo, desconto, comissao,
+          parceiro: String(b.parceiro || '').trim().slice(0, 80) || null,
+          pix: String(b.pix || '').trim().slice(0, 120) || null,
+          observacao: String(b.observacao || '').trim().slice(0, 300) || null,
+          limite_usos: limite && limite > 0 ? limite : null,
+          validade, ativo: b.ativo !== false
+        };
+        const existe = await sb(`cupons?codigo=eq.${enc(codigo)}&select=codigo`);
+        if (existe.length) {
+          if (b.novo) return res.status(400).json({ erro: 'Ja existe um cupom com esse codigo' });
+          await sb(`cupons?codigo=eq.${enc(codigo)}`, { method: 'PATCH', body: JSON.stringify(dados) });
+        } else {
+          await sb('cupons', { method: 'POST', body: JSON.stringify(dados) });
+        }
+        return res.json({ ok: true });
+      }
+
+      case 'cupom_ativo': {
+        const codigo = String(b.codigo || '').trim().toUpperCase();
+        await sb(`cupons?codigo=eq.${enc(codigo)}`, { method: 'PATCH', body: JSON.stringify({ ativo: !!b.ativo }) });
+        return res.json({ ok: true });
+      }
+
+      case 'cupom_excluir': {
+        const codigo = String(b.codigo || '').trim().toUpperCase();
+        await sb(`cupons?codigo=eq.${enc(codigo)}`, { method: 'DELETE' });
+        return res.json({ ok: true });
+      }
+
+      case 'cupom_pagar': {
+        // Marca como paga a comissao de todas as vendas desse cupom ate agora
+        const codigo = String(b.codigo || '').trim().toUpperCase();
+        await sb(`pedidos?cupom=eq.${enc(codigo)}&status=eq.pago&comissao_paga=eq.false`, { method: 'PATCH', body: JSON.stringify({ comissao_paga: true }) });
+        return res.json({ ok: true });
+      }
+
+      case 'cupom_usos': {
+        // Quem usou o cupom (vendas pagas e reembolsadas)
+        const codigo = String(b.codigo || '').trim().toUpperCase();
+        const ps = await sb(`pedidos?cupom=eq.${enc(codigo)}&status=in.(pago,reembolsado)&select=nome,email,telefone,plano,valor,status,pago_em,comissao_pct,comissao_paga&order=pago_em.desc`);
+        return res.json(ps);
+      }
+
+      // ---------- Programa de indicacao ----------
+      case 'afiliados': {
+        const afs = await sb('afiliados?select=*&order=criado_em.desc');
+        const ps = await sb('pedidos?indicado_por=not.is.null&status=in.(pago,reembolsado)&select=id,email,indicado_por,status,pago_em,valor,ref_comissao_pct,ref_comissao_paga&order=pago_em.asc');
+        const prs = await sb('indicacoes_premios?select=afiliado,status,pedidos');
+        const limite = Date.now() - 7 * 86400000;
+        const lista = afs.map(a => {
+          const usados = new Set();
+          const meus = prs.filter(p => p.afiliado === a.codigo);
+          meus.forEach(p => (p.pedidos || []).forEach(id => usados.add(id)));
+          const vistos = new Set(); let total = 0, livres = 0, analise = 0, cancel = 0, aPagar = 0, pago = 0;
+          ps.filter(p => p.indicado_por === a.codigo).forEach(p => {
+            if (vistos.has(p.email)) return; vistos.add(p.email); total++;
+            const com = Number(p.valor || 0) * Number(p.ref_comissao_pct || 0) / 100;
+            if (p.status === 'reembolsado') { cancel++; return; }
+            if (com > 0) {
+              if (p.ref_comissao_paga) pago += com;
+              else if (new Date(p.pago_em).getTime() > limite) analise++;
+              else aPagar += com;
+              return;
+            }
+            if (p.status === 'reembolsado') cancel++;
+            else if (usados.has(p.id)) return;
+            else if (new Date(p.pago_em).getTime() > limite) analise++;
+            else livres++;
+          });
+          const r2 = v => Math.round(v * 100) / 100;
+          return { codigo: a.codigo, email: a.email, pix: a.pix || null, criado_em: a.criado_em, indicados: total, confirmadas_livres: livres,
+            comissao_a_pagar: r2(aPagar), comissao_paga: r2(pago),
+            em_analise: analise, canceladas: cancel, premios: meus.length,
+            presentes_pendentes: meus.filter(p => p.status === 'presente_pendente').length };
+        });
+        return res.json(lista.sort((x, y) => y.indicados - x.indicados));
+      }
+
+      case 'afiliado_detalhe': {
+        const codigo = String(b.codigo || '').trim().toUpperCase();
+        const ps = await sb(`pedidos?indicado_por=eq.${enc(codigo)}&status=in.(pago,reembolsado)&select=id,nome,email,telefone,plano,valor,status,pago_em,ref_comissao_pct,ref_comissao_paga&order=pago_em.asc`);
+        const prs = await sb(`indicacoes_premios?afiliado=eq.${enc(codigo)}&select=*&order=criado_em.asc`);
+        return res.json({ indicados: ps, premios: prs });
+      }
+
+      case 'indicacao_pagar': {
+        // Marca como paga a comissao (Vitalicio) das indicacoes ja confirmadas (mais de 7 dias, sem reembolso)
+        const codigo = String(b.codigo || '').trim().toUpperCase();
+        const corte = new Date(Date.now() - 7 * 86400000).toISOString();
+        await sb(`pedidos?indicado_por=eq.${enc(codigo)}&status=eq.pago&ref_comissao_pct=gt.0&ref_comissao_paga=eq.false&pago_em=lt.${enc(corte)}`,
+          { method: 'PATCH', body: JSON.stringify({ ref_comissao_paga: true }) });
+        return res.json({ ok: true });
+      }
+
+      case 'premio_entregue': {
+        // Indicador Vitalicio: o premio vira licenca de presente. Crie em "Criar licenca" e marque aqui.
+        const id = String(b.id || '');
+        await sb(`indicacoes_premios?id=eq.${enc(id)}&status=eq.presente_pendente`, { method: 'PATCH', body: JSON.stringify({ status: 'presente_entregue' }) });
+        return res.json({ ok: true });
       }
 
       default:
