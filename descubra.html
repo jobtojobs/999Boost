@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Descubra seu plano - 999BOOST</title>
+<meta name="description" content="Responda 4 perguntas sobre o seu PC e veja qual plano do 999BOOST tira mais proveito do seu hardware.">
+<link rel="canonical" href="https://www.999boost.com.br/descubra.html">
+<link rel="icon" type="image/png" href="/Favicon.png?v=4">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.999boost.com.br/descubra.html">
+<meta property="og:title" content="Descubra seu plano - 999BOOST">
+<meta property="og:description" content="Responda 4 perguntas sobre o seu PC e veja qual plano do 999BOOST tira mais proveito do seu hardware.">
+<meta property="og:image" content="https://www.999boost.com.br/logo.png">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#0a0a0c">
+<link rel="stylesheet" href="/assets/site.css?v=2">
+</head>
+<body>
+<nav>
+  <div class="wrap" style="position:relative;">
+    <a href="/" class="brand"><img src="/assets/logo-128.png" alt="" width="36" height="36">999BOOST</a>
+    <div class="navlinks" id="menu">
+      <a href="/planos.html">Planos</a>
+      <a href="/como-funciona.html">Como funciona</a>
+      <a href="/seguranca.html">Segurança</a>
+      <a href="/faq.html">Dúvidas</a>
+      <a href="/indique.html" style="color:var(--orange);">Indique e Ganhe</a>
+    </div>
+    <div class="navcta">
+      <a class="btn btn-primary" href="/planos.html" data-t="nav_contratar">Contratar</a>
+      <button class="menu-btn" aria-label="Abrir menu" aria-controls="menu" aria-expanded="false">☰</button>
+    </div>
+  </div>
+</nav>
+<main>
+<section class="page-head">
+  <div class="wrap">
+    <div class="topo-linha">
+      <a class="voltar" href="/" data-voltar><span class="seta">←</span> Voltar</a>
+      <span class="trilha"><a href="/">Início</a> / Descubra seu plano</span>
+    </div>
+    <div class="section-title" style="text-align:left; margin:6px 0 0 0;">
+      <div class="eyebrow">Grátis</div>
+    </div>
+    <h1>Qual plano combina <span>com o seu PC?</span></h1>
+    <p class="lead">Conte o seu setup e a gente indica o plano ideal. Leva 10 segundos.</p>
+  </div>
+</section>
+<section>
+  <div class="wrap">
+    <div class="ganho-box">
+      <div class="ganho-row">
+        <div>
+          <label>Sua placa de vídeo (GPU)</label>
+          <select id="selGpu">
+            <option value="1">Entrada (GTX 1650, RX 570 ou similar)</option>
+            <option value="2">Intermediária (GTX 1660, RTX 3050/3060, RX 6600)</option>
+            <option value="3">Avançada (RTX 3070+, RTX 4070+, RX 6700+)</option>
+          </select>
+        </div>
+        <div>
+          <label>Seu processador (CPU)</label>
+          <select id="selCpu">
+            <option value="1">Entrada (i3, Ryzen 3)</option>
+            <option value="2">Intermediário (i5, Ryzen 5)</option>
+            <option value="3">Avançado (i7/i9, Ryzen 7/9)</option>
+          </select>
+        </div>
+      </div>
+      <div class="ganho-row">
+        <div>
+          <label>Memória RAM</label>
+          <select id="selRam">
+            <option value="1">8 GB ou menos</option>
+            <option value="2">16 GB</option>
+            <option value="3">32 GB ou mais</option>
+          </select>
+        </div>
+        <div>
+          <label>Principal uso</label>
+          <select id="selUso">
+            <option value="1">Jogos casuais</option>
+            <option value="2">Jogos competitivos</option>
+            <option value="3">Jogos + Live/Streaming</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;" onclick="calcularGanho()" data-t="descubra_analisar">Analisar meu setup</button>
+      <div id="ganhoResultado">
+        <h4 id="ganhoTitulo"></h4>
+        <p id="ganhoTexto"></p>
+        <a class="btn btn-outline" style="margin-top:14px;" id="ganhoLink" href="/planos.html" data-t="descubra_ver_plano">Contratar esse plano</a>
+      </div>
+      <p style="text-align:center; color:var(--sub); font-size:11.5px; margin-top:14px;">Recomendação estimada com base no seu hardware — o diagnóstico completo roda no próprio painel, no seu PC.</p>
+    </div>
+  </div>
+</section>
+<section style="background:var(--panel); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <div class="section-title">
+      <div class="eyebrow">Exemplo de diagnóstico</div>
+      <h2>O que o painel encontra no seu PC</h2>
+      <p>O diagnóstico completo roda no próprio painel, antes de aplicar qualquer coisa.</p>
+    </div>
+    <div class="terminal-wrap" id="diagnostico">
+      <div class="terminal">
+        <div class="prompt">$ 999boost analyze --pc specs.txt</div>
+        <div class="spec">CPU  -> Intel Core i5-10400F</div>
+        <div class="spec">GPU  -> GTX 1060 6GB</div>
+        <div class="spec">RAM  -> 16 GB DDR4 2666 MHz</div>
+        <br>
+        <div class="bad">✗ Telemetria do Windows ativa</div>
+        <div class="bad">✗ Game DVR ativo (pode causar stutter)</div>
+        <div class="bad">✗ Aceleração do mouse ativa (mira imprecisa)</div>
+        <div class="ok">✓ Plano de energia já otimizado</div>
+      </div>
+      <div class="diagbar"><span>3 problemas encontrados</span><span>→ corrigidos em 1 clique no painel</span></div>
+    </div>
+
+  </div>
+</section>
+<section>
+  <div class="wrap">
+    <a class="proxima" href="/planos.html">
+      <div><small>Próximo</small><b>Comparar todos os planos</b></div>
+      <span class="ir">Ver →</span>
+    </a>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand"><img src="/assets/logo-128.png" alt="" width="32" height="32"> 999BOOST</div>
+        <p style="max-width:300px;">Painel que otimiza o Windows em menos de 1 minuto, direto no seu PC. Sem compartilhar tela.</p>
+        <div class="social-row">
+          <a href="https://www.instagram.com/999boost_" target="_blank" title="Instagram"><svg viewBox="0 0 24 24" width="20" height="20"><defs><radialGradient id="igGrad" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#igGrad)"/><rect x="6.5" y="6.5" width="11" height="11" rx="3.5" fill="none" stroke="#fff" stroke-width="1.6"/><circle cx="12" cy="12" r="3.2" fill="none" stroke="#fff" stroke-width="1.6"/><circle cx="17" cy="7" r="1.1" fill="#fff"/></svg></a>
+          <a href="https://discord.gg/73Cwfs8zj" target="_blank" title="Discord"><svg viewBox="0 0 24 24" width="20" height="20" fill="#5865F2"><path d="M20.317 4.369a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.927 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.076.076 0 0 0-.04.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.001-3.03.077.077 0 0 0 .032-.055c.5-5.177-.838-9.674-3.549-13.66a.06.06 0 0 0-.031-.028ZM8.02 15.331c-1.183 0-2.157-1.086-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.211 0 2.176 1.096 2.157 2.42 0 1.332-.955 2.418-2.157 2.418Zm7.974 0c-1.183 0-2.157-1.086-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.211 0 2.176 1.096 2.157 2.42 0 1.332-.946 2.418-2.157 2.418Z"/></svg></a>
+          <a href="https://www.999boost.com.br" target="_blank" title="Site">🌐</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Navegação</h5>
+        <a href="/planos.html">Planos</a>
+        <a href="/como-funciona.html">Como funciona</a>
+        <a href="/seguranca.html">Segurança</a>
+        <a href="/descubra.html">Descubra seu plano</a>
+        <a href="/faq.html">Dúvidas</a>
+      </div>
+      <div class="footer-col">
+        <h5>Clientes</h5>
+        <a href="/download/999Boost.zip">Baixar o painel</a>
+        <a href="/indique.html">Indique e Ganhe</a>
+        <a href="/guia.html">Baixar o Guia (e-book)</a>
+        <a href="https://www.instagram.com/999boost_" target="_blank" rel="noopener">Instagram: 999boost_</a>
+        <a href="https://wa.me/5585991954902" target="_blank" rel="noopener">WhatsApp</a>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 999BOOST. Todos os direitos reservados. &nbsp;·&nbsp; <a href="/privacidade.html" style="color:inherit;">Política de Privacidade</a> &nbsp;·&nbsp; <a href="/termos.html" style="color:inherit;">Termos de Uso e Reembolso</a></div>
+  </div>
+</footer>
+<script>
+function calcularGanho(){
+  var gpu = parseInt(document.getElementById('selGpu').value);
+  var cpu = parseInt(document.getElementById('selCpu').value);
+  var ram = parseInt(document.getElementById('selRam').value);
+  var uso = parseInt(document.getElementById('selUso').value);
+  var score = gpu + cpu + ram + uso;
+
+  var titulo, texto, link, plano;
+  if (score <= 5) {
+    plano = "basic"; link = "/contratar.html?plano=basic";
+    titulo = "Recomendado: Basic Gamer";
+    texto = "Seu setup se beneficia bastante de limpeza e ajustes de privacidade/sistema — o essencial pra deixar o PC mais leve no dia a dia.";
+  } else if (score <= 8) {
+    plano = "streamer"; link = "/contratar.html?plano=streamer";
+    titulo = "Recomendado: Low Streamer";
+    texto = "Seu hardware aguenta mais - ajustes de energia, rede e segundo plano vão liberar desempenho extra pra jogar (e transmitir) melhor.";
+  } else {
+    plano = "turbo"; link = "/contratar.html?plano=turbo";
+    titulo = "Recomendado: Turbo Pro Player";
+    texto = "Setup avançado merece otimização avançada — GPU, latência e input lag ajustados no limite do que seu hardware permite.";
+  }
+  document.getElementById('ganhoTitulo').textContent = titulo;
+  document.getElementById('ganhoTexto').textContent = texto;
+  document.getElementById('ganhoLink').href = link;
+  document.getElementById('ganhoLink').setAttribute('data-plano', plano);
+  if (window.track999) track999('clique', { alvo: 'descubra_resultado', plano: plano });
+  document.getElementById('ganhoResultado').style.display = 'block';
+}
+
+</script>
+<script src="/assets/site.js?v=2"></script>
+<script src="/assets/t.js?v=2" defer></script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>

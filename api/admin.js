@@ -116,6 +116,7 @@ export default async function handler(req, res) {
       case 'limpar_pendentes': {
         const limite = new Date(agora.getTime() - 7 * 86400000).toISOString();
         const r = await sb(`pedidos?status=in.(pendente,expirado)&criado_em=lt.${limite}`, { method: 'DELETE' });
+        await sb(`site_eventos?criado_em=lt.${new Date(agora.getTime() - 365 * 86400000).toISOString()}`, { method: 'DELETE', headers: { Prefer: 'return=minimal' } }).catch(() => {});
         return res.json({ ok: true, removidos: Array.isArray(r) ? r.length : 0 });
       }
 
@@ -318,6 +319,150 @@ export default async function handler(req, res) {
         const id = String(b.id || '');
         await sb(`indicacoes_premios?id=eq.${enc(id)}&status=eq.presente_pendente`, { method: 'PATCH', body: JSON.stringify({ status: 'presente_entregue' }) });
         return res.json({ ok: true });
+      }
+
+      // ---------- Marketing: analytics ----------
+      case 'analytics': {
+        const dias = Math.min(Math.max(parseInt(b.dias, 10) || 7, 1), 365);
+        const desde = new Date(agora.getTime() - dias * 86400000);
+        if (dias === 1) {   // "hoje" = desde a meia-noite de Fortaleza (UTC-3, sem horario de verao)
+          const tz = 3 * 3600000;
+          desde.setTime(Math.floor((agora.getTime() - tz) / 86400000) * 86400000 + tz);
+        }
+        const r = await sb('rpc/analytics_resumo', { method: 'POST', body: JSON.stringify({ desde: desde.toISOString() }) });
+        return res.json({ dias, desde: desde.toISOString(), ...r });
+      }
+
+      // ---------- Marketing: remarketing por segmento ----------
+      case 'remarketing': {
+        const lic = await sb('licencas?select=email,plano,status,data_expiracao,criado_em&limit=5000');
+        const ped = await sb('pedidos?select=email,nome,telefone,plano,valor,status,criado_em,pago_em&order=criado_em.desc&limit=5000');
+        const opt = new Set((await sb('marketing_optout?select=email')).map(o => o.email));
+        const contato = {};
+        for (const p of ped) {   // o pedido mais recente com nome/telefone de cada e-mail
+          const c = contato[p.email] || (contato[p.email] = { nome: p.nome || '', telefone: p.telefone || '' });
+          if (!c.nome && p.nome) c.nome = p.nome;
+          if (!c.telefone && p.telefone) c.telefone = p.telefone;
+        }
+        const pagos = ped.filter(p => p.status === 'pago');
+        const Q = ['basic', 'streamer', 'turbo'];
+        const exp = l => l.data_expiracao ? new Date(l.data_expiracao) : null;
+        const pessoa = (email, plano, data, extra = {}) => ({ email, plano, data, ...(contato[email] || { nome: '', telefone: '' }), ...extra });
+        const livre = x => !opt.has(x.email);
+        const dia = 86400000;
+        const seg = {};
+        seg.renovar = lic.filter(l => l.status === 'ativo' && Q.includes(l.plano) && exp(l) && exp(l) > agora && exp(l) - agora < 3 * dia)
+          .map(l => pessoa(l.email, l.plano, l.data_expiracao));
+        seg.vencidos = lic.filter(l => l.status === 'ativo' && Q.includes(l.plano) && exp(l) && exp(l) <= agora && agora - exp(l) < 30 * dia)
+          .map(l => pessoa(l.email, l.plano, l.data_expiracao));
+        const vistos = new Set();
+        seg.carrinho = ped.filter(p => ['pendente', 'expirado'].includes(p.status) && agora - new Date(p.criado_em) < 7 * dia)
+          .filter(p => !pagos.some(q => q.email === p.email && new Date(q.criado_em) >= new Date(p.criado_em)))
+          .filter(p => (vistos.has(p.email) ? false : vistos.add(p.email)))
+          .map(p => pessoa(p.email, p.plano, p.criado_em, { valor: Number(p.valor) }));
+        seg.upgrade = lic.filter(l => l.status === 'ativo' && ['basic', 'streamer'].includes(l.plano) && exp(l) && exp(l) > agora)
+          .map(l => pessoa(l.email, l.plano, l.data_expiracao));
+        const gastos = {};
+        pagos.filter(p => Q.includes(p.plano)).forEach(p => { const g = gastos[p.email] || (gastos[p.email] = { n: 0, total: 0 }); g.n++; g.total += Number(p.valor || 0); });
+        seg.vitalicio = lic.filter(l => l.status === 'ativo' && Q.includes(l.plano) && gastos[l.email] && gastos[l.email].n >= 2)
+          .map(l => pessoa(l.email, l.plano, l.data_expiracao, { vezes: gastos[l.email].n, gasto: Math.round(gastos[l.email].total * 100) / 100 }));
+        const comLicenca = new Set(lic.map(l => l.email));
+        const vistosE = new Set();
+        seg.ebook = pagos.filter(p => p.plano === 'ebook' && !comLicenca.has(p.email)).filter(p => (vistosE.has(p.email) ? false : vistosE.add(p.email)))
+          .map(p => pessoa(p.email, 'ebook', p.pago_em));
+        seg.indicar = lic.filter(l => l.status === 'ativo' && l.plano === 'vitalicio').map(l => pessoa(l.email, 'vitalicio', l.criado_em));
+        for (const k of Object.keys(seg)) seg[k] = seg[k].filter(livre);
+        const cupons = (await sb('cupons?select=codigo,ativo,desconto')).reduce((o, c) => (o[c.codigo] = c, o), {});
+        return res.json({ segmentos: seg, optout: opt.size, cupons });
+      }
+
+      case 'optout': {
+        const email = String(b.email || '').trim().toLowerCase();
+        if (!email.includes('@')) return res.status(400).json({ erro: 'E-mail invalido' });
+        await sb('marketing_optout', { method: 'POST', headers: { Prefer: 'resolution=ignore-duplicates,return=minimal' }, body: JSON.stringify({ email }) });
+        return res.json({ ok: true });
+      }
+
+      case 'cupom_rapido': {
+        // Cria um cupom promocional pronto (ex.: VOLTA10) se ainda nao existir
+        const codigo = String(b.codigo || '').trim().toUpperCase();
+        const desconto = parseInt(b.desconto, 10);
+        if (!/^[A-Z0-9_-]{2,30}$/.test(codigo) || !(desconto > 0 && desconto <= 90)) return res.status(400).json({ erro: 'Cupom invalido' });
+        const existe = await sb(`cupons?codigo=eq.${enc(codigo)}&select=codigo`);
+        if (existe.length) await sb(`cupons?codigo=eq.${enc(codigo)}`, { method: 'PATCH', body: JSON.stringify({ ativo: true }) });
+        else await sb('cupons', { method: 'POST', body: JSON.stringify({ codigo, desconto, comissao: 0, observacao: String(b.obs || 'Remarketing').slice(0, 300), ativo: true }) });
+        return res.json({ ok: true, codigo });
+      }
+
+      // ---------- Marketing: influenciadores ----------
+      case 'prospects': {
+        return res.json(await sb('prospects?select=*&order=atualizado_em.desc&limit=500'));
+      }
+
+      case 'prospect_salvar': {
+        const nome = String(b.nome || '').trim().slice(0, 80);
+        if (!nome) return res.status(400).json({ erro: 'Informe o nome' });
+        const dados = {
+          nome,
+          arroba: String(b.arroba || '').trim().replace(/^@/, '').replace(/^https?:\/\/(www\.)?instagram\.com\//i, '').replace(/[/?].*$/, '').slice(0, 60) || null,
+          plataforma: String(b.plataforma || '').trim().slice(0, 40) || null,
+          seguidores: String(b.seguidores || '').trim().slice(0, 20) || null,
+          obs: String(b.obs || '').trim().slice(0, 500) || null,
+          atualizado_em: agora.toISOString()
+        };
+        const id = String(b.id || '');
+        if (id) {
+          if (!/^[0-9a-f-]{36}$/i.test(id)) return res.status(400).json({ erro: 'Id invalido' });
+          await sb(`prospects?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify(dados) });
+        } else {
+          await sb('prospects', { method: 'POST', body: JSON.stringify(dados) });
+        }
+        return res.json({ ok: true });
+      }
+
+      case 'prospect_status': {
+        const id = String(b.id || '');
+        const status = String(b.status || '');
+        if (!/^[0-9a-f-]{36}$/i.test(id) || !['a_contatar', 'contatado', 'proposta', 'parceiro', 'sem_interesse'].includes(status)) return res.status(400).json({ erro: 'Dados invalidos' });
+        await sb(`prospects?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify({ status, atualizado_em: agora.toISOString() }) });
+        return res.json({ ok: true });
+      }
+
+      case 'prospect_excluir': {
+        const id = String(b.id || '');
+        if (!/^[0-9a-f-]{36}$/i.test(id)) return res.status(400).json({ erro: 'Id invalido' });
+        await sb(`prospects?id=eq.${id}`, { method: 'DELETE' });
+        return res.json({ ok: true });
+      }
+
+      case 'prospect_ativar': {
+        // Um clique: cria o cupom do parceiro (10% / 20%) e a licenca Turbo de 15 dias de presente
+        const id = String(b.id || '');
+        const email = String(b.email || '').trim().toLowerCase();
+        const cupom = String(b.cupom || '').trim().toUpperCase();
+        if (!/^[0-9a-f-]{36}$/i.test(id)) return res.status(400).json({ erro: 'Id invalido' });
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return res.status(400).json({ erro: 'E-mail invalido' });
+        if (!/^[A-Z0-9_-]{2,30}$/.test(cupom)) return res.status(400).json({ erro: 'Cupom invalido: use letras e numeros' });
+        const pr = (await sb(`prospects?id=eq.${id}&select=*`))[0];
+        if (!pr) return res.status(404).json({ erro: 'Influenciador nao encontrado' });
+        const jaCupom = await sb(`cupons?codigo=eq.${enc(cupom)}&select=codigo`);
+        if (jaCupom.length) return res.status(400).json({ erro: 'Esse cupom ja existe. Escolha outro codigo.' });
+        await sb('cupons', { method: 'POST', body: JSON.stringify({ codigo: cupom, desconto: 10, comissao: 20, parceiro: pr.nome,
+          pix: String(b.pix || '').trim().slice(0, 120) || null, observacao: 'Influenciador' + (pr.arroba ? ' @' + pr.arroba : ''), ativo: true }) });
+        let codigo, renovada = false;
+        const lic = (await sb(`licencas?email=eq.${enc(email)}&select=*`))[0];
+        if (lic) {
+          renovada = true; codigo = lic.codigo;
+          if (lic.plano !== 'vitalicio') {
+            const base = lic.data_expiracao && new Date(lic.data_expiracao) > agora ? new Date(lic.data_expiracao) : agora;
+            await sb(`licencas?id=eq.${lic.id}`, { method: 'PATCH', body: JSON.stringify({ plano: 'turbo', status: 'ativo', data_expiracao: new Date(base.getTime() + DIAS * 86400000).toISOString() }) });
+          }
+        } else {
+          codigo = gerarCodigo();
+          await sb('licencas', { method: 'POST', body: JSON.stringify({ email, codigo, plano: 'turbo', status: 'ativo', data_expiracao: new Date(agora.getTime() + DIAS * 86400000).toISOString() }) });
+        }
+        await sb(`prospects?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify({ status: 'parceiro', email, cupom, atualizado_em: agora.toISOString() }) });
+        return res.json({ ok: true, email, codigo, cupom, renovada });
       }
 
       default:

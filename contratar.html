@@ -14,7 +14,7 @@
   body{background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif;margin:0;padding:24px;}
   a{color:inherit;text-decoration:none;}
   .wrap{max-width:1080px;margin:0 auto;}
-  .back{display:inline-block;font-size:12.5px;color:var(--sub);margin-bottom:16px;}
+  .back{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#ddd;margin-bottom:16px;background:var(--panel);border:1px solid #2e2a2a;padding:8px 14px 8px 11px;border-radius:999px;transition:border-color .2s,color .2s;}
   .back:hover{color:var(--orange);}
   .modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;}
   .modal-head{padding:24px 28px 18px 28px;border-bottom:1px solid var(--line);}
@@ -100,7 +100,7 @@
 <body>
 
 <div class="wrap">
-  <a href="/" class="back">← Voltar ao site</a>
+  <a href="/planos.html" class="back" id="btnVoltar">← Voltar</a>
 
   <div class="modal">
     <div class="modal-head">
@@ -325,7 +325,7 @@ function finalizar(){
   fetch(API, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ acao:'criar', plano: planoAtual, nome: nome, email: email, telefone: fone, cupom: cupomAtivo, ref: REF })
+    body: JSON.stringify({ acao:'criar', plano: planoAtual, nome: nome, email: email, telefone: fone, cupom: cupomAtivo, ref: REF, origem: (window.origem999 ? origem999() : 'direto') })
   })
   .then(function(r){ return r.json(); })
   .then(function(d){
@@ -435,6 +435,11 @@ document.querySelectorAll('.addon').forEach(function(el){
 planoAtual = pegarParametroPlano();
 atualizarResumo();
 
+// Voltar: pagina anterior do site; se veio de fora, vai para os planos
+document.getElementById('btnVoltar').addEventListener('click', function(e){
+  if (document.referrer && document.referrer.indexOf(location.origin) === 0 && history.length > 1){ e.preventDefault(); history.back(); }
+});
+
 // Link de parceiro (?cupom=CODIGO) aplica o cupom sozinho
 // Link de indicacao (?ref=CODIGO) fica guardado 30 dias neste navegador
 var REF = '';
@@ -451,6 +456,7 @@ var REF = '';
 })();
 </script>
 
+<script src="/assets/t.js?v=2" defer></script>
 <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>

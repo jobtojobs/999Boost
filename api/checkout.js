@@ -439,7 +439,7 @@ export default async function handler(req, res) {
         method: 'POST',
         headers: { 'Prefer': 'return=representation' },
         body: JSON.stringify({ plano: planoSlug, valor, nome, email, telefone, cupom: cup ? cup.codigo : null,
-          desconto_pct: cup ? cup.desconto : 0, comissao_pct: cup ? (cup.comissao || 0) : 0, parceiro: cup ? cup.parceiro : null, indicado_por: indicadoPor ? indicadoPor.codigo : null, ref_comissao_pct: indicadoPor ? indicadoPor.pct : 0, status: 'pendente' })
+          desconto_pct: cup ? cup.desconto : 0, comissao_pct: cup ? (cup.comissao || 0) : 0, parceiro: cup ? cup.parceiro : null, indicado_por: indicadoPor ? indicadoPor.codigo : null, origem: String(body.origem || 'direto').toLowerCase().replace(/[^a-z0-9._:\/-]/g, '').slice(0, 60) || 'direto', ref_comissao_pct: indicadoPor ? indicadoPor.pct : 0, status: 'pendente' })
       });
       const pedido = criado[0];
 
