@@ -84,7 +84,7 @@ export default async function handler(req, res) {
     if (acao === 'evento') {
       if (lic.device_id !== device_id) return res.status(200).json({ ok: false });
       const tipo = String(req.body.tipo || '').slice(0, 30);
-      if (!['diagnostico', 'aplicado', 'revertido', 'aplicado_plano'].includes(tipo)) return res.status(200).json({ ok: false });
+      if (!['diagnostico', 'aplicado', 'revertido', 'aplicado_plano', 'consentimento'].includes(tipo)) return res.status(200).json({ ok: false });
       let dados = req.body.dados || {};
       if (JSON.stringify(dados).length > 8000) dados = { truncado: true };
       await fetch(`${SUPABASE_URL}/rest/v1/uso_eventos`, {

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>999BOOST - Admin</title>
+<link rel="icon" type="image/png" href="/Favicon.png?v=4">
+<style>
+  :root{--bg:#0a0a0c;--panel:#141213;--panel2:#1a1817;--line:#262222;--text:#fff;--sub:#a8a8a8;--orange:#ff7a1a;--green:#2ecc71;--red:#e8402a;--yellow:#f1c40f;--blue:#3b82f6;}
+  *{box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif;margin:0;font-size:14px;}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 16px 60px;}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+  header h1{font-size:20px;margin:0;} header h1 span{color:var(--orange);}
+  button{font-family:inherit;cursor:pointer;}
+  .btn{background:var(--panel2);color:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-weight:700;font-size:12.5px;}
+  .btn:hover{border-color:var(--orange);}
+  .btn.pri{background:var(--orange);color:#000;border-color:var(--orange);}
+  .btn.red{border-color:#5a2520;color:#ff8b7a;} .btn.green{border-color:#1f5a38;color:#6ee7a4;}
+  .btn:disabled{opacity:.5;cursor:default;}
+  .tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
+  .tab{background:none;border:1px solid var(--line);color:var(--sub);border-radius:999px;padding:8px 16px;font-weight:700;}
+  .tab.on{background:var(--orange);color:#000;border-color:var(--orange);}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:18px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;}
+  .card .l{color:var(--sub);font-size:12px;} .card .v{font-size:26px;font-weight:900;margin-top:4px;} .card .s{color:var(--sub);font-size:12px;margin-top:2px;}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;}
+  input,select{background:var(--bg);color:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:14px;font-family:inherit;}
+  input:focus,select:focus{outline:none;border-color:var(--orange);}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+  .tbl{width:100%;border-collapse:collapse;font-size:13px;}
+  .tbl th{text-align:left;color:var(--sub);font-weight:600;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  .tbl td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top;}
+  .tbl tr:hover td{background:#171515;}
+  .scroll{overflow-x:auto;}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:800;}
+  .p-ativo{background:rgba(46,204,113,.15);color:var(--green);} .p-expirado{background:rgba(241,196,15,.15);color:var(--yellow);}
+  .p-reembolsado,.p-cancelado{background:rgba(232,64,42,.15);color:#ff8b7a;}
+  .pl-basic{color:var(--green);} .pl-streamer{color:var(--yellow);} .pl-turbo{color:#ff6b4a;} .pl-vitalicio{color:var(--orange);}
+  .mono{font-family:Consolas,monospace;letter-spacing:.5px;}
+  .sub{color:var(--sub);font-size:12px;}
+  .acts{display:flex;gap:5px;flex-wrap:wrap;}
+  .acts .btn{padding:5px 8px;font-size:11.5px;}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;padding:16px;z-index:10;}
+  .modal .in{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:760px;width:100%;max-height:88vh;overflow:auto;padding:20px;}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);padding:10px 16px;border-radius:10px;display:none;z-index:20;}
+  #login{max-width:360px;margin:12vh auto;text-align:center;}
+  #login input{width:100%;margin:14px 0;}
+  .ok-box{background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.35);border-radius:10px;padding:14px;margin-top:14px;}
+  .hide{display:none;}
+  @media (max-width:640px){
+    .tbl .opt{display:none;}
+    .tbl tr:first-child{display:none;}
+    .tbl,.tbl tbody,.tbl tr,.tbl td{display:block;width:100%;}
+    .tbl tr{border-bottom:1px solid var(--line);padding:10px 0;}
+    .tbl td{border:none;padding:3px 4px;}
+    .box.scroll{padding:6px 12px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="login" class="box">
+  <h1 style="margin:0;font-size:20px;">999<span style="color:var(--orange)">BOOST</span> Admin</h1>
+  <input type="password" id="senha" placeholder="Senha do admin" onkeydown="if(event.key==='Enter')entrar()">
+  <button class="btn pri" style="width:100%;" onclick="entrar()">Entrar</button>
+  <div class="sub" id="loginMsg" style="margin-top:10px;"></div>
+</div>
+
+<div class="wrap hide" id="app">
+  <header>
+    <h1>999<span>BOOST</span> · Assinaturas</h1>
+    <div class="row" style="margin:0;"><button class="btn" onclick="atualizar()">Atualizar</button><button class="btn" onclick="sair()">Sair</button></div>
+  </header>
+  <div class="tabs">
+    <button class="tab on" data-t="resumo">Resumo</button>
+    <button class="tab" data-t="licencas">Licenças</button>
+    <button class="tab" data-t="criar">Criar licença</button>
+    <button class="tab" data-t="pedidos">Pedidos</button>
+  </div>
+
+  <section id="t-resumo">
+    <div class="cards" id="cards"></div>
+    <div class="box"><div class="sub">Assinantes ativos por plano</div><div class="cards" id="porPlano" style="margin:10px 0 0 0;"></div></div>
+  </section>
+
+  <section id="t-licencas" class="hide">
+    <div class="row">
+      <input id="busca" placeholder="Buscar por e-mail ou código" style="flex:1;min-width:200px;" onkeydown="if(event.key==='Enter')carregarLicencas()">
+      <button class="btn pri" onclick="carregarLicencas()">Buscar</button>
+    </div>
+    <div class="box scroll"><table class="tbl" id="tLic"></table></div>
+  </section>
+
+  <section id="t-criar" class="hide">
+    <div class="box" style="max-width:520px;">
+      <div class="sub" style="margin-bottom:12px;">Cria uma licença manualmente (venda por fora, cortesia, parceiro). O código é gerado automaticamente.</div>
+      <div class="row"><input id="cEmail" type="email" placeholder="email@cliente.com" style="flex:1;"></div>
+      <div class="row">
+        <select id="cPlano" style="flex:1;">
+          <option value="basic">Basic Gamer (15 dias)</option>
+          <option value="streamer">Low Streamer (15 dias)</option>
+          <option value="turbo" selected>Turbo Pro Player (15 dias)</option>
+          <option value="vitalicio">Vitalício</option>
+        </select>
+        <button class="btn pri" onclick="criar()">Criar licença</button>
+      </div>
+      <div id="cRes"></div>
+    </div>
+  </section>
+
+  <section id="t-pedidos" class="hide">
+    <div class="box scroll"><table class="tbl" id="tPed"></table></div>
+  </section>
+</div>
+
+<div class="modal" id="modal"><div class="in" id="modalIn"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+var SENHA = '';
+try { SENHA = sessionStorage.getItem('adm999') || ''; } catch(e){}
+var NOMES = { basic:'Basic Gamer', streamer:'Low Streamer', turbo:'Turbo Pro Player', vitalicio:'Vitalício' };
+var LIC = [];
+
+function api(acao, dados){
+  var body = Object.assign({ senha: SENHA, acao: acao }, dados || {});
+  return fetch('/api/admin', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) })
+    .then(function(r){ return r.json().then(function(j){ if (!r.ok) throw new Error(j.erro || 'Erro'); return j; }); });
+}
+function toast(t){ var e=document.getElementById('toast'); e.textContent=t; e.style.display='block'; clearTimeout(e._t); e._t=setTimeout(function(){e.style.display='none';},2600); }
+function esc(t){ return String(t==null?'':t).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function brl(v){ return 'R$ ' + Number(v||0).toFixed(2).replace('.',','); }
+function data(d){ if(!d) return '—'; var x=new Date(d); return x.toLocaleDateString('pt-BR')+' '+x.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+function dia(d){ return d ? new Date(d).toLocaleDateString('pt-BR') : '—'; }
+
+function entrar(){
+  SENHA = document.getElementById('senha').value;
+  document.getElementById('loginMsg').textContent = 'Verificando...';
+  api('resumo').then(function(r){
+    try { sessionStorage.setItem('adm999', SENHA); } catch(e){}
+    document.getElementById('login').classList.add('hide');
+    document.getElementById('app').classList.remove('hide');
+    mostrarResumo(r);
+  }).catch(function(e){ document.getElementById('loginMsg').textContent = e.message; });
+}
+function sair(){ try { sessionStorage.removeItem('adm999'); } catch(e){} location.reload(); }
+
+document.querySelectorAll('.tab').forEach(function(b){
+  b.onclick = function(){
+    document.querySelectorAll('.tab').forEach(function(x){ x.classList.toggle('on', x===b); });
+    ['resumo','licencas','criar','pedidos'].forEach(function(t){ document.getElementById('t-'+t).classList.toggle('hide', t!==b.dataset.t); });
+    if (b.dataset.t==='licencas') carregarLicencas();
+    if (b.dataset.t==='pedidos') carregarPedidos();
+    if (b.dataset.t==='resumo') api('resumo').then(mostrarResumo);
+  };
+});
+function atualizar(){ var on=document.querySelector('.tab.on').dataset.t; document.querySelector('.tab[data-t="'+on+'"]').click(); }
+
+function card(l,v,s){ return '<div class="card"><div class="l">'+l+'</div><div class="v">'+v+'</div>'+(s?'<div class="s">'+s+'</div>':'')+'</div>'; }
+function mostrarResumo(r){
+  document.getElementById('cards').innerHTML =
+    card('Faturamento hoje', brl(r.fat_hoje), r.vendas_hoje+' venda(s)') +
+    card('Faturamento no mês', brl(r.fat_mes), r.vendas_mes+' venda(s)') +
+    card('Faturamento total', brl(r.fat_total), r.vendas_total+' venda(s)') +
+    card('Assinantes ativos', r.ativos, r.licencas_total+' licença(s) no total') +
+    card('Vencem em 3 dias', r.vencendo_3_dias, 'bom momento pra chamar pra renovar') +
+    card('Reembolsados', r.reembolsados, '');
+  var h=''; for (var k in r.por_plano) h += card('<span class="pl-'+k+'">'+NOMES[k]+'</span>', r.por_plano[k]);
+  document.getElementById('porPlano').innerHTML = h;
+}
+
+function statusLic(l){
+  if (l.status!=='ativo') return l.status;
+  if (l.plano!=='vitalicio' && l.data_expiracao && new Date(l.data_expiracao) < new Date()) return 'expirado';
+  return 'ativo';
+}
+function carregarLicencas(){
+  var t=document.getElementById('tLic'); t.innerHTML='<tr><td class="sub">Carregando...</td></tr>';
+  api('licencas',{busca:document.getElementById('busca').value}).then(function(lista){
+    LIC = lista;
+    if (!lista.length){ t.innerHTML='<tr><td class="sub">Nenhuma licença encontrada.</td></tr>'; return; }
+    var h='<tr><th>E-mail / código</th><th>Plano</th><th>Status</th><th>Validade</th><th class="opt">PC</th><th class="opt">Último acesso</th><th>Ações</th></tr>';
+    lista.forEach(function(l,i){
+      var st=statusLic(l);
+      h+='<tr><td>'+esc(l.email)+'<div class="sub mono">'+esc(l.codigo)+'</div></td>'+
+        '<td class="pl-'+l.plano+'"><b>'+(NOMES[l.plano]||esc(l.plano))+'</b></td>'+
+        '<td><span class="pill p-'+st+'">'+st+'</span></td>'+
+        '<td>'+(l.plano==='vitalicio'?'vitalício':dia(l.data_expiracao))+'</td>'+
+        '<td class="opt sub">'+(l.device_id?'vinculado':'livre')+'</td>'+
+        '<td class="opt sub">'+data(l.ultimo_acesso)+(l.acessos?'<br>'+l.acessos+' acesso(s)':'')+'</td>'+
+        '<td><div class="acts">'+
+          (l.plano!=='vitalicio'?'<button class="btn green" onclick="acao(\'renovar\','+i+')">+15 dias</button>':'')+
+          '<button class="btn" onclick="trocarPlano('+i+')">Plano</button>'+
+          (l.device_id?'<button class="btn" onclick="acao(\'liberar_pc\','+i+')">Liberar PC</button>':'')+
+          '<button class="btn" onclick="verUso('+i+')">Uso</button>'+
+          (l.status==='ativo'?'<button class="btn red" onclick="acao(\'reembolsar\','+i+')">Reembolso</button>':'<button class="btn green" onclick="acao(\'reativar\','+i+')">Reativar</button>')+
+        '</div></td></tr>';
+    });
+    t.innerHTML=h;
+  }).catch(function(e){ t.innerHTML='<tr><td>'+esc(e.message)+'</td></tr>'; });
+}
+
+var AVISOS = {
+  renovar:'Adicionar 15 dias à licença de %s?',
+  liberar_pc:'Liberar o PC de %s? Ele poderá ativar em outro computador.',
+  reembolsar:'Marcar %s como REEMBOLSADO? A licença para de funcionar e esse e-mail/PC não compram nem ativam de novo automaticamente.\n\nLembre de devolver o PIX no Mercado Pago.',
+  reativar:'Reativar a licença de %s?'
+};
+function acao(tipo,i){
+  var l=LIC[i];
+  if (!confirm(AVISOS[tipo].replace('%s',l.email))) return;
+  api(tipo,{id:l.id}).then(function(){ toast('Feito!'); carregarLicencas(); }).catch(function(e){ toast(e.message); });
+}
+function trocarPlano(i){
+  var l=LIC[i];
+  var h='<h3 style="margin-top:0;">Mudar plano</h3><div class="sub" style="margin-bottom:12px;">'+esc(l.email)+' — atual: '+NOMES[l.plano]+'</div><div class="row">';
+  ['basic','streamer','turbo','vitalicio'].forEach(function(p){ h+='<button class="btn'+(p===l.plano?' pri':'')+'" onclick="salvarPlano('+i+',\''+p+'\')">'+NOMES[p]+'</button>'; });
+  h+='</div><div class="sub">Mudar para Vitalício remove a data de validade. A validade atual dos outros planos é mantida.</div><div style="margin-top:14px;"><button class="btn" onclick="fechar()">Fechar</button></div>';
+  abrir(h);
+}
+function salvarPlano(i,p){
+  api('plano',{id:LIC[i].id,plano:p}).then(function(){ fechar(); toast('Plano alterado'); carregarLicencas(); }).catch(function(e){ toast(e.message); });
+}
+var TIPOS = { diagnostico:'Diagnóstico', aplicado:'Otimização aplicada', revertido:'Otimização revertida', aplicado_plano:'Aplicou o plano completo', consentimento:'<b style="color:#f1c40f">Aceitou início do serviço</b>' };
+function verUso(i){
+  var l=LIC[i];
+  abrir('<h3 style="margin-top:0;">Uso do painel</h3><div class="sub">Carregando...</div>');
+  api('uso',{email:l.email}).then(function(ev){
+    var h='<h3 style="margin-top:0;">Uso do painel — '+esc(l.email)+'</h3>';
+    h+='<div class="sub" style="margin-bottom:10px;">Registro que comprova o uso do serviço (diagnósticos antes/depois e otimizações).</div>';
+    if (!ev.length) h+='<div class="sub">Nenhum uso registrado ainda.</div>';
+    else {
+      h+='<table class="tbl"><tr><th>Quando</th><th>Evento</th><th>Detalhe</th></tr>';
+      ev.forEach(function(e){
+        var d=e.dados||{}, det='';
+        if (e.tipo==='diagnostico') det = '<b>'+d.problemas+' problema(s)</b><div class="sub">'+(d.itens||[]).filter(function(x){return x.indexOf('X ')===0;}).map(esc).join('<br>')+'</div>';
+        else if (e.tipo==='aplicado_plano') det = d.total+' otimizações';
+        else if (e.tipo==='consentimento') det = esc(d.texto||'');
+        else det = 'ID '+(d.ids||[]).join(', ');
+        h+='<tr><td class="sub">'+data(e.criado_em)+'</td><td>'+(TIPOS[e.tipo]||esc(e.tipo))+'</td><td>'+det+'</td></tr>';
+      });
+      h+='</table>';
+    }
+    h+='<div style="margin-top:14px;"><button class="btn" onclick="fechar()">Fechar</button></div>';
+    abrir(h);
+  }).catch(function(e){ abrir('<div>'+esc(e.message)+'</div><button class="btn" onclick="fechar()">Fechar</button>'); });
+}
+function criar(){
+  var email=document.getElementById('cEmail').value.trim(), plano=document.getElementById('cPlano').value;
+  api('criar',{email:email,plano:plano}).then(function(r){
+    document.getElementById('cRes').innerHTML='<div class="ok-box">Licença criada!<br>E-mail: <b>'+esc(r.email)+'</b><br>Código: <b class="mono" style="color:var(--orange);font-size:18px;">'+esc(r.codigo)+'</b><div class="sub" style="margin-top:6px;">Envie ao cliente junto com o link: www.999boost.com.br/download/999Boost.zip</div></div>';
+  }).catch(function(e){ document.getElementById('cRes').innerHTML='<div class="sub" style="color:#ff8b7a;margin-top:10px;">'+esc(e.message)+'</div>'; });
+}
+function carregarPedidos(){
+  var t=document.getElementById('tPed'); t.innerHTML='<tr><td class="sub">Carregando...</td></tr>';
+  api('pedidos').then(function(lista){
+    if (!lista.length){ t.innerHTML='<tr><td class="sub">Nenhum pedido ainda.</td></tr>'; return; }
+    var h='<tr><th>Data</th><th>Cliente</th><th>Plano</th><th>Valor</th><th>Status</th></tr>';
+    lista.forEach(function(p){
+      var cls = p.status==='pago'?'p-ativo':(p.status==='pendente'||p.status==='processando')?'p-expirado':'p-cancelado';
+      h+='<tr><td class="sub">'+data(p.criado_em)+'</td><td>'+esc(p.nome)+'<div class="sub">'+esc(p.email)+' · '+esc(p.telefone)+'</div></td>'+
+        '<td class="pl-'+p.plano+'">'+(NOMES[p.plano]||esc(p.plano))+'</td><td>'+brl(p.valor)+(p.cupom?'<div class="sub">'+esc(p.cupom)+'</div>':'')+'</td>'+
+        '<td><span class="pill '+cls+'">'+esc(p.status)+'</span></td></tr>';
+    });
+    t.innerHTML=h;
+  }).catch(function(e){ t.innerHTML='<tr><td>'+esc(e.message)+'</td></tr>'; });
+}
+function abrir(h){ document.getElementById('modalIn').innerHTML=h; document.getElementById('modal').style.display='flex'; }
+function fechar(){ document.getElementById('modal').style.display='none'; }
+document.getElementById('modal').onclick=function(e){ if(e.target.id==='modal') fechar(); };
+
+if (SENHA){ api('resumo').then(function(r){ document.getElementById('login').classList.add('hide'); document.getElementById('app').classList.remove('hide'); mostrarResumo(r); }).catch(function(){ SENHA=''; }); }
+</script>
+</body>
+</html>
