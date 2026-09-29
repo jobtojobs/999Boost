@@ -132,7 +132,7 @@
   <section id="t-cupons" class="hide">
     <div class="box" style="margin-bottom:12px;">
       <div class="row" style="justify-content:space-between;margin:0;">
-        <div><b>Cupons de desconto e de parceiros</b><div class="sub">O desconto é aplicado no valor do PIX. A comissão do parceiro é calculada sobre o valor pago.</div></div>
+        <div><b>Cupons de desconto e de parceiros</b><div class="sub">O desconto é aplicado no valor do PIX. A comissão do parceiro é calculada sobre o valor pago e liberada 7 dias após a venda (sem reembolso).</div></div>
         <button class="btn pri" onclick="formCupom()">+ Novo cupom</button>
       </div>
     </div>
@@ -307,7 +307,7 @@ function carregarCupons(){
         '<td><b>'+c.desconto+'%</b></td>'+
         '<td>'+(c.parceiro?esc(c.parceiro):'<span class="sub">—</span>')+(c.comissao?'<div class="sub">'+c.comissao+'% de comissão'+(c.pix?' · PIX: '+esc(c.pix):'')+'</div>':'')+'</td>'+
         '<td>'+c.vendas+'<div class="sub">'+brl(c.faturamento)+'</div></td>'+
-        '<td><b style="color:'+(c.comissao_pendente>0?'var(--orange)':'inherit')+'">'+brl(c.comissao_pendente)+'</b>'+(c.comissao_paga_total?'<div class="sub">já pago: '+brl(c.comissao_paga_total)+'</div>':'')+'</td>'+
+        '<td><b style="color:'+(c.comissao_pendente>0?'var(--orange)':'inherit')+'">'+brl(c.comissao_pendente)+'</b>'+(c.comissao_analise?'<div class="sub">em análise (7 dias): '+brl(c.comissao_analise)+'</div>':'')+(c.comissao_paga_total?'<div class="sub">já pago: '+brl(c.comissao_paga_total)+'</div>':'')+'</td>'+
         '<td><div class="acts">'+
           '<button class="btn" onclick="usosCupom('+i+')">Quem usou</button>'+
           '<button class="btn" onclick="formCupom('+i+')">Editar</button>'+

@@ -191,7 +191,8 @@ export default async function handler(req, res) {
       // ---------- Cupons de parceiros ----------
       case 'cupons': {
         const cupons = await sb('cupons?select=*&order=criado_em.desc');
-        const pedidos = await sb('pedidos?status=eq.pago&cupom=not.is.null&select=cupom,valor,comissao_pct,comissao_paga');
+        const pedidos = await sb('pedidos?status=eq.pago&cupom=not.is.null&select=cupom,valor,comissao_pct,comissao_paga,pago_em');
+        const corte = Date.now() - 7 * 86400000;   // comissao so libera apos o prazo de arrependimento
         const r2 = v => Math.round(v * 100) / 100;
         return res.json(cupons.map(c => {
           const ps = pedidos.filter(p => p.cupom === c.codigo);
@@ -200,7 +201,8 @@ export default async function handler(req, res) {
             ...c,
             vendas: ps.length,
             faturamento: r2(ps.reduce((t, p) => t + Number(p.valor || 0), 0)),
-            comissao_pendente: r2(ps.filter(p => !p.comissao_paga).reduce((t, p) => t + com(p), 0)),
+            comissao_pendente: r2(ps.filter(p => !p.comissao_paga && new Date(p.pago_em).getTime() <= corte).reduce((t, p) => t + com(p), 0)),
+            comissao_analise: r2(ps.filter(p => !p.comissao_paga && new Date(p.pago_em).getTime() > corte).reduce((t, p) => t + com(p), 0)),
             comissao_paga_total: r2(ps.filter(p => p.comissao_paga).reduce((t, p) => t + com(p), 0))
           };
         }));
@@ -248,7 +250,8 @@ export default async function handler(req, res) {
       case 'cupom_pagar': {
         // Marca como paga a comissao de todas as vendas desse cupom ate agora
         const codigo = String(b.codigo || '').trim().toUpperCase();
-        await sb(`pedidos?cupom=eq.${enc(codigo)}&status=eq.pago&comissao_paga=eq.false`, { method: 'PATCH', body: JSON.stringify({ comissao_paga: true }) });
+        const corte = new Date(Date.now() - 7 * 86400000).toISOString();
+        await sb(`pedidos?cupom=eq.${enc(codigo)}&status=eq.pago&comissao_paga=eq.false&pago_em=lt.${enc(corte)}`, { method: 'PATCH', body: JSON.stringify({ comissao_paga: true }) });
         return res.json({ ok: true });
       }
 
