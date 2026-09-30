@@ -3,455 +3,482 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>999BOOST - Finalizar Contratação</title>
+<title>Checkout 999BOOST - Finalizar compra</title>
+<meta name="robots" content="noindex">
 <link rel="icon" type="image/png" href="/Favicon.png?v=4">
 <style>
   :root{
-    --bg:#0a0a0c; --panel:#141213; --panel2:#1a1817; --line:#221f1f; --text:#fff; --sub:#a8a8a8;
-    --orange:#ff7a1a; --green:#2ecc71; --red:#e8402a; --yellow:#f1c40f;
+    --bg:#0a0a0c; --panel:#141213; --panel2:#1a1817; --line:#262222; --text:#fff; --sub:#a8a8a8;
+    --orange:#ff7a1a; --green:#2ecc71; --red:#ff6b57; --yellow:#f1c40f;
   }
   *{box-sizing:border-box;}
-  body{background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,sans-serif;margin:0;padding:24px;}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,sans-serif;margin:0;line-height:1.45;}
   a{color:inherit;text-decoration:none;}
-  .wrap{max-width:1080px;margin:0 auto;}
-  .back{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#ddd;margin-bottom:16px;background:var(--panel);border:1px solid #2e2a2a;padding:8px 14px 8px 11px;border-radius:999px;transition:border-color .2s,color .2s;}
-  .back:hover{color:var(--orange);}
-  .modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;}
-  .modal-head{padding:24px 28px 18px 28px;border-bottom:1px solid var(--line);}
-  .eyebrow{color:var(--orange);font-weight:900;font-size:12px;letter-spacing:1px;text-transform:uppercase;}
-  .modal-head h1{font-size:26px;margin:6px 0 4px 0;}
-  .modal-head p{color:var(--sub);font-size:13.5px;margin:0;}
-  .cols{display:grid;grid-template-columns:1.5fr 1fr;gap:0;}
-  @media (max-width:800px){ .cols{grid-template-columns:1fr;} }
-  .left{padding:24px 28px;border-right:1px solid var(--line);}
-  @media (max-width:800px){ .left{border-right:none;border-bottom:1px solid var(--line);} }
-  .right{padding:24px 28px;background:var(--panel2);}
-  .section-title{font-weight:900;font-size:13px;color:var(--orange);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;}
+  button{font-family:inherit;}
+  :focus-visible{outline:2px solid var(--orange);outline-offset:2px;}
 
-  .plan-switch{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
-  .plan-switch button{flex:1;min-width:100px;background:var(--bg);border:1.5px solid var(--line);color:var(--sub);padding:10px 8px;border-radius:8px;font-weight:800;font-size:12.5px;cursor:pointer;transition:.15s;}
-  .plan-switch button.active{border-color:var(--orange);color:var(--orange);background:rgba(255,122,26,.08);}
+  /* topo */
+  .topo{border-bottom:1px solid var(--line);background:#0c0b0c;}
+  .topo .in{max-width:1120px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;}
+  .marca{display:flex;align-items:center;gap:10px;font-weight:900;font-size:19px;color:var(--orange);}
+  .marca img{width:34px;height:34px;}
+  .seguro{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#bff0d2;font-weight:700;}
+  .seguro svg{flex-shrink:0;}
+  .etapas{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#666;font-weight:700;}
+  .etapas .e{display:flex;align-items:center;gap:7px;}
+  .etapas .n{width:22px;height:22px;border-radius:50%;border:2px solid #333;display:flex;align-items:center;justify-content:center;font-size:11px;}
+  .etapas .e.on{color:#fff;} .etapas .e.on .n{border-color:var(--orange);background:var(--orange);color:#000;}
+  .etapas .e.ok{color:#bff0d2;} .etapas .e.ok .n{border-color:var(--green);background:var(--green);color:#000;}
+  .etapas .traco{width:26px;height:2px;background:#2a2626;}
+  @media (max-width:760px){ .etapas{display:none;} }
 
-  .addon-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
-  @media (max-width:520px){ .addon-grid{grid-template-columns:1fr;} }
-  .addon{background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:16px;cursor:pointer;position:relative;transition:.15s;}
-  .addon:hover{border-color:#3a3535;}
-  .addon.selected{border-color:var(--orange);background:rgba(255,122,26,.06);}
-  .addon .radio{position:absolute;top:14px;right:14px;width:18px;height:18px;border-radius:50%;border:2px solid #444;}
-  .addon.selected .radio{border-color:var(--orange);background:var(--orange);}
-  .addon .tag{display:inline-block;background:var(--yellow);color:#000;font-size:9.5px;font-weight:900;padding:2px 8px;border-radius:999px;margin-bottom:8px;}
-  .addon h4{font-size:14px;margin:0 0 6px 0;padding-right:24px;}
-  .addon p{font-size:12px;color:var(--sub);margin:0 0 10px 0;line-height:1.4;}
-  .addon .price{color:var(--orange);font-weight:900;font-size:16px;}
+  .pagina{max-width:1120px;margin:0 auto;padding:22px 20px 60px;}
+  .voltar{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#ccc;margin-bottom:16px;}
+  .voltar:hover{color:var(--orange);}
+  .grade{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:22px;align-items:start;}
+  @media (max-width:880px){ .grade{grid-template-columns:1fr;} .resumo{order:-1;position:static !important;} .resumo .itens,.resumo .nota-mini{display:none;} .resumo .tecnico{display:none;} .resumo .cartao{margin-bottom:12px;} }
 
-  .addon.wide{grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;gap:16px;}
-  .addon.wide .info{flex:1;}
+  .cartao{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:16px;}
+  .cartao h2{font-size:16px;margin:0 0 4px 0;display:flex;align-items:center;gap:10px;}
+  .cartao h2 .num{width:24px;height:24px;border-radius:50%;background:var(--orange);color:#000;font-size:12px;display:inline-flex;align-items:center;justify-content:center;}
+  .cartao .desc{color:var(--sub);font-size:13px;margin:0 0 16px 0;}
+  .campo{margin-bottom:14px;}
+  .campo label{display:block;font-size:12.5px;color:#ddd;font-weight:600;margin-bottom:5px;}
+  .campo input{width:100%;padding:12px 13px;background:var(--bg);border:1px solid #2e2a2a;border-radius:9px;color:#fff;font-size:15px;transition:border-color .15s;}
+  .campo input:focus{outline:none;border-color:var(--orange);}
+  .campo.erro input{border-color:var(--red);}
+  .campo .ajuda{font-size:11.5px;color:var(--sub);margin-top:4px;}
+  .campo .msg{font-size:11.5px;color:var(--red);margin-top:4px;display:none;}
+  .campo.erro .msg{display:block;}
+  .duas{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media (max-width:560px){ .duas{grid-template-columns:1fr;} }
 
-  .fields{margin-top:22px;}
-  label.field{display:block;font-size:12.5px;color:var(--sub);margin-bottom:4px;margin-top:14px;}
-  input[type=text],input[type=tel],input[type=email]{width:100%;padding:11px 12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:#fff;font-size:14px;}
-  input:focus{outline:none;border-color:var(--orange);}
+  .metodo{display:flex;align-items:center;gap:14px;border:1.5px solid var(--orange);background:rgba(255,122,26,.06);border-radius:11px;padding:14px 16px;}
+  .metodo .radio{width:18px;height:18px;border-radius:50%;border:5px solid var(--orange);flex-shrink:0;}
+  .metodo b{display:block;font-size:14.5px;}
+  .metodo span{font-size:12.5px;color:var(--sub);}
+  .metodo .pix-logo{margin-left:auto;font-weight:900;color:#32bcad;font-size:14px;letter-spacing:.5px;}
+  .aceite{display:flex;gap:10px;align-items:flex-start;margin:16px 0 4px;font-size:12.5px;color:var(--sub);cursor:pointer;}
+  .aceite input{margin-top:3px;width:16px;height:16px;accent-color:var(--orange);flex-shrink:0;}
+  .aceite a{color:var(--orange);}
+  .aceite.erro{color:var(--red);}
+  .btn-final{width:100%;margin-top:16px;background:var(--orange);color:#000;border:none;border-radius:11px;padding:17px;font-weight:900;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .15s, background .15s;}
+  .btn-final:hover{background:#ff8f3f;transform:translateY(-1px);}
+  .btn-final:disabled{opacity:.6;cursor:wait;transform:none;}
+  .confianca{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;}
+  @media (max-width:560px){ .confianca{grid-template-columns:1fr;} }
+  .confianca div{display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--sub);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;}
+  .confianca b{display:block;color:#eee;font-size:12.5px;}
 
-  .notice{display:flex;gap:10px;background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.35);border-radius:10px;padding:14px 16px;margin-top:20px;}
-  .notice b{color:var(--green);}
-  .notice p{margin:2px 0 0 0;font-size:12px;color:#ccc;}
+  /* resumo */
+  .resumo{position:sticky;top:18px;}
+  .resumo .cartao{padding:20px;}
+  .resumo h3{font-size:14px;margin:0 0 14px 0;text-transform:uppercase;letter-spacing:.6px;color:var(--sub);}
+  .produto{display:flex;gap:12px;align-items:flex-start;padding-bottom:14px;border-bottom:1px solid var(--line);}
+  .produto img{width:52px;height:52px;border-radius:10px;background:#0f0e0e;border:1px solid var(--line);padding:4px;}
+  .produto .nome{font-weight:800;font-size:15px;}
+  .produto .per{font-size:12.5px;color:var(--sub);}
+  .produto .preco{margin-left:auto;font-weight:800;white-space:nowrap;}
+  .trocar{background:none;border:none;color:var(--orange);font-weight:700;font-size:12.5px;cursor:pointer;padding:0;margin-top:4px;}
+  .opcoes{display:none;margin-top:12px;flex-direction:column;gap:6px;}
+  .opcoes.aberto{display:flex;}
+  .opcao{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:9px;padding:10px 12px;cursor:pointer;font-size:13.5px;background:var(--bg);}
+  .opcao:hover{border-color:#3a3535;}
+  .opcao.on{border-color:var(--orange);}
+  .opcao input{accent-color:var(--orange);}
+  .opcao .v{margin-left:auto;font-weight:700;}
+  .itens{list-style:none;padding:12px 0 4px;margin:0;}
+  .itens li{font-size:13px;color:#ccc;padding:3px 0;display:flex;gap:8px;}
+  .itens li:before{content:"✓";color:var(--green);font-weight:900;}
+  .nota-mini{font-size:11px;color:#777;margin:2px 0 8px;}
+  .cupom-link{background:none;border:none;color:var(--orange);font-weight:700;font-size:13px;cursor:pointer;padding:10px 0;}
+  .cupom-box{display:none;gap:8px;margin:4px 0 6px;}
+  .cupom-box.aberto{display:flex;}
+  .cupom-box input{flex:1;padding:10px 12px;background:var(--bg);border:1px solid #2e2a2a;border-radius:9px;color:#fff;font-size:14px;text-transform:uppercase;}
+  .cupom-box input:focus{outline:none;border-color:var(--orange);}
+  .cupom-box button{background:var(--panel2);border:1px solid #3a3535;color:#fff;border-radius:9px;padding:0 14px;font-weight:800;font-size:13px;cursor:pointer;}
+  .cupom-msg{font-size:12px;min-height:16px;margin-bottom:6px;}
+  .cupom-msg.ok{color:var(--green);} .cupom-msg.err{color:var(--red);}
+  .linha{display:flex;justify-content:space-between;font-size:14px;padding:6px 0;color:#ddd;}
+  .linha.desc span:last-child{color:var(--green);}
+  .linha.total{border-top:1px solid var(--line);margin-top:6px;padding-top:14px;font-size:20px;font-weight:900;color:#fff;}
+  .linha.total span:last-child{color:var(--orange);}
+  .pgto-unico{font-size:12px;color:var(--sub);text-align:right;}
+  .tecnico{font-size:12.5px;color:var(--sub);padding:12px 14px;border:1px dashed #3a3535;border-radius:10px;}
+  .tecnico a{color:var(--orange);font-weight:700;}
 
-  .summary-title{font-weight:900;font-size:13px;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
-  .summary-plan{font-size:20px;font-weight:900;margin-bottom:14px;}
-  .summary-list{list-style:none;padding:0;margin:0 0 16px 0;}
-  .summary-list li{font-size:13px;color:#ccc;padding:5px 0;display:flex;gap:8px;align-items:center;}
-  .summary-list li:before{content:"✓";color:var(--green);font-weight:900;}
-  .row{display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line);font-size:13.5px;}
-  .row.total{font-size:19px;font-weight:900;border-top:2px solid var(--line);margin-top:4px;padding-top:14px;}
-  .row.total span:last-child{color:var(--orange);}
-  .row.discount span:last-child{color:var(--green);}
-
-  .coupon-row{display:flex;gap:8px;margin:18px 0;}
-  .coupon-row input{flex:1;}
-  .coupon-row button{background:var(--panel);border:1.5px solid var(--line);color:#fff;border-radius:8px;padding:0 16px;font-weight:800;font-size:12.5px;cursor:pointer;}
-  .coupon-row button:hover{border-color:var(--orange);}
-  .coupon-msg{font-size:12px;margin:-10px 0 14px 0;min-height:14px;}
-  .coupon-msg.ok{color:var(--green);}
-  .coupon-msg.err{color:var(--red);}
-
-  .btn-buy{width:100%;background:var(--yellow);color:#000;border:none;border-radius:10px;padding:16px;font-weight:900;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.15s;}
-  .btn-buy:hover{background:#ffd84d;transform:translateY(-1px);}
-  .btn-buy:disabled{opacity:.5;cursor:not-allowed;transform:none;}
-  .plan-switch button small{display:block;font-weight:600;font-size:11px;margin-top:3px;opacity:.85;}
-  .tech-note{background:var(--bg);border:1px dashed #3a3535;border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--sub);line-height:1.5;}
-  .tech-note a{color:var(--orange);font-weight:800;}
-  .summary-note{font-size:12px;color:var(--sub);margin:-8px 0 14px 0;}
-  .pix-modal{position:fixed;inset:0;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;padding:16px;z-index:50;}
-  .pix-box{background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:440px;width:100%;padding:24px;text-align:center;max-height:95vh;overflow:auto;position:relative;}
-  .pix-box h2{margin:4px 0 4px 0;font-size:21px;}
-  .pix-box .sub{color:var(--sub);font-size:13px;margin-bottom:14px;}
-  .pix-box img{width:220px;height:220px;background:#fff;border-radius:10px;padding:8px;}
-  .pix-box textarea{width:100%;height:64px;margin:12px 0 8px 0;background:var(--bg);color:#ddd;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:11px;resize:none;}
-  .pix-btn{width:100%;background:var(--orange);color:#000;border:none;border-radius:10px;padding:13px;font-weight:900;font-size:14px;cursor:pointer;display:block;text-decoration:none;}
-  .pix-status{margin-top:14px;font-size:13px;color:var(--yellow);display:flex;align-items:center;justify-content:center;gap:8px;}
-  .pix-status:before{content:"";width:10px;height:10px;border-radius:50%;background:var(--yellow);animation:pisca 1s infinite;}
+  /* pix */
+  .pix{text-align:center;}
+  .pix .qr{display:inline-block;background:#fff;border-radius:12px;padding:10px;margin:6px 0 14px;}
+  .pix .qr img{width:210px;height:210px;display:block;}
+  .cronometro{display:inline-flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:13px;color:#ddd;margin-bottom:12px;}
+  .cronometro b{font-family:Consolas,monospace;color:var(--yellow);font-size:14px;}
+  .copia{display:flex;gap:8px;margin:4px 0 10px;}
+  .copia input{flex:1;min-width:0;padding:11px 12px;background:var(--bg);border:1px solid #2e2a2a;border-radius:9px;color:#bbb;font-size:12px;font-family:Consolas,monospace;}
+  .copia button{background:var(--orange);color:#000;border:none;border-radius:9px;padding:0 16px;font-weight:900;cursor:pointer;white-space:nowrap;}
+  .passos-pix{text-align:left;list-style:none;counter-reset:p;padding:0;margin:14px 0 0;display:grid;gap:8px;}
+  .passos-pix li{counter-increment:p;display:flex;gap:10px;font-size:13px;color:#ccc;}
+  .passos-pix li:before{content:counter(p);width:22px;height:22px;border-radius:50%;background:#2a2522;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .status{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:16px;font-size:13.5px;color:var(--yellow);font-weight:700;}
+  .status:before{content:"";width:10px;height:10px;border-radius:50%;background:currentColor;animation:pisca 1s infinite;}
+  .status.exp{color:var(--red);} .status.exp:before{animation:none;}
   @keyframes pisca{50%{opacity:.2;}}
-  .pix-close{position:absolute;top:10px;right:14px;background:none;border:none;color:var(--sub);font-size:22px;cursor:pointer;}
-  .ok-code{font-size:26px;font-weight:900;color:var(--orange);letter-spacing:2px;margin:4px 0 14px 0;}
-  .ok-steps{text-align:left;font-size:13px;color:#ccc;line-height:1.7;margin:14px 0;padding-left:18px;}
-  .redirect-note{text-align:center;font-size:11.5px;color:var(--sub);margin-top:10px;}
+  .link-sec{background:none;border:none;color:var(--sub);font-size:12.5px;cursor:pointer;margin-top:12px;text-decoration:underline;}
+
+  /* confirmacao */
+  .ok{text-align:center;}
+  .ok .icone{width:64px;height:64px;border-radius:50%;background:rgba(46,204,113,.15);color:var(--green);font-size:32px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:8px;}
+  .ok-code{font-size:26px;font-weight:900;color:var(--orange);letter-spacing:2px;margin:4px 0 16px;font-family:Consolas,monospace;}
+  .btn-sec{display:block;width:100%;margin-top:10px;background:var(--panel2);color:#fff;border:1px solid #3a3535;border-radius:11px;padding:14px;font-weight:800;font-size:14px;cursor:pointer;text-align:center;}
+  .ok-steps{text-align:left;font-size:13px;color:#ccc;line-height:1.7;margin:16px 0;padding-left:20px;}
+  .indique{display:block;margin:14px 0 6px;padding:12px;border:1px dashed var(--orange);border-radius:10px;color:#fff;font-size:13px;text-align:left;}
+  .hide{display:none !important;}
 </style>
 </head>
 <body>
 
-<div class="wrap">
-  <a href="/planos.html" class="back" id="btnVoltar">← Voltar</a>
-
-  <div class="modal">
-    <div class="modal-head">
-      <div class="eyebrow">999BOOST</div>
-      <h1>Finalizar contratação</h1>
-      <p>Escolha seu plano, pague via PIX e receba o acesso na hora.</p>
+<header class="topo">
+  <div class="in">
+    <a href="/" class="marca"><img src="/assets/logo-128.png" alt="">999BOOST</a>
+    <div class="etapas" aria-label="Etapas da compra">
+      <div class="e on" id="e1"><span class="n">1</span>Identificação</div><span class="traco"></span>
+      <div class="e" id="e2"><span class="n">2</span>Pagamento</div><span class="traco"></span>
+      <div class="e" id="e3"><span class="n">3</span>Confirmação</div>
     </div>
+    <div class="seguro"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2.4"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Compra 100% segura</div>
+  </div>
+</header>
 
-    <div class="cols">
-      <div class="left">
-        <div class="section-title">Plano selecionado</div>
-        <div class="plan-switch" id="planSwitch">
-          <button data-plano="basic">Basic Gamer<br><small>R$ 19,90 / 15 dias</small></button>
-          <button data-plano="streamer">Low Streamer<br><small>R$ 29,90 / 15 dias</small></button>
-          <button data-plano="turbo">Turbo Pro Player<br><small>R$ 49,90 / 15 dias</small></button>
-          <button data-plano="vitalicio">Vitalício<br><small>R$ 99,90 único</small></button>
-          <button data-plano="ebook">Guia BIOS e Jogos<br><small>R$ 27,00 · PDF</small></button>
-        </div>
+<main class="pagina">
+  <a href="/planos.html" class="voltar" id="btnVoltar">← Voltar</a>
+  <div class="grade">
 
-        <div class="tech-note">
-          Prefere que um técnico faça por você, ao vivo via AnyDesk (otimização, formatação, overclock, undervolt...)?
-          <a href="/formulario.html">Solicitar atendimento</a> — valores sob orçamento.
-        </div>
+    <!-- ===== ESQUERDA ===== -->
+    <div>
+      <!-- Etapa 1: dados + pagamento -->
+      <div id="etapaDados">
+        <section class="cartao">
+          <h2><span class="num">1</span> Seus dados</h2>
+          <p class="desc" id="descDados">Usamos o e-mail para enviar sua licença e como login do painel.</p>
+          <div class="campo" id="cNome">
+            <label for="nome">Nome completo</label>
+            <input type="text" id="nome" autocomplete="name" placeholder="Seu nome completo">
+            <div class="msg">Informe seu nome.</div>
+          </div>
+          <div class="duas">
+            <div class="campo" id="cEmail">
+              <label for="email" id="lblEmail">E-mail</label>
+              <input type="email" id="email" autocomplete="email" placeholder="seu@email.com">
+              <div class="msg">Informe um e-mail válido.</div>
+            </div>
+            <div class="campo" id="cFone">
+              <label for="fone">WhatsApp</label>
+              <input type="tel" id="fone" autocomplete="tel" inputmode="numeric" placeholder="(00) 00000-0000">
+              <div class="msg">Informe um telefone com DDD.</div>
+            </div>
+          </div>
+        </section>
 
-        <div class="fields">
-          <div class="section-title" style="margin-top:8px;">Seus dados</div>
-          <label class="field">Nome completo</label>
-          <input type="text" id="nome" placeholder="Seu nome completo">
-          <label class="field">Telefone/WhatsApp</label>
-          <input type="tel" id="fone" placeholder="(00) 00000-0000">
-          <label class="field" id="lblEmail">E-mail (vai ser o login do painel)</label>
-          <input type="email" id="email" placeholder="seu@email.com">
-          <label style="display:flex;gap:8px;align-items:flex-start;margin-top:16px;font-size:12.5px;color:var(--sub);cursor:pointer;">
-            <input type="checkbox" id="aceite" style="margin-top:3px;">
-            <span>Li e aceito os <a href="/termos.html" target="_blank" style="color:var(--orange);">Termos de Uso e Reembolso</a> e a <a href="/privacidade.html" target="_blank" style="color:var(--orange);">Política de Privacidade</a>. <span id="txtAceite">Sei que posso desistir em até 7 dias <b>antes do primeiro uso</b>; ao aplicar a primeira otimização, o serviço é considerado prestado (continuo coberto pela Garantia de Aplicação Total).</span></span>
+        <section class="cartao">
+          <h2><span class="num">2</span> Pagamento</h2>
+          <p class="desc">Aprovação na hora. Não precisa de cartão.</p>
+          <div class="metodo">
+            <span class="radio"></span>
+            <div><b>PIX</b><span>QR Code ou copia e cola · liberação automática</span></div>
+            <span class="pix-logo">PIX</span>
+          </div>
+          <label class="aceite" id="lblAceite">
+            <input type="checkbox" id="aceite">
+            <span>Li e aceito os <a href="/termos.html" target="_blank">Termos de Uso e Reembolso</a> e a <a href="/privacidade.html" target="_blank">Política de Privacidade</a>. <span id="txtAceite"></span></span>
           </label>
-        </div>
+          <button class="btn-final" id="btnComprar" onclick="finalizar()"><span>🔒</span><span id="txtBtn">Finalizar compra</span></button>
+          <div class="confianca">
+            <div><span>🏦</span><span><b>Mercado Pago</b>Pagamento processado com segurança</span></div>
+            <div><span>⚡</span><span><b>Liberação imediata</b>Licença na tela e no e-mail</span></div>
+            <div><span>🛡️</span><span><b>Garantia de aplicação</b>Não aplicou? Seu dinheiro volta</span></div>
+          </div>
+        </section>
       </div>
 
-      <div class="right">
-        <div class="summary-title">Plano selecionado</div>
-        <div class="summary-plan" id="sumPlano">Low Streamer</div>
-        <ul class="summary-list" id="sumFeatures"></ul>
-        <div class="summary-note" id="sumNota"></div>
+      <!-- Etapa 2: PIX -->
+      <section class="cartao pix hide" id="etapaPix">
+        <h2 style="justify-content:center;">Pague com PIX para concluir</h2>
+        <p class="desc">Abra o app do seu banco e escaneie o QR Code, ou use o PIX copia e cola.</p>
+        <div class="cronometro">⏱ O código expira em <b id="pixTempo">30:00</b></div><br>
+        <div class="qr"><img id="pixImg" alt="QR Code PIX"></div>
+        <div class="copia"><input id="pixCopia" readonly aria-label="Código PIX copia e cola"><button id="pixCopiar" onclick="copiarPix()">Copiar código</button></div>
+        <ol class="passos-pix">
+          <li>Abra o app do seu banco e escolha pagar com PIX.</li>
+          <li>Escaneie o QR Code ou cole o código copiado.</li>
+          <li>Confirme o pagamento. A liberação aparece aqui automaticamente.</li>
+        </ol>
+        <div class="status" id="pixStatus">Aguardando pagamento...</div>
+        <button class="btn-final hide" id="btnNovoPix" onclick="novoPix()">Gerar novo PIX</button>
+        <button class="link-sec" id="btnAlterar" onclick="alterarDados()">Alterar dados ou plano</button>
+      </section>
 
-        <div class="row"><span>Subtotal</span><span id="sumSubtotal">R$ 99,90</span></div>
-        <div id="sumAddonsList"></div>
-        <div class="row discount" id="sumDiscountRow" style="display:none;"><span id="sumDiscountLabel">Cupom</span><span id="sumDiscountValue">- R$ 0,00</span></div>
+      <!-- Etapa 3: confirmacao -->
+      <section class="cartao ok hide" id="etapaOk">
+        <div class="icone">✓</div>
+        <h2 style="justify-content:center;font-size:22px;" id="okTitulo">Pagamento confirmado!</h2>
+        <p class="desc">Sua licença está ativa. Também enviamos tudo para <b id="okEmail"></b>.</p>
+        <div style="color:var(--sub);font-size:12.5px;" id="okRotulo">Seu código de licença</div>
+        <div class="ok-code" id="okCodigo"></div>
+        <a class="btn-final" id="okDownload" href="#" style="text-decoration:none;">⬇ Baixar o painel 999BOOST</a>
+        <button class="btn-sec hide" id="okGuia" onclick="baixarGuia()">Baixar o Guia de BIOS e Jogos (PDF)</button>
+        <ol class="ok-steps" id="okPassos">
+          <li>Extraia o arquivo baixado numa pasta.</li>
+          <li>Dê dois cliques em <b>Abrir 999Boost Assinante.bat</b> e aceite rodar como administrador.</li>
+          <li>Entre com o seu e-mail e o código acima e clique em aplicar. Em menos de 1 minuto está pronto.</li>
+        </ol>
+        <a class="indique" id="okIndique" href="/indique.html" target="_blank">🎁 <b>Ganhe um plano grátis:</b> indique 3 amigos com o seu link. <span style="color:var(--orange);font-weight:700;">Pegar meu link →</span></a>
+        <div class="desc" style="font-size:12px;margin:10px 0 0;">Guarde o código. Dúvidas? <a href="https://wa.me/5585991954902" style="color:var(--orange);">WhatsApp</a></div>
+      </section>
+    </div>
 
-        <div class="coupon-row">
-          <input type="text" id="cupom" placeholder="TEM UM CUPOM DE DESCONTO?">
-          <button onclick="aplicarCupom()">Verificar</button>
+    <!-- ===== DIREITA: resumo ===== -->
+    <aside class="resumo">
+      <div class="cartao">
+        <h3>Resumo do pedido</h3>
+        <div class="produto">
+          <img src="/assets/logo-128.png" alt="">
+          <div>
+            <div class="nome" id="sumPlano">Plano</div>
+            <div class="per" id="sumPer"></div>
+            <button class="trocar" id="btnTrocar" onclick="document.getElementById('opcoes').classList.toggle('aberto')">Trocar plano</button>
+          </div>
+          <div class="preco" id="sumPreco"></div>
         </div>
-        <div class="coupon-msg" id="cupomMsg"></div>
+        <div class="opcoes" id="opcoes"></div>
+        <ul class="itens" id="sumFeatures"></ul>
+        <div class="nota-mini" id="sumNota"></div>
 
-        <div class="row total"><span>Total</span><span id="sumTotal">R$ 99,90</span></div>
+        <button class="cupom-link" id="cupomLink" onclick="abrirCupom()">+ Adicionar cupom de desconto</button>
+        <div class="cupom-box" id="cupomBox">
+          <input type="text" id="cupom" placeholder="CÓDIGO DO CUPOM" onkeydown="if(event.key==='Enter')aplicarCupom()">
+          <button onclick="aplicarCupom()">Aplicar</button>
+        </div>
+        <div class="cupom-msg" id="cupomMsg"></div>
 
-        <button class="btn-buy" id="btnComprar" onclick="finalizar()">Pagar com PIX</button>
-        <div class="redirect-note">Liberação automática após o pagamento</div>
+        <div class="linha"><span>Subtotal</span><span id="sumSubtotal"></span></div>
+        <div class="linha desc hide" id="sumDiscountRow"><span id="sumDiscountLabel">Desconto</span><span id="sumDiscountValue"></span></div>
+        <div class="linha total"><span>Total</span><span id="sumTotal"></span></div>
+        <div class="pgto-unico" id="sumPgto">à vista no PIX</div>
       </div>
-    </div>
+      <div class="tecnico">Prefere que um técnico faça por você, ao vivo (formatação, overclock, undervolt)? <a href="/formulario.html">Solicitar atendimento</a> · sob orçamento.</div>
+    </aside>
   </div>
-</div>
-
-
-<div class="pix-modal" id="pixModal">
-  <div class="pix-box">
-    <button class="pix-close" onclick="fecharPix()">×</button>
-    <div id="pixEtapaPagar">
-      <div class="eyebrow">Pagamento via PIX</div>
-      <h2 id="pixPlano">Plano</h2>
-      <div class="sub">Abra o app do seu banco e escaneie o QR Code, ou use o PIX copia e cola.</div>
-      <img id="pixImg" alt="QR Code PIX">
-      <textarea id="pixCopia" readonly></textarea>
-      <button class="pix-btn" id="pixCopiar" onclick="copiarPix()">Copiar código</button>
-      <div class="pix-status" id="pixStatus">Aguardando pagamento...</div>
-      <div class="sub" style="margin-top:10px;font-size:11.5px;">O código vale 30 minutos. A liberação é automática — não feche esta tela.</div>
-    </div>
-    <div id="pixEtapaOk" style="display:none;">
-      <div style="font-size:42px;">✅</div>
-      <h2 id="okTitulo">Pagamento confirmado!</h2>
-      <div class="sub">Sua licença está ativa. Também enviamos tudo para <b id="okEmail"></b>.</div>
-      <div style="color:var(--sub);font-size:12px;" id="okRotulo">Seu código de licença</div>
-      <div class="ok-code" id="okCodigo"></div>
-      <a class="pix-btn" id="okDownload" href="#">Baixar o painel 999BOOST</a>
-      <button class="pix-btn" id="okGuia" style="display:none;margin-top:8px;background:#2a2522;color:#fff;" onclick="baixarGuia()">Baixar o Guia de BIOS e Jogos (PDF)</button>
-      <ol class="ok-steps" id="okPassos">
-        <li>Extraia o arquivo baixado numa pasta.</li>
-        <li>Dê dois cliques em <b>Abrir 999Boost Assinante.bat</b> e aceite rodar como administrador.</li>
-        <li>Entre com o seu e-mail e o código acima.</li>
-      </ol>
-      <a id="okIndique" href="/indique.html" target="_blank" style="display:block;margin:12px 0;padding:12px;border:1px dashed var(--orange);border-radius:10px;color:#fff;text-decoration:none;font-size:13px;line-height:1.4;">🎁 <b>Ganhe um plano grátis:</b> indique 3 amigos com o seu link. <span style="color:var(--orange);font-weight:700;">Pegar meu link →</span></a>
-      <div class="sub" style="font-size:11.5px;">Guarde o código. Dúvidas? <a href="https://wa.me/5585991954902" style="color:var(--orange);">WhatsApp</a></div>
-    </div>
-  </div>
-</div>
+</main>
 
 <script>
 var PLANOS = {
-  basic:     { nome:"Basic Gamer",      periodo:"15 dias",   preco:19.90, nota:"Suporte não incluso.", features:["40 otimizações reais","Limpeza, privacidade e interface","Painel no seu PC, sem técnico","Formatou? Reative dentro dos 15 dias"] },
-  streamer:  { nome:"Low Streamer",     periodo:"15 dias",   preco:29.90, nota:"Suporte não incluso.", features:["70 otimizações reais","Tudo do Basic Gamer","Ajustes de energia e rede","Formatou? Reative dentro dos 15 dias"] },
-  turbo:     { nome:"Turbo Pro Player", periodo:"15 dias",   preco:49.90, nota:"Suporte não incluso.", features:["105 otimizações reais","Otimizações avançadas de GPU/CPU","Ajustes de latência e input lag","Formatou? Reative dentro dos 15 dias"] },
-  vitalicio: { nome:"Vitalício",        periodo:"vitalício", preco:99.90, nota:"Pagamento único, sem renovação.", features:["105 otimizações reais","Acesso para sempre","Formate quando quiser, a qualquer tempo","Atualizações, novos ajustes e suporte"] },
-  ebook:     { nome:"Guia 999BOOST de BIOS e Jogos", periodo:"e-book", preco:27.00, nota:"E-book em PDF (18 páginas). Grátis para quem assina o Vitalício.", features:["BIOS: XMP, Resizable BAR, Secure Boot","Undervolt passo a passo","Painel NVIDIA / AMD e monitor","Configurações de 11 jogos","Guia de upgrade e checklist final"] }
+  basic:     { nome:"Basic Gamer",      per:"Acesso por 15 dias", preco:19.90, nota:"* Parâmetros: otimizações + 3 revisões automáticas de cada. Suporte não incluso.", features:["160 parâmetros de otimização*","Limpeza, privacidade e interface","Aplicado em menos de 1 minuto","Formatou? Reative dentro dos 15 dias"] },
+  streamer:  { nome:"Low Streamer",     per:"Acesso por 15 dias", preco:29.90, nota:"* Parâmetros: otimizações + 3 revisões automáticas de cada. Suporte não incluso.", features:["280 parâmetros de otimização*","Tudo do Basic Gamer","Ajustes de energia e rede","Formatou? Reative dentro dos 15 dias"] },
+  turbo:     { nome:"Turbo Pro Player", per:"Acesso por 15 dias", preco:49.90, nota:"* Parâmetros: otimizações + 3 revisões automáticas de cada. Suporte não incluso.", features:["420 parâmetros de otimização*","Otimizações avançadas de GPU/CPU","Ajustes de latência e input lag","Formatou? Reative dentro dos 15 dias"] },
+  vitalicio: { nome:"Vitalício",        per:"Pagamento único, sem renovação", preco:99.90, nota:"* Parâmetros: otimizações + 3 revisões automáticas de cada.", features:["420 parâmetros de otimização*","Acesso para sempre","Formate quando quiser","Atualizações e suporte","Brinde: Guia de BIOS e Jogos (PDF)"] },
+  ebook:     { nome:"Guia de BIOS e Jogos", per:"E-book em PDF · 18 páginas", preco:27.00, nota:"Grátis para quem assina o Vitalício.", features:["BIOS: XMP, Resizable BAR, Secure Boot","Undervolt passo a passo","Painel NVIDIA / AMD e monitor","Configurações de 11 jogos"] }
 };
+var ORDEM = ['basic','streamer','turbo','vitalicio','ebook'];
 
-// Cupons e precos oficiais ficam no servidor (api/checkout.js) - aqui e so a exibicao
+// Precos e cupons oficiais ficam no servidor (api/checkout.js); aqui e so a exibicao
 var API = '/api/checkout';
-var pedidoId = null, pollTimer = null, pollInicio = 0, valorPedido = 0;
+var pedidoId = null, pollTimer = null, tempoTimer = null, expiraEm = 0, valorPedido = 0;
+var planoAtual = 'streamer', descontoAtivo = 0, cupomAtivo = '', REF = '';
 
-var planoAtual = "streamer";
-var descontoAtivo = 0;
-var cupomAtivo = "";
-
-function pegarParametroPlano(){
-  var params = new URLSearchParams(window.location.search);
-  var p = params.get('plano');
-  if (p && PLANOS[p]) return p;
-  return "streamer";
+function fmt(v){ return 'R$ ' + v.toFixed(2).replace('.', ','); }
+function $(id){ return document.getElementById(id); }
+function etapa(n){
+  for (var i = 1; i <= 3; i++){ var e = $('e' + i); e.classList.toggle('on', i === n); e.classList.toggle('ok', i < n); }
+  $('etapaDados').classList.toggle('hide', n !== 1);
+  $('etapaPix').classList.toggle('hide', n !== 2);
+  $('etapaOk').classList.toggle('hide', n !== 3);
+  $('btnTrocar').classList.toggle('hide', n !== 1);
+  $('cupomLink').classList.toggle('hide', n !== 1 || !!cupomAtivo);
+  if (n !== 1){ $('cupomBox').classList.remove('aberto'); $('opcoes').classList.remove('aberto'); }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function fmt(v){ return "R$ " + v.toFixed(2).replace('.', ','); }
-
-function selecionarPlano(slug){
-  planoAtual = slug;
-  document.querySelectorAll('#planSwitch button').forEach(function(b){
-    b.classList.toggle('active', b.dataset.plano === slug);
-  });
-  atualizarResumo();
+function montarOpcoes(){
+  $('opcoes').innerHTML = ORDEM.map(function(k){
+    var p = PLANOS[k];
+    return '<label class="opcao' + (k === planoAtual ? ' on' : '') + '"><input type="radio" name="pl" value="' + k + '"' + (k === planoAtual ? ' checked' : '') + ' onchange="selecionarPlano(this.value)"> ' + p.nome + '<span class="v">' + fmt(p.preco) + '</span></label>';
+  }).join('');
 }
-
-function toggleAddon(el){
-  el.classList.toggle('selected');
-  atualizarResumo();
-}
-
-function addonsSelecionados(){
-  var out = [];
-  document.querySelectorAll('.addon.selected').forEach(function(el){
-    out.push({ nome: el.dataset.nome, preco: parseFloat(el.dataset.preco) });
-  });
-  return out;
-}
-
-function aplicarCupom(){
-  var codigo = document.getElementById('cupom').value.trim().toUpperCase();
-  var msg = document.getElementById('cupomMsg');
-  if (!codigo){ msg.textContent = ''; descontoAtivo = 0; cupomAtivo = ""; atualizarResumo(); return; }
-  msg.textContent = 'Verificando...'; msg.className = 'coupon-msg';
-  fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'cupom', cupom:codigo }) })
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      if (d.ok){
-        descontoAtivo = d.desconto; cupomAtivo = codigo;
-        msg.textContent = '✓ Cupom aplicado: ' + descontoAtivo + '% de desconto'; msg.className = 'coupon-msg ok';
-      } else {
-        descontoAtivo = 0; cupomAtivo = "";
-        msg.textContent = 'Cupom inválido ou expirado'; msg.className = 'coupon-msg err';
-      }
-      atualizarResumo();
-    })
-    .catch(function(){ msg.textContent = 'Não foi possível verificar agora'; msg.className = 'coupon-msg err'; });
-}
+function selecionarPlano(k){ planoAtual = k; $('opcoes').classList.remove('aberto'); atualizarResumo(); if (cupomAtivo) aplicarCupom(); }
 
 function atualizarResumo(){
-  var plano = PLANOS[planoAtual];
-  document.getElementById('sumPlano').textContent = plano.nome + ((plano.periodo === 'vitalício' || plano.periodo === 'e-book') ? '' : ' — ' + plano.periodo);
-  document.getElementById('sumNota').textContent = plano.nota;
-  var ehGuia = (planoAtual === 'ebook');
-  document.getElementById('lblEmail').textContent = ehGuia ? 'E-mail (para receber o guia)' : 'E-mail (vai ser o login do painel)';
-  document.getElementById('txtAceite').innerHTML = ehGuia ? 'E-book em PDF para uso pessoal. Sei que posso desistir em até 7 dias.' : 'Sei que posso desistir em até 7 dias <b>antes do primeiro uso</b>; ao aplicar a primeira otimização, o serviço é considerado prestado (continuo coberto pela Garantia de Aplicação Total).';
-  document.querySelectorAll('#planSwitch button').forEach(function(b){
-    b.classList.toggle('active', b.dataset.plano === planoAtual);
-  });
+  var p = PLANOS[planoAtual], guia = planoAtual === 'ebook';
+  $('sumPlano').textContent = p.nome;
+  $('sumPer').textContent = p.per;
+  $('sumPreco').textContent = fmt(p.preco);
+  $('sumFeatures').innerHTML = p.features.map(function(f){ return '<li>' + f + '</li>'; }).join('');
+  $('sumNota').textContent = p.nota;
+  $('sumSubtotal').textContent = fmt(p.preco);
+  var desc = Math.round(p.preco * descontoAtivo) / 100, total = Math.round((p.preco - desc) * 100) / 100;
+  $('sumDiscountRow').classList.toggle('hide', !descontoAtivo);
+  $('sumDiscountLabel').textContent = 'Cupom ' + cupomAtivo + ' (' + descontoAtivo + '%)';
+  $('sumDiscountValue').textContent = '- ' + fmt(desc);
+  $('sumTotal').textContent = fmt(total);
+  $('sumPgto').textContent = guia ? 'pagamento único no PIX' : (planoAtual === 'vitalicio' ? 'pagamento único no PIX' : 'à vista no PIX · 15 dias de acesso');
+  $('txtBtn').textContent = 'Finalizar compra · ' + fmt(total);
+  $('lblEmail').textContent = guia ? 'E-mail (para receber o guia)' : 'E-mail (será o login do painel)';
+  $('descDados').textContent = guia ? 'Enviamos o guia e o código de acesso para o seu e-mail.' : 'Usamos o e-mail para enviar sua licença e como login do painel.';
+  $('txtAceite').innerHTML = guia ? 'E-book em PDF para uso pessoal. Sei que posso desistir em até 7 dias.' : 'Sei que posso desistir em até 7 dias <b>antes do primeiro uso</b>; ao aplicar a primeira otimização, o serviço é considerado prestado (continuo coberto pela Garantia de Aplicação Total).';
+  montarOpcoes();
+}
 
-  var featuresHtml = '';
-  plano.features.forEach(function(f){ featuresHtml += '<li>' + f + '</li>'; });
-  document.getElementById('sumFeatures').innerHTML = featuresHtml;
+function abrirCupom(){ $('cupomBox').classList.add('aberto'); $('cupomLink').classList.add('hide'); $('cupom').focus(); }
+function aplicarCupom(){
+  var codigo = $('cupom').value.trim().toUpperCase(), msg = $('cupomMsg');
+  if (!codigo){ msg.textContent = ''; descontoAtivo = 0; cupomAtivo = ''; atualizarResumo(); return; }
+  msg.textContent = 'Verificando...'; msg.className = 'cupom-msg';
+  var email = $('email').value.trim().toLowerCase();
+  fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'cupom', cupom: codigo, email: email || undefined }) })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.ok){ descontoAtivo = d.desconto; cupomAtivo = codigo; msg.textContent = '✓ Cupom ' + codigo + ' aplicado: ' + d.desconto + '% de desconto'; msg.className = 'cupom-msg ok'; }
+      else { descontoAtivo = 0; cupomAtivo = ''; msg.textContent = 'Cupom inválido, expirado ou não vale para este e-mail'; msg.className = 'cupom-msg err'; }
+      atualizarResumo();
+    })
+    .catch(function(){ msg.textContent = 'Não foi possível verificar agora'; msg.className = 'cupom-msg err'; });
+}
 
-  var addons = addonsSelecionados();
-  var subtotal = plano.preco;
-  var addonsHtml = '';
-  addons.forEach(function(a){
-    subtotal += a.preco;
-    addonsHtml += '<div class="row"><span>' + a.nome + '</span><span>+ ' + fmt(a.preco) + '</span></div>';
-  });
-  document.getElementById('sumSubtotal').textContent = fmt(plano.preco);
-  document.getElementById('sumAddonsList').innerHTML = addonsHtml;
+// Mascara do telefone: (00) 00000-0000
+$('fone').addEventListener('input', function(){
+  var d = this.value.replace(/\D/g, '').slice(0, 11), o = d;
+  if (d.length > 2) o = '(' + d.slice(0,2) + ') ' + d.slice(2);
+  if (d.length > 7) o = '(' + d.slice(0,2) + ') ' + d.slice(2, d.length - 4) + '-' + d.slice(-4);
+  this.value = o;
+});
+['nome','email','fone'].forEach(function(id){ $(id).addEventListener('input', function(){ this.parentElement.classList.remove('erro'); }); });
+$('aceite').addEventListener('change', function(){ $('lblAceite').classList.remove('erro'); });
 
-  var desconto = subtotal * (descontoAtivo / 100);
-  var total = subtotal - desconto;
-
-  var discountRow = document.getElementById('sumDiscountRow');
-  if (descontoAtivo > 0){
-    discountRow.style.display = 'flex';
-    document.getElementById('sumDiscountLabel').textContent = 'Cupom (' + cupomAtivo + ')';
-    document.getElementById('sumDiscountValue').textContent = '- ' + fmt(desconto);
-  } else {
-    discountRow.style.display = 'none';
-  }
-
-  document.getElementById('sumTotal').textContent = fmt(total);
+function validar(){
+  var ok = true, primeiro = null;
+  function marca(id, bom){ $(id).classList.toggle('erro', !bom); if (!bom){ ok = false; primeiro = primeiro || $(id).querySelector('input'); } }
+  marca('cNome', $('nome').value.trim().length >= 3);
+  marca('cEmail', /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($('email').value.trim()));
+  marca('cFone', $('fone').value.replace(/\D/g, '').length >= 10);
+  if (!$('aceite').checked){ $('lblAceite').classList.add('erro'); ok = false; }
+  if (primeiro) primeiro.focus();
+  return ok;
 }
 
 function finalizar(){
-  var nome = document.getElementById('nome').value.trim();
-  var fone = document.getElementById('fone').value.trim();
-  var email = document.getElementById('email').value.trim().toLowerCase();
-  if (!nome || !fone || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){
-    alert('Preencha nome, telefone e um e-mail válido antes de continuar.');
-    return;
-  }
-  if (!document.getElementById('aceite').checked){
-    alert('Para continuar, aceite os Termos de Uso e a Política de Privacidade.');
-    return;
-  }
-  var plano = PLANOS[planoAtual];
-  var btn = document.getElementById('btnComprar');
-  btn.disabled = true;
-  btn.textContent = 'Gerando PIX...';
-
-  fetch(API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ acao:'criar', plano: planoAtual, nome: nome, email: email, telefone: fone, cupom: cupomAtivo, ref: REF, origem: (window.origem999 ? origem999() : 'direto') })
-  })
+  if (!validar()) return;
+  var btn = $('btnComprar'), txt = $('txtBtn').textContent;
+  btn.disabled = true; $('txtBtn').textContent = 'Gerando seu PIX...';
+  var email = $('email').value.trim().toLowerCase();
+  try { sessionStorage.setItem('dados999', JSON.stringify({ n: $('nome').value, e: email, f: $('fone').value })); } catch(e){}
+  fetch(API, { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ acao:'criar', plano: planoAtual, nome: $('nome').value.trim(), email: email, telefone: $('fone').value.trim(), cupom: cupomAtivo, ref: REF, origem: (window.origem999 ? origem999() : 'direto') }) })
   .then(function(r){ return r.json(); })
   .then(function(d){
-    btn.disabled = false; btn.textContent = 'Pagar com PIX';
+    btn.disabled = false; $('txtBtn').textContent = txt;
     if (!d.pedido_id){ alert(d.erro || 'Não foi possível gerar o PIX agora. Tente de novo.'); return; }
-    pedidoId = d.pedido_id;
-    valorPedido = d.valor;
+    pedidoId = d.pedido_id; valorPedido = d.valor;
     try { if (window.fbq) fbq('track', 'InitiateCheckout', { value: d.valor, currency: 'BRL' }); } catch(e){}
-    abrirPix(d, plano, email);
+    if (window.track999) track999('clique', { alvo: 'pix_gerado', plano: planoAtual });
+    mostrarPix(d);
   })
-  .catch(function(){
-    btn.disabled = false; btn.textContent = 'Pagar com PIX';
-    alert('Não foi possível gerar o PIX agora. Tente de novo em instantes.');
-  });
+  .catch(function(){ btn.disabled = false; $('txtBtn').textContent = txt; alert('Não foi possível gerar o PIX agora. Tente de novo em instantes.'); });
 }
 
-function abrirPix(d, plano, email){
-  document.getElementById('pixPlano').textContent = plano.nome + ' — ' + fmt(d.valor);
-  document.getElementById('pixImg').src = 'data:image/png;base64,' + d.qr_code_base64;
-  document.getElementById('pixCopia').value = d.qr_code || '';
-  document.getElementById('pixEtapaPagar').style.display = 'block';
-  document.getElementById('pixEtapaOk').style.display = 'none';
-  document.getElementById('pixStatus').textContent = 'Aguardando pagamento...';
-  document.getElementById('pixModal').style.display = 'flex';
-  pollInicio = Date.now();
-  clearInterval(pollTimer);
+function mostrarPix(d){
+  $('pixImg').src = 'data:image/png;base64,' + d.qr_code_base64;
+  $('pixCopia').value = d.qr_code || '';
+  $('pixStatus').textContent = 'Aguardando pagamento...'; $('pixStatus').classList.remove('exp');
+  $('btnNovoPix').classList.add('hide');
+  etapa(2);
+  expiraEm = Date.now() + 30 * 60 * 1000;
+  clearInterval(pollTimer); clearInterval(tempoTimer);
   pollTimer = setInterval(checarPagamento, 4000);
+  tempoTimer = setInterval(relogio, 1000); relogio();
+}
+function relogio(){
+  var s = Math.max(0, Math.round((expiraEm - Date.now()) / 1000));
+  $('pixTempo').textContent = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+  if (s <= 0){ clearInterval(tempoTimer); setTimeout(checarPagamento, 3000); }
+}
+function expirou(){
+  clearInterval(pollTimer); clearInterval(tempoTimer);
+  $('pixStatus').textContent = 'Este PIX expirou.'; $('pixStatus').classList.add('exp');
+  $('btnNovoPix').classList.remove('hide');
+}
+function novoPix(){ etapa(1); finalizar(); }
+function alterarDados(){
+  if (!confirm('Voltar para alterar os dados? Se você já pagou este PIX, espere alguns segundos que a liberação aparece aqui.')) return;
+  clearInterval(pollTimer); clearInterval(tempoTimer); etapa(1);
+}
+function copiarPix(){
+  var t = $('pixCopia'); t.select();
+  try { navigator.clipboard.writeText(t.value); } catch(e){ document.execCommand('copy'); }
+  $('pixCopiar').textContent = 'Copiado!';
+  setTimeout(function(){ $('pixCopiar').textContent = 'Copiar código'; }, 2000);
+}
+
+function checarPagamento(){
+  if (!pedidoId) return;
+  fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'status', pedido_id: pedidoId }) })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.status === 'pago') return confirmado(d);
+      if (d.status === 'expirado' || Date.now() > expiraEm + 60000) expirou();
+    }).catch(function(){});
+}
+
+function confirmado(d){
+  clearInterval(pollTimer); clearInterval(tempoTimer);
+  $('okEmail').textContent = d.email;
+  if (d.renovacao){
+    $('okTitulo').textContent = 'Licença renovada!';
+    $('okRotulo').textContent = 'Use o mesmo e-mail e código de sempre';
+    $('okCodigo').textContent = 'Código enviado ao seu e-mail'; $('okCodigo').style.fontSize = '16px';
+  } else $('okCodigo').textContent = d.codigo;
+  $('okDownload').href = d.download;
+  $('okIndique').href = '/indique.html?email=' + encodeURIComponent(d.email || '');
+  if (d.plano === 'vitalicio') $('okIndique').innerHTML = '🎁 <b>Ganhe 20% em PIX</b> por cada amigo que comprar pelo seu link. <span style="color:var(--orange);font-weight:700;">Pegar meu link →</span>';
+  if (d.plano === 'ebook'){
+    $('okRotulo').textContent = 'Seu código de acesso ao guia (guarde para baixar de novo em 999boost.com.br/guia.html)';
+    $('okDownload').classList.add('hide'); $('okPassos').classList.add('hide'); $('okIndique').classList.add('hide');
+    var g = $('okGuia'); g.classList.remove('hide'); g.className = 'btn-final'; g.textContent = '⬇ Baixar o Guia (PDF)';
+  } else if (d.guia){ $('okGuia').classList.remove('hide'); $('okGuia').textContent = 'Brinde: baixar o Guia de BIOS e Jogos (PDF)'; }
+  etapa(3);
+  try { sessionStorage.removeItem('dados999'); } catch(e){}
+  try { if (window.fbq) fbq('track', 'Purchase', { value: valorPedido, currency: 'BRL' }); } catch(e){}
 }
 
 function baixarGuia(){
-  var b = document.getElementById('okGuia'); var t = b.textContent; b.textContent = 'Gerando link...';
+  var b = $('okGuia'), t = b.textContent; b.textContent = 'Gerando link...';
   fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'guia', pedido_id: pedidoId }) })
     .then(function(r){ return r.json(); })
     .then(function(d){ b.textContent = t; if (d.url) window.location.href = d.url; else alert(d.erro || 'Não foi possível gerar o link agora.'); })
     .catch(function(){ b.textContent = t; alert('Não foi possível gerar o link agora.'); });
 }
 
-function copiarPix(){
-  var t = document.getElementById('pixCopia');
-  t.select();
-  try { navigator.clipboard.writeText(t.value); } catch(e){ document.execCommand('copy'); }
-  document.getElementById('pixCopiar').textContent = 'Copiado!';
-  setTimeout(function(){ document.getElementById('pixCopiar').textContent = 'Copiar código'; }, 2000);
-}
-
-function checarPagamento(){
-  if (!pedidoId) return;
-  if (Date.now() - pollInicio > 31 * 60 * 1000){
-    clearInterval(pollTimer);
-    document.getElementById('pixStatus').textContent = 'O PIX expirou. Feche e gere um novo.';
-    return;
-  }
-  fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'status', pedido_id: pedidoId }) })
-    .then(function(r){ return r.json(); })
-    .then(function(d){
-      if (d.status === 'pago'){
-        clearInterval(pollTimer);
-        document.getElementById('okEmail').textContent = d.email;
-        if (d.renovacao){
-          document.getElementById('okTitulo').textContent = 'Licença renovada!';
-          document.getElementById('okRotulo').textContent = 'Use o mesmo e-mail e código de sempre';
-          document.getElementById('okCodigo').textContent = 'Código enviado ao seu e-mail';
-          document.getElementById('okCodigo').style.fontSize = '16px';
-        } else {
-          document.getElementById('okCodigo').textContent = d.codigo;
-        }
-        document.getElementById('okDownload').href = d.download;
-        document.getElementById('okIndique').href = '/indique.html?email=' + encodeURIComponent(d.email || '');
-        if (d.plano === 'vitalicio') document.getElementById('okIndique').innerHTML = '🎁 <b>Ganhe 20% em PIX</b> por cada amigo que comprar pelo seu link. <span style="color:var(--orange);font-weight:700;">Pegar meu link →</span>';
-        if (d.plano === 'ebook'){
-          document.getElementById('okTitulo').textContent = 'Pagamento confirmado!';
-          document.getElementById('okRotulo').textContent = 'Seu código de acesso ao guia (guarde para baixar de novo em 999boost.com.br/guia.html)';
-          document.getElementById('okDownload').style.display = 'none';
-          document.getElementById('okPassos').style.display = 'none';
-          document.getElementById('okIndique').style.display = 'none';
-          var bg = document.getElementById('okGuia'); bg.style.display = 'block'; bg.style.background = 'var(--orange)'; bg.style.color = '#000';
-          bg.textContent = 'Baixar o Guia (PDF)';
-        } else if (d.guia){
-          document.getElementById('okGuia').style.display = 'block';
-          document.getElementById('okGuia').textContent = 'Brinde: baixar o Guia de BIOS e Jogos (PDF)';
-        }
-        document.getElementById('pixEtapaPagar').style.display = 'none';
-        document.getElementById('pixEtapaOk').style.display = 'block';
-        try { if (window.fbq) fbq('track', 'Purchase', { value: valorPedido, currency: 'BRL' }); } catch(e){}
-      } else if (d.status === 'expirado'){
-        clearInterval(pollTimer);
-        document.getElementById('pixStatus').textContent = 'O PIX expirou. Feche e gere um novo.';
-      }
-    })
-    .catch(function(){});
-}
-
-function fecharPix(){
-  var pago = document.getElementById('pixEtapaOk').style.display === 'block';
-  if (!pago && !confirm('Fechar? Se você já pagou, espere alguns segundos que a liberação aparece aqui.')) return;
-  clearInterval(pollTimer);
-  document.getElementById('pixModal').style.display = 'none';
-}
-
-document.querySelectorAll('#planSwitch button').forEach(function(b){
-  b.addEventListener('click', function(){ selecionarPlano(b.dataset.plano); });
-});
-document.querySelectorAll('.addon').forEach(function(el){
-  el.addEventListener('click', function(){ toggleAddon(el); });
-});
-
-planoAtual = pegarParametroPlano();
-atualizarResumo();
-
 // Voltar: pagina anterior do site; se veio de fora, vai para os planos
-document.getElementById('btnVoltar').addEventListener('click', function(e){
+$('btnVoltar').addEventListener('click', function(e){
   if (document.referrer && document.referrer.indexOf(location.origin) === 0 && history.length > 1){ e.preventDefault(); history.back(); }
 });
 
-// Link de parceiro (?cupom=CODIGO) aplica o cupom sozinho
-// Link de indicacao (?ref=CODIGO) fica guardado 30 dias neste navegador
-var REF = '';
 (function(){
-  var q = new URLSearchParams(window.location.search);
+  var q = new URLSearchParams(location.search);
+  if (PLANOS[q.get('plano')]) planoAtual = q.get('plano');
+  // Dados preenchidos: link de recuperacao de carrinho (?email=&nome=&tel=) ou o que a pessoa ja digitou nesta aba
+  var salvo = null; try { salvo = JSON.parse(sessionStorage.getItem('dados999') || 'null'); } catch(e){}
+  $('nome').value = q.get('nome') || (salvo && salvo.n) || '';
+  $('email').value = q.get('email') || (salvo && salvo.e) || '';
+  if (q.get('tel') || (salvo && salvo.f)){ $('fone').value = q.get('tel') || salvo.f; $('fone').dispatchEvent(new Event('input')); }
+  atualizarResumo();
+  // Link de parceiro / recuperacao (?cupom=CODIGO) aplica o cupom sozinho
   var c = (q.get('cupom') || '').trim().toUpperCase();
-  if (c){ document.getElementById('cupom').value = c; aplicarCupom(); }
+  if (c){ $('cupom').value = c; abrirCupom(); aplicarCupom(); }
+  // Link de indicacao (?ref=CODIGO) fica guardado 30 dias neste navegador
   var r = (q.get('ref') || '').trim().toUpperCase();
   try {
     if (/^[A-Z0-9]{6}$/.test(r)) localStorage.setItem('ref999', JSON.stringify({ c: r, t: Date.now() }));
-    var salvo = JSON.parse(localStorage.getItem('ref999') || 'null');
-    if (salvo && Date.now() - salvo.t < 30 * 86400000) REF = salvo.c;
+    var ref = JSON.parse(localStorage.getItem('ref999') || 'null');
+    if (ref && Date.now() - ref.t < 30 * 86400000) REF = ref.c;
   } catch(e){ if (/^[A-Z0-9]{6}$/.test(r)) REF = r; }
 })();
 </script>

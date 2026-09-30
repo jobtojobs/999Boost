@@ -63,13 +63,15 @@ function valorComDesconto(preco, pct) {
 }
 
 // Busca um cupom valido (ativo, dentro da validade e do limite de usos). Retorna null se nao valer.
-async function buscarCupom(codigo) {
+async function buscarCupom(codigo, email) {
   const c = String(codigo || '').trim().toUpperCase();
   if (!c || !/^[A-Z0-9_-]{2,30}$/.test(c)) return null;
   const achados = await sb(`cupons?codigo=eq.${encodeURIComponent(c)}&ativo=eq.true&select=*`);
   const cup = Array.isArray(achados) ? achados[0] : null;
   if (!cup) return null;
   if (cup.validade && new Date(cup.validade) < new Date()) return null;
+  // Cupom pessoal (recuperacao de carrinho): so vale para o e-mail dele
+  if (cup.email && email !== undefined && String(email || '').trim().toLowerCase() !== cup.email) return null;
   if (cup.limite_usos) {
     const usados = await sb(`pedidos?cupom=eq.${encodeURIComponent(c)}&status=eq.pago&select=id`);
     if (Array.isArray(usados) && usados.length >= cup.limite_usos) return null;
@@ -283,12 +285,12 @@ async function enviarEmailGuia(pedido, codigo) {
       <div style="font-size:24px;font-weight:bold;color:#ff7a1a;letter-spacing:2px;">${codigo}</div>
     </div>
     <p><a href="${GUIA_PAGINA}" style="background:#ff7a1a;color:#000;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold;">Baixar o Guia</a></p>
-    <p style="color:#888;font-size:12px;">Uso pessoal. Proibida a revenda e a distribuicao.</p>
+    <p style="color:#888;font-size:12px;">Uso pessoal. Proibida a revenda e a distribuicao.<br>Duvidas: suporte999boost@gmail.com ou WhatsApp (85) 99195-4902.</p>
   </div>`;
   await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: process.env.EMAIL_FROM || '999BOOST <licenca@999boost.com.br>', to: [pedido.email], subject: 'Seu Guia 999BOOST de BIOS e Jogos', html })
+    body: JSON.stringify({ from: process.env.EMAIL_FROM || '999BOOST <licenca@999boost.com.br>', reply_to: process.env.EMAIL_SUPORTE || 'suporte999boost@gmail.com', to: [pedido.email], subject: 'Seu Guia 999BOOST de BIOS e Jogos', html })
   }).catch(() => {});
 }
 
@@ -320,13 +322,13 @@ async function enviarEmail(pedido, codigo) {
         : 'a cada 3 amigos que comprarem pelo seu link, voce ganha um plano gratis.'}
       <a href="${SITE}/indique.html?email=${encodeURIComponent(pedido.email)}" style="color:#ff7a1a;">Pegar meu link</a>
     </div>
-    <p style="color:#888;font-size:12px;">Formatou ou trocou de PC? Use o botao "Formatei ou troquei de PC" na tela de login do painel.</p>
+    <p style="color:#888;font-size:12px;">Formatou ou trocou de PC? Use o botao "Formatei ou troquei de PC" na tela de login do painel.<br>Duvidas: suporte999boost@gmail.com ou WhatsApp (85) 99195-4902.</p>
   </div>`;
   await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: process.env.EMAIL_FROM || '999BOOST <licenca@999boost.com.br>',
+      from: process.env.EMAIL_FROM || '999BOOST <licenca@999boost.com.br>', reply_to: process.env.EMAIL_SUPORTE || 'suporte999boost@gmail.com',
       to: [pedido.email],
       subject: `Sua licenca 999BOOST - ${plano.nome}`,
       html
@@ -410,7 +412,7 @@ export default async function handler(req, res) {
 
     // ---------- Cupom ----------
     if (acao === 'cupom') {
-      const cup = await buscarCupom(body.cupom);
+      const cup = await buscarCupom(body.cupom, body.email ? body.email : undefined);
       return res.status(200).json({ ok: !!cup, desconto: cup ? cup.desconto : 0 });
     }
 
@@ -432,7 +434,9 @@ export default async function handler(req, res) {
         return res.status(400).json({ erro: 'Este e-mail tem um reembolso anterior. Para comprar novamente, fale com o suporte no WhatsApp (85) 99195-4902.' });
       }
 
-      const cup = await buscarCupom(cupom);
+      const cup = await buscarCupom(cupom, email);
+      // Cupom digitado mas invalido (expirou, acabou ou e pessoal de outro e-mail): avisa em vez de cobrar o preco cheio
+      if (cupom && !cup) return res.status(400).json({ erro: 'O cupom ' + cupom + ' nao e valido para este e-mail ou ja expirou. Remova o cupom ou use o e-mail que recebeu a oferta.' });
       const valor = valorComDesconto(plano.preco, cup ? cup.desconto : 0);
       const indicadoPor = await validarIndicacao(body.ref, email, planoSlug);
       const criado = await sb('pedidos', {

@@ -4,7 +4,7 @@
   var SITE = 'www.999boost.com.br';
   var PDF = '/parceiros/Proposta-Parceria-999BOOST.pdf';
   var SAIR = '\n\nSe não quiser mais receber mensagens, é só responder SAIR.';
-  var mk = { sub: 'analytics', dias: 7, seg: 'renovar', filtroPlano: '', rm: null, pr: [], filtroPr: '' };
+  var mk = { sub: 'analytics', ckDias: 7, ck: null, dias: 7, seg: 'renovar', filtroPlano: '', rm: null, pr: [], filtroPr: '' };
   window.MK = mk;
 
   // ---------- utilidades ----------
@@ -42,9 +42,10 @@
   window.mkSub = function (s) {
     mk.sub = s;
     document.querySelectorAll('#mkSubs button').forEach(function (b) { b.classList.toggle('on', b.dataset.s === s); });
-    ['analytics', 'remarketing', 'influ'].forEach(function (k) { document.getElementById('mk-' + k).classList.toggle('hide', k !== s); });
+    ['analytics', 'carrinhos', 'remarketing', 'influ'].forEach(function (k) { document.getElementById('mk-' + k).classList.toggle('hide', k !== s); });
     if (s === 'analytics') mkAnalytics();
     if (s === 'remarketing') mkRemarketing();
+    if (s === 'carrinhos') ckCarregar();
     if (s === 'influ') mkInflu();
   };
   window.carregarMarketing = function () { mkSub(mk.sub); };
@@ -146,8 +147,6 @@
       msg: 'Oi {nome}! Seu plano {plano} do 999BOOST vence em {data}. Pra continuar com o PC otimizado, é só renovar por aqui (os dias que faltam são somados): {link}' },
     vencidos: { ic: '💤', t: 'Venceram (até 30 dias)', d: 'Não renovaram. Oferta de volta com cupom.', cupom: 'VOLTA10', desc: 10,
       msg: 'Oi {nome}! Seu {plano} do 999BOOST venceu em {data}. O PC voltou a pesar? Separei 10% de desconto pra você voltar: cupom VOLTA10. É só usar este link: {link}&cupom=VOLTA10' },
-    carrinho: { ic: '🛒', t: 'PIX gerado e não pago', d: 'Carrinho abandonado nos últimos 7 dias.',
-      msg: 'Oi {nome}! Vi que você gerou um PIX do {plano} no 999BOOST e ele não chegou a ser pago. Ficou alguma dúvida? Se quiser finalizar, é só gerar um novo aqui: {link} A licença aparece na tela assim que o PIX cai.' },
     upgrade: { ic: '⬆️', t: 'Upgrade para o Turbo', d: 'Clientes Basic e Low Streamer ativos.',
       msg: 'Oi {nome}! Curtindo o {plano}? No Turbo Pro Player são 105 otimizações, incluindo GPU, latência e input lag. Na próxima renovação, experimenta o Turbo: {link_turbo}' },
     vitalicio: { ic: '♾️', t: 'Oferta Vitalício', d: 'Já renovaram 2 vezes ou mais.',
@@ -369,5 +368,90 @@
         api('prospects').then(function (l) { mk.pr = l; desenhaPr(); });
       })
       .catch(function (e) { toast(e.message); b.disabled = false; b.textContent = 'Ativar agora'; });
+  };
+
+  // =====================================================================
+  // RECUPERACAO DE CARRINHO
+  // =====================================================================
+  function ckDesc() { return parseInt(ls('ck_desc') || '10', 10); }
+  function ckHoras() { return parseInt(ls('ck_horas') || '48', 10); }
+  window.ckConfig = function () {
+    var d = parseInt(document.getElementById('ckDesc').value, 10);
+    if (!(d >= 1 && d <= 50)) { d = 10; document.getElementById('ckDesc').value = d; }
+    ls('ck_desc', String(d)); ls('ck_horas', document.getElementById('ckHoras').value);
+    toast('Padrão: ' + d + '% por ' + document.getElementById('ckHoras').value + 'h');
+  };
+  window.ckDias = function (d) { mk.ckDias = d; ckCarregar(); };
+  function tempoAtras(d) {
+    var m = Math.floor((Date.now() - new Date(d).getTime()) / 60000);
+    if (m < 60) return 'há ' + m + ' min';
+    var h = Math.floor(m / 60); if (h < 48) return 'há ' + h + 'h';
+    return 'há ' + Math.floor(h / 24) + ' dias';
+  }
+  var CK_MSG = 'Oi {nome}! Vi que você começou a contratar o {plano} do 999BOOST e o PIX não foi concluído. Separei {desconto}% de desconto só pra você finalizar agora (de {preco} por {preco_desc}): {link}\n\nO cupom {cupom} já vem aplicado no link e vale por {horas}h. Qualquer dúvida, me chama aqui!';
+  var PRECO = { basic: 19.9, streamer: 29.9, turbo: 49.9, vitalicio: 99.9, ebook: 27 };
+  window.ckCarregar = function () {
+    document.querySelectorAll('#ckDias button').forEach(function (b) { b.classList.toggle('on', +b.dataset.d === mk.ckDias); });
+    document.getElementById('ckDesc').value = ckDesc(); document.getElementById('ckHoras').value = String(ckHoras());
+    var box = document.getElementById('ckBody'); box.innerHTML = '<div class="sub">Carregando...</div>';
+    api('carrinhos', { dias: mk.ckDias }).then(function (r) { mk.ck = r; ckDesenha(); })
+      .catch(function (e) { box.innerHTML = '<div class="box">' + esc(e.message) + '<div class="sub">Rodou o arquivo recuperacao-carrinho.sql no Supabase?</div></div>'; });
+  };
+  function ckDesenha() {
+    var r = mk.ck, s = r.resumo, box = document.getElementById('ckBody');
+    var taxa = s.contatados ? Math.round(s.recuperados / s.contatados * 100) : 0;
+    var h = '<div class="cards">' +
+      card('Carrinhos abandonados', s.abandonados, brl(s.em_aberto) + ' em aberto') +
+      card('Contatados', s.contatados, s.abandonados ? Math.round(s.contatados / s.abandonados * 100) + '% dos carrinhos' : '') +
+      card('Recuperados', s.recuperados, taxa + '% dos contatados') +
+      card('Valor recuperado', brl(s.valor_recuperado), '') + '</div>';
+    h += '<div class="box" style="margin-bottom:12px;"><b>Como funciona</b><div class="sub" style="margin-top:4px;">Cada botão gera um <b>cupom pessoal</b> (só vale para o e-mail do cliente, uso único, com validade) e um link que abre o checkout com plano, dados e cupom já preenchidos. Os primeiros contatos funcionam melhor entre 1 e 24 horas depois do PIX expirar' + (r.resend ? '.' : '. O botão E-mail precisa do Resend configurado na Vercel.') + '</div></div>';
+    var abertos = r.carrinhos.filter(function (c) { return !c.recuperado; });
+    var rec = r.carrinhos.filter(function (c) { return c.recuperado; });
+    if (!abertos.length) h += '<div class="box vazio">🎉 Nenhum carrinho abandonado neste período.</div>';
+    else {
+      h += '<div class="box scroll"><table class="tbl"><tr><th>Cliente</th><th>Plano</th><th>Quando</th><th>Situação</th><th>Recuperar com ' + ckDesc() + '% OFF</th></tr>';
+      abertos.forEach(function (c) {
+        var i = r.carrinhos.indexOf(c), quente = (Date.now() - new Date(c.criado_em).getTime()) < 86400000;
+        var sit = c.optout ? '<span class="pill p-cancelado">pediu SAIR</span>' :
+          c.ultima ? '<span class="pill p-expirado">cupom enviado</span><div class="sub">' + esc(c.ultima.cupom) + ' · ' + c.ultima.desconto + '% · ' + esc(c.ultima.canal) + ' · ' + tempoAtras(c.ultima.enviado_em) + '</div>' :
+          '<span class="sub">não contatado</span>';
+        h += '<tr><td>' + (esc(c.nome) || '<span class="sub">sem nome</span>') + '<div class="sub">' + esc(c.email) + (c.telefone ? ' · ' + esc(c.telefone) : '') + '</div></td>' +
+          '<td><span class="pl-' + c.plano + '">' + (NOMES[c.plano] || esc(c.plano)) + '</span><div class="sub">' + brl(c.valor) + '</div></td>' +
+          '<td>' + tempoAtras(c.criado_em) + (quente ? ' <span class="pill p-ativo">quente</span>' : '') + '</td><td>' + sit + '</td><td>' +
+          (c.optout ? '' : '<div class="acts">' +
+            (c.telefone ? '<button class="btn green" onclick="ckEnviar(' + i + ',\'whatsapp\')">WhatsApp</button>' : '') +
+            '<button class="btn" onclick="ckEnviar(' + i + ',\'email\')"' + (r.resend ? '' : ' title="Configure o Resend na Vercel"') + '>E-mail</button>' +
+            '<button class="btn" onclick="ckEnviar(' + i + ',\'copiar\')">Copiar msg</button>' +
+            '<button class="btn red" onclick="ckSair(' + i + ')">SAIR</button></div>') + '</td></tr>';
+      });
+      h += '</table></div>';
+    }
+    if (rec.length) {
+      h += '<div class="box scroll" style="margin-top:12px;"><div class="bx-t">✅ Recuperados</div><table class="tbl"><tr><th>Cliente</th><th>Plano</th><th>Pagou</th><th>Cupom</th></tr>';
+      rec.forEach(function (c) {
+        h += '<tr><td>' + esc(c.nome) + '<div class="sub">' + esc(c.email) + '</div></td><td>' + (NOMES[c.plano] || esc(c.plano)) + '</td><td><b>' + brl(c.valor_pago) + '</b><div class="sub">' + data(c.pago_em) + '</div></td><td class="mono">' + esc(c.ultima ? c.ultima.cupom : '') + '</td></tr>';
+      });
+      h += '</table></div>';
+    }
+    box.innerHTML = h;
+  }
+  window.ckEnviar = function (i, canal) {
+    var c = mk.ck.carrinhos[i];
+    if (canal === 'email' && !mk.ck.resend) { toast('Configure o RESEND_API_KEY na Vercel para enviar e-mails'); return; }
+    var janela = canal === 'whatsapp' ? window.open('about:blank', '_blank') : null;   // abre ja no clique (bloqueador de pop-up)
+    api('carrinho_enviar', { email: c.email, desconto: ckDesc(), horas: ckHoras(), canal: canal }).then(function (r) {
+      var txt = preencher(CK_MSG, { nome: primeiro(c.nome) || 'tudo bem', plano: NOMES[c.plano] || c.plano, desconto: ckDesc(),
+        preco: brl(PRECO[c.plano] || c.valor), preco_desc: brl(r.valor_com_desconto), link: r.link, cupom: r.cupom, horas: r.horas }) + SAIR;
+      if (canal === 'whatsapp') { janela.location.href = 'https://wa.me/' + foneBR(c.telefone) + '?text=' + encodeURIComponent(txt); toast('Cupom ' + r.cupom + ' criado'); }
+      else if (canal === 'email') toast('E-mail enviado com o cupom ' + r.cupom);
+      else copiar(txt, 'Mensagem com o cupom ' + r.cupom + ' copiada');
+      ckCarregar();
+    }).catch(function (e) { if (janela) janela.close(); toast(e.message); });
+  };
+  window.ckSair = function (i) {
+    var c = mk.ck.carrinhos[i];
+    if (!confirm(c.email + ' pediu para não receber mais mensagens?')) return;
+    api('optout', { email: c.email }).then(function () { toast('Removido das listas'); ckCarregar(); }).catch(function (e) { toast(e.message); });
   };
 })();

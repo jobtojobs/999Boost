@@ -198,6 +198,7 @@
   <section id="t-marketing" class="hide">
     <div class="subtabs" id="mkSubs">
       <button class="on" data-s="analytics" onclick="mkSub('analytics')">📊 Analytics</button>
+      <button data-s="carrinhos" onclick="mkSub('carrinhos')">🛒 Carrinhos</button>
       <button data-s="remarketing" onclick="mkSub('remarketing')">🔁 Remarketing</button>
       <button data-s="influ" onclick="mkSub('influ')">🎥 Influenciadores</button>
     </div>
@@ -213,6 +214,19 @@
         </div>
       </div>
       <div id="mkAnaBody"></div>
+    </div>
+
+    <div id="mk-carrinhos" class="hide">
+      <div class="row" style="justify-content:space-between;">
+        <div class="chips" id="ckDias">
+          <button data-d="3" onclick="ckDias(3)">3 dias</button><button data-d="7" onclick="ckDias(7)">7 dias</button><button data-d="30" onclick="ckDias(30)">30 dias</button>
+        </div>
+        <div class="row" style="margin:0;">
+          <label class="sub" style="display:flex;gap:6px;align-items:center;">Desconto <input id="ckDesc" type="number" min="1" max="50" style="width:64px;padding:6px 8px;" onchange="ckConfig()">%</label>
+          <label class="sub" style="display:flex;gap:6px;align-items:center;">Validade <select id="ckHoras" style="padding:6px 8px;" onchange="ckConfig()"><option value="24">24h</option><option value="48">48h</option><option value="72">72h</option></select></label>
+        </div>
+      </div>
+      <div id="ckBody"></div>
     </div>
 
     <div id="mk-remarketing" class="hide">

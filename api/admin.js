@@ -40,6 +40,47 @@ function gerarCodigo() {
 
 const enc = encodeURIComponent;
 
+// ---------- Recuperacao de carrinho ----------
+const SITE = 'https://www.999boost.com.br';
+const PRECOS = { basic: 19.90, streamer: 29.90, turbo: 49.90, vitalicio: 99.90, ebook: 27.00 };
+const NOMES_PLANO = { basic: 'Basic Gamer', streamer: 'Low Streamer', turbo: 'Turbo Pro Player', vitalicio: 'Vitalicio', ebook: 'Guia de BIOS e Jogos' };
+const escH = t => String(t || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function codigoVolta() {
+  const alfa = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const b = crypto.randomBytes(5);
+  let s = 'VOLTA-';
+  for (let i = 0; i < 5; i++) s += alfa[b[i] % alfa.length];
+  return s;
+}
+function linkRecuperacao(c) {
+  const q = new URLSearchParams({ plano: c.plano === 'ebook' ? 'ebook' : c.plano, cupom: c.cupom, email: c.email });
+  if (c.nome) q.set('nome', c.nome);
+  if (c.telefone) q.set('tel', c.telefone);
+  return `${SITE}/contratar.html?${q.toString()}`;
+}
+async function emailRecuperacao(c) {
+  if (!process.env.RESEND_API_KEY) throw new Error('E-mail automatico desligado: configure o RESEND_API_KEY na Vercel');
+  const primeiro = String(c.nome || '').split(' ')[0];
+  const html = `
+  <div style="font-family:Segoe UI,Arial,sans-serif;background:#0a0a0c;color:#fff;padding:28px;">
+    <h2 style="color:#ff7a1a;margin:0 0 8px 0;">Seu PC ainda pode ficar mais rapido</h2>
+    <p style="color:#ccc;">Oi${primeiro ? ' ' + escH(primeiro) : ''}! Voce comecou a contratar o <b>${escH(NOMES_PLANO[c.plano] || c.plano)}</b> no 999BOOST, mas o PIX nao foi concluido.</p>
+    <p style="color:#ccc;">Separamos <b style="color:#fff;">${c.desconto}% de desconto</b> so para voce finalizar. Valido por ${c.horas} horas.</p>
+    <div style="background:#141213;border:1px dashed #ff7a1a;border-radius:10px;padding:14px;margin:18px 0;text-align:center;">
+      <div style="color:#a8a8a8;font-size:13px;">Seu cupom</div>
+      <div style="font-size:24px;font-weight:bold;color:#ff7a1a;letter-spacing:2px;">${escH(c.cupom)}</div>
+    </div>
+    <p><a href="${linkRecuperacao(c)}" style="background:#ff7a1a;color:#000;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold;">Finalizar com desconto</a></p>
+    <p style="color:#888;font-size:12px;">O cupom ja vem aplicado no link. Otimizacao em menos de 1 minuto, sem compartilhar tela.<br>Nao quer receber mais mensagens? Responda este e-mail com SAIR.</p>
+  </div>`;
+  const r = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from: process.env.EMAIL_FROM || '999BOOST <licenca@999boost.com.br>', reply_to: process.env.EMAIL_SUPORTE || 'suporte999boost@gmail.com', to: [c.email], subject: `${c.desconto}% de desconto para finalizar seu 999BOOST`, html })
+  });
+  if (!r.ok) throw new Error('Falha no envio do e-mail (' + r.status + ')');
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ erro: 'Metodo nao permitido' });
   if (!SB_URL || !SB_KEY || !SENHA) return res.status(500).json({ erro: 'Admin desligado: configure ADMIN_SENHA na Vercel' });
@@ -463,6 +504,73 @@ export default async function handler(req, res) {
         }
         await sb(`prospects?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify({ status: 'parceiro', email, cupom, atualizado_em: agora.toISOString() }) });
         return res.json({ ok: true, email, codigo, cupom, renovada });
+      }
+
+      // ---------- Recuperacao de carrinho ----------
+      case 'carrinhos': {
+        const dias = Math.min(Math.max(parseInt(b.dias, 10) || 7, 1), 60);
+        const desde = new Date(agora.getTime() - dias * 86400000).toISOString();
+        const ped = await sb(`pedidos?criado_em=gte.${enc(desde)}&select=id,email,nome,telefone,plano,valor,status,cupom,criado_em,pago_em&order=criado_em.desc&limit=5000`);
+        const tent = await sb(`recuperacao_carrinho?enviado_em=gte.${enc(new Date(agora.getTime() - (dias + 7) * 86400000).toISOString())}&select=*&order=enviado_em.desc&limit=5000`);
+        const opt = new Set((await sb('marketing_optout?select=email')).map(o => o.email));
+        const pagos = ped.filter(p => p.status === 'pago');
+        const vistos = new Set();
+        const lista = [];
+        for (const p of ped) {
+          if (!['pendente', 'expirado'].includes(p.status) || vistos.has(p.email)) continue;
+          vistos.add(p.email);
+          const t = tent.filter(x => x.email === p.email);
+          const ult = t[0] || null;
+          const pagoDepois = pagos.find(q => q.email === p.email && new Date(q.criado_em) >= new Date(p.criado_em));
+          const recuperado = !!(pagoDepois && t.some(x => new Date(pagoDepois.criado_em) >= new Date(x.enviado_em)));
+          if (pagoDepois && !recuperado) continue;   // comprou sozinho depois: nao e carrinho abandonado
+          lista.push({ email: p.email, nome: p.nome, telefone: p.telefone, plano: p.plano, valor: Number(p.valor), criado_em: p.criado_em,
+            tentativas: t.length, ultima: ult ? { cupom: ult.cupom, desconto: ult.desconto, canal: ult.canal, enviado_em: ult.enviado_em, validade: ult.validade } : null,
+            recuperado, valor_pago: recuperado ? Number(pagoDepois.valor) : 0, pago_em: recuperado ? pagoDepois.pago_em : null, optout: opt.has(p.email) });
+        }
+        const abertos = lista.filter(c => !c.recuperado);
+        const rec = lista.filter(c => c.recuperado);
+        return res.json({
+          dias, carrinhos: lista, resend: !!process.env.RESEND_API_KEY,
+          resumo: {
+            abandonados: lista.length, contatados: lista.filter(c => c.tentativas > 0).length, recuperados: rec.length,
+            valor_recuperado: Math.round(rec.reduce((t, c) => t + c.valor_pago, 0) * 100) / 100,
+            em_aberto: Math.round(abertos.reduce((t, c) => t + c.valor, 0) * 100) / 100
+          }
+        });
+      }
+
+      case 'carrinho_enviar': {
+        // Gera um cupom pessoal (uso unico, so para este e-mail, com validade) e registra a tentativa.
+        const email = String(b.email || '').trim().toLowerCase();
+        const desconto = parseInt(b.desconto, 10);
+        const horas = Math.min(Math.max(parseInt(b.horas, 10) || 48, 1), 720);
+        const canal = ['whatsapp', 'email', 'copiar'].includes(b.canal) ? b.canal : 'copiar';
+        if (!email.includes('@')) return res.status(400).json({ erro: 'E-mail invalido' });
+        if (!(desconto > 0 && desconto <= 50)) return res.status(400).json({ erro: 'Desconto deve ser de 1 a 50%' });
+        if (canal === 'email' && !process.env.RESEND_API_KEY) return res.status(400).json({ erro: 'E-mail automatico desligado: configure o RESEND_API_KEY na Vercel' });
+        const optado = await sb(`marketing_optout?email=eq.${enc(email)}&select=email`);
+        if (optado.length) return res.status(400).json({ erro: 'Este cliente pediu para nao receber mensagens' });
+        const ped = (await sb(`pedidos?email=eq.${enc(email)}&status=in.(pendente,expirado)&select=nome,telefone,plano,valor&order=criado_em.desc&limit=1`))[0];
+        if (!ped) return res.status(404).json({ erro: 'Carrinho nao encontrado' });
+        // Reaproveita o cupom pessoal ainda valido (mesmo desconto) para nao gerar varios
+        const ant = (await sb(`recuperacao_carrinho?email=eq.${enc(email)}&desconto=eq.${desconto}&validade=gt.${enc(agora.toISOString())}&select=cupom,validade&order=enviado_em.desc&limit=1`))[0];
+        let cupom, validade;
+        if (ant) { cupom = ant.cupom; validade = ant.validade; }
+        else {
+          validade = new Date(agora.getTime() + horas * 3600000).toISOString();
+          for (let i = 0; i < 5 && !cupom; i++) {
+            const c = codigoVolta();
+            try {
+              await sb('cupons', { method: 'POST', body: JSON.stringify({ codigo: c, desconto, comissao: 0, limite_usos: 1, validade, email, ativo: true, observacao: 'Recuperacao de carrinho: ' + email }) });
+              cupom = c;
+            } catch (e) { if (!String(e.message).includes('409')) throw e; }
+          }
+        }
+        const c = { email, nome: ped.nome, telefone: ped.telefone, plano: ped.plano, cupom, desconto, horas: Math.max(1, Math.round((new Date(validade) - agora) / 3600000)) };
+        if (canal === 'email') await emailRecuperacao(c);
+        await sb('recuperacao_carrinho', { method: 'POST', body: JSON.stringify({ email, cupom, desconto, canal, validade, plano: ped.plano, valor: ped.valor }) });
+        return res.json({ ok: true, cupom, validade, horas: c.horas, link: linkRecuperacao(c), valor_com_desconto: Math.round((PRECOS[ped.plano] || Number(ped.valor)) * (100 - desconto)) / 100 });
       }
 
       default:
