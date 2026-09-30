@@ -153,6 +153,8 @@
       msg: 'Oi {nome}! Você já renovou o 999BOOST {vezes} vezes ({gasto}). Com o Vitalício você paga R$ 99,90 uma vez só, formata quando quiser, recebe as atualizações e ainda ganha o Guia de BIOS e Jogos: {link_vit}' },
     ebook: { ic: '📘', t: 'Compraram só o e-book', d: 'Ainda não têm o painel.',
       msg: 'Oi {nome}! Espero que o Guia de BIOS e Jogos esteja ajudando. O que o guia não faz, o painel faz: otimiza o Windows em menos de 1 minuto, sem compartilhar tela. Planos a partir de R$ 19,90: ' + SITE + '/planos.html' },
+    leads: { ic: '📥', t: 'Baixaram o e-book grátis', d: 'Ainda não compraram. Oferta com o cupom PCFRACO10.',
+      msg: 'Oi {nome}! Aqui é do 999BOOST. Conseguiu aplicar as dicas do e-book PC Fraco, Jogo Liso? O painel faz tudo aquilo e muito mais em menos de 1 minuto, sem compartilhar tela. Seu cupom PCFRACO10 ainda vale 10% em qualquer plano: ' + SITE + '/planos.html' },
     indicar: { ic: '🎁', t: 'Vitalícios: convidar a indicar', d: 'Ganham 20% em PIX por amigo.',
       msg: 'Oi {nome}! Sabia que, como cliente Vitalício do 999BOOST, você ganha 20% em PIX por cada amigo que comprar pelo seu link? Pega o seu aqui: ' + SITE + '/indique.html' }
   };
@@ -190,10 +192,10 @@
       '<textarea id="mkMsg" rows="3">' + esc(s.msg) + '</textarea>';
     if (!lista.length) h += '<div class="vazio sub">Ninguém neste grupo agora. 🎉</div>';
     else {
-      h += '<div class="scroll"><table class="tbl" style="margin-top:10px;"><tr><th>Cliente</th><th>Plano</th><th>' + (mk.seg === 'carrinho' ? 'Gerou PIX' : mk.seg === 'ebook' ? 'Comprou' : mk.seg === 'indicar' ? 'Cliente desde' : 'Vence / venceu') + '</th><th>Ações</th></tr>';
+      h += '<div class="scroll"><table class="tbl" style="margin-top:10px;"><tr><th>Cliente</th><th>Plano</th><th>' + (mk.seg === 'leads' ? 'Baixou em' : mk.seg === 'ebook' ? 'Comprou' : mk.seg === 'indicar' ? 'Cliente desde' : 'Vence / venceu') + '</th><th>Ações</th></tr>';
       lista.forEach(function (x, i) {
         h += '<tr><td>' + (esc(x.nome) || '<span class="sub">sem nome</span>') + '<div class="sub">' + esc(x.email) + (x.telefone ? ' · ' + esc(x.telefone) : '') + '</div></td>' +
-          '<td><span class="pl-' + x.plano + '">' + (NOMES[x.plano] || esc(x.plano)) + '</span>' + (x.vezes ? '<div class="sub">' + x.vezes + ' compras · ' + brl(x.gasto) + '</div>' : '') + '</td>' +
+          '<td><span class="pl-' + x.plano + '">' + (x.plano === 'lead' ? 'E-book grátis' : (NOMES[x.plano] || esc(x.plano))) + '</span>' + (x.vezes ? '<div class="sub">' + x.vezes + ' compras · ' + brl(x.gasto) + '</div>' : '') + '</td>' +
           '<td>' + dia(x.data) + '</td><td><div class="acts">' +
           (x.telefone ? '<button class="btn green" onclick="mkWhats(' + i + ')">WhatsApp</button>' : '') +
           '<button class="btn" onclick="mkEmail(' + i + ')">E-mail</button>' +
@@ -216,7 +218,7 @@
   function atual(i) { return itensSeg(mk.seg)[i]; }
   window.mkWhats = function (i) { var x = atual(i); window.open('https://wa.me/' + foneBR(x.telefone) + '?text=' + encodeURIComponent(msgPara(mk.seg, x) + SAIR), '_blank'); };
   window.mkEmail = function (i) {
-    var x = atual(i), assunto = { renovar: 'Seu plano 999BOOST vence em breve', vencidos: '10% para voltar ao 999BOOST', carrinho: 'Seu PIX do 999BOOST', upgrade: 'Conheça o Turbo Pro Player', vitalicio: 'Pare de renovar: 999BOOST Vitalício', ebook: 'O painel 999BOOST', indicar: 'Ganhe 20% por indicação' }[mk.seg];
+    var x = atual(i), assunto = { renovar: 'Seu plano 999BOOST vence em breve', vencidos: '10% para voltar ao 999BOOST', carrinho: 'Seu PIX do 999BOOST', upgrade: 'Conheça o Turbo Pro Player', vitalicio: 'Pare de renovar: 999BOOST Vitalício', ebook: 'O painel 999BOOST', indicar: 'Ganhe 20% por indicação', leads: 'Seu cupom de 10% no 999BOOST' }[mk.seg];
     location.href = 'mailto:' + x.email + '?subject=' + encodeURIComponent(assunto) + '&body=' + encodeURIComponent(msgPara(mk.seg, x) + SAIR);
   };
   window.mkCopiarMsg = function (i) { copiar(msgPara(mk.seg, atual(i)) + SAIR, 'Mensagem copiada'); };

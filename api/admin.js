@@ -412,6 +412,12 @@ export default async function handler(req, res) {
         seg.ebook = pagos.filter(p => p.plano === 'ebook' && !comLicenca.has(p.email)).filter(p => (vistosE.has(p.email) ? false : vistosE.add(p.email)))
           .map(p => pessoa(p.email, 'ebook', p.pago_em));
         seg.indicar = lic.filter(l => l.status === 'ativo' && l.plano === 'vitalicio').map(l => pessoa(l.email, 'vitalicio', l.criado_em));
+        // Baixaram o e-book gratis e ainda nao compraram nada
+        let leads = [];
+        try { leads = await sb('leads?aceite=eq.true&select=email,nome,telefone,material,criado_em&order=criado_em.desc&limit=5000'); } catch (e) { leads = []; }
+        const compraram = new Set(pagos.map(p => p.email));
+        seg.leads = leads.filter(l => !comLicenca.has(l.email) && !compraram.has(l.email))
+          .map(l => ({ email: l.email, nome: l.nome || '', telefone: l.telefone || '', plano: 'lead', data: l.criado_em }));
         for (const k of Object.keys(seg)) seg[k] = seg[k].filter(livre);
         const cupons = (await sb('cupons?select=codigo,ativo,desconto')).reduce((o, c) => (o[c.codigo] = c, o), {});
         return res.json({ segmentos: seg, optout: opt.size, cupons });

@@ -548,6 +548,40 @@ export default async function handler(req, res) {
       });
     }
 
+    // ---------- E-book gratis (captura de contato) ----------
+    if (acao === 'lead') {
+      const email = String(body.email || '').trim().toLowerCase();
+      const nome = String(body.nome || '').trim().slice(0, 80);
+      const telefone = String(body.telefone || '').replace(/[^\d()+ -]/g, '').slice(0, 30);
+      const material = /^[a-z0-9-]{2,30}$/.test(String(body.material || '')) ? body.material : 'pc-fraco';
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || email.length > 120) return res.status(400).json({ erro: 'Informe um e-mail valido' });
+      if (!nome) return res.status(400).json({ erro: 'Informe seu nome' });
+      const origem = String(body.origem || 'direto').toLowerCase().replace(/[^a-z0-9._:\/-]/g, '').slice(0, 60) || 'direto';
+      const lead = { email, nome, material, aceite: body.aceite === true };
+      if (telefone) lead.telefone = telefone;          // se baixar de novo sem telefone, nao apaga o que ja tinha
+      if (origem !== 'direto') lead.origem = origem;
+      await sb('leads', { method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify(lead) });
+      const url = `${SITE}/materiais/PC-Fraco-Jogo-Liso-999BOOST.pdf`;
+      if (process.env.RESEND_API_KEY) {
+        const html = `
+        <div style="font-family:Segoe UI,Arial,sans-serif;background:#0a0a0c;color:#fff;padding:28px;">
+          <h2 style="color:#ff7a1a;margin:0 0 6px 0;">PC Fraco, Jogo Liso</h2>
+          <p style="color:#ccc;">Oi ${esc(nome.split(' ')[0])}! Aqui esta o seu e-book gratis com os 7 passos para jogar bem em PC simples.</p>
+          <p><a href="${url}" style="background:#ff7a1a;color:#000;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold;">Baixar o e-book (PDF)</a></p>
+          <p style="color:#ccc;">Quer tudo isso aplicado em menos de 1 minuto? Use o cupom <b style="color:#ff7a1a;">PCFRACO10</b> e ganhe 10% no painel 999BOOST:
+          <a href="${SITE}/planos.html" style="color:#ff7a1a;">ver planos</a>.</p>
+          <p style="color:#888;font-size:12px;">Duvidas: suporte999boost@gmail.com ou WhatsApp (85) 99195-4902.<br>Nao quer receber mais mensagens? Responda este e-mail com SAIR.</p>
+        </div>`;
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ from: process.env.EMAIL_FROM || '999BOOST <licenca@999boost.com.br>', reply_to: process.env.EMAIL_SUPORTE || 'suporte999boost@gmail.com',
+            to: [email], subject: 'Seu e-book gratis: PC Fraco, Jogo Liso', html })
+        }).catch(() => {});
+      }
+      return res.status(200).json({ ok: true, url, enviado: !!process.env.RESEND_API_KEY });
+    }
+
     return res.status(400).json({ erro: 'Acao invalida' });
   } catch (e) {
     console.error(e);

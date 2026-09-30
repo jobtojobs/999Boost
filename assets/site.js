@@ -23,6 +23,12 @@
     if (h === atual) { a.classList.add('on'); a.setAttribute('aria-current', 'page'); }
   });
 
+  // Cupom na URL (ex.: /planos.html?cupom=PCFRACO10) segue junto para o checkout
+  var cupomUrl = (new URLSearchParams(location.search).get('cupom') || '').replace(/[^A-Za-z0-9_-]/g, '');
+  if (cupomUrl) document.querySelectorAll('a[href*="/contratar.html"]').forEach(function (a) {
+    a.href = a.getAttribute('href') + (a.getAttribute('href').indexOf('?') > -1 ? '&' : '?') + 'cupom=' + encodeURIComponent(cupomUrl);
+  });
+
   // Botao voltar: volta para a pagina anterior do site; se veio de fora, vai para o inicio
   document.querySelectorAll('[data-voltar]').forEach(function (b) {
     b.addEventListener('click', function (e) {
