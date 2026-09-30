@@ -556,6 +556,7 @@ export default async function handler(req, res) {
       const material = /^[a-z0-9-]{2,30}$/.test(String(body.material || '')) ? body.material : 'pc-fraco';
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || email.length > 120) return res.status(400).json({ erro: 'Informe um e-mail valido' });
       if (!nome) return res.status(400).json({ erro: 'Informe seu nome' });
+      if (telefone.replace(/\D/g, '').length < 10) return res.status(400).json({ erro: 'Informe seu WhatsApp com DDD' });
       const origem = String(body.origem || 'direto').toLowerCase().replace(/[^a-z0-9._:\/-]/g, '').slice(0, 60) || 'direto';
       const lead = { email, nome, material, aceite: body.aceite === true };
       if (telefone) lead.telefone = telefone;          // se baixar de novo sem telefone, nao apaga o que ja tinha

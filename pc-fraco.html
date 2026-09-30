@@ -65,7 +65,7 @@
           <div class="lp-campos">
             <input id="lpNome" type="text" placeholder="Seu nome" autocomplete="name" required>
             <input id="lpEmail" type="email" placeholder="Seu melhor e-mail" autocomplete="email" required>
-            <input id="lpFone" type="tel" placeholder="WhatsApp (opcional)" autocomplete="tel" inputmode="numeric">
+            <input id="lpFone" type="tel" placeholder="WhatsApp com DDD" autocomplete="tel" inputmode="numeric" required>
           </div>
           <label class="lp-aceite"><input type="checkbox" id="lpAceite" required><span>Quero receber o e-book e dicas e ofertas do 999BOOST por e-mail e WhatsApp. Posso sair quando quiser (<a href="/privacidade.html" target="_blank">Privacidade</a>).</span></label>
           <button class="btn btn-primary" id="lpBtn" type="submit" data-t="ebook_enviar">Baixar grátis agora</button>
@@ -119,9 +119,16 @@
   </div>
 </footer>
 <script>
+document.getElementById('lpFone').addEventListener('input', function(){
+  var d = this.value.replace(/\D/g, '').slice(0, 11), o = d;
+  if (d.length > 2) o = '(' + d.slice(0,2) + ') ' + d.slice(2);
+  if (d.length > 7) o = '(' + d.slice(0,2) + ') ' + d.slice(2, d.length - 4) + '-' + d.slice(-4);
+  this.value = o;
+});
 function pegarEbook(e){
   e.preventDefault();
   var b = document.getElementById('lpBtn'), m = document.getElementById('lpMsg');
+  if (document.getElementById('lpFone').value.replace(/\D/g, '').length < 10){ m.textContent = 'Informe seu WhatsApp com DDD.'; document.getElementById('lpFone').focus(); return false; }
   b.disabled = true; b.textContent = 'Enviando...'; m.textContent = '';
   fetch('/api/checkout', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'lead', material:'pc-fraco',
     nome: document.getElementById('lpNome').value, email: document.getElementById('lpEmail').value, telefone: document.getElementById('lpFone').value,
